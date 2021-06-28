@@ -1,0 +1,25 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+web3 = "*"
+pymongo = {extras = ["srv"], version = "*"}
+python-dotenv = "*"
+werkzeug = "*"
+requests = "*"
+hexbytes = "*"
+ethereum = "*"
+pre-commit = "*"
+mongoengine = "*"
+jsonpickle = "*"
+
+[dev-packages]
+black = "==19.3b0"
+coverage = "*"
+pytest = "*"
+mongomock = "*"
+
+[requires]
+python_version = "3.8"

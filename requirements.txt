@@ -1,0 +1,9 @@
+pymongo==3.11.4
+mongoengine==0.23.1
+ethereum==2.3.2
+requests==2.25.1
+pytest==6.2.4
+web3==5.20.1
+jsonpickle==2.0.0
+hexbytes==0.2.1
+mongomock==3.23.0
