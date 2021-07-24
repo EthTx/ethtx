@@ -61,6 +61,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
                 status,
                 delegations,
                 token_proxies,
+                chain_id
             )
 
         calls_tree = self._prune_delegates(calls_tree)
@@ -79,6 +80,9 @@ class ABICallsDecoder(ABISubmoduleAbc):
         chain_id: str = None,
     ) -> DecodedCall:
         """Decode single call."""
+
+        chain_id = chain_id or self._default_chain
+
         if call.call_data:
             function_signature = call.call_data[:10]
         else:
@@ -159,6 +163,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
         status,
         delegations,
         token_proxies,
+        chain_id
     ) -> DecodedCall:
         """Decode nested calls. Call may have sub_calls, if they exist, it will recursively process them."""
         for i, sub_call in enumerate(sub_calls):
@@ -175,6 +180,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
                 status,
                 delegations,
                 token_proxies,
+                chain_id
             )
             call.subcalls.append(decoded)
 
@@ -187,6 +193,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
                     status,
                     delegations,
                     token_proxies,
+                    chain_id
                 )
 
         return call

@@ -74,14 +74,16 @@ class ABIDecoder(IABIDecoder):
         transaction: TransactionMetadata,
         delegations: Optional[Dict[str, set]] = None,
         token_proxies: Optional[Dict[str, dict]] = None,
+        chain_id: Optional[str] = None,
     ) -> Optional[DecodedCall]:
         return ABICallsDecoder(
-            repository=self._repository, chain_id=self._default_chain
+            repository=self._repository, chain_id=chain_id or self._default_chain
         ).decode(
             call=root_call,
             transaction=transaction,
             delegations=delegations,
             token_proxies=token_proxies,
+            chain_id=chain_id or self._default_chain
         )
 
     def decode_call(
@@ -106,14 +108,16 @@ class ABIDecoder(IABIDecoder):
         transaction: TransactionMetadata,
         delegations: Optional[Dict[str, set]] = None,
         token_proxies: Optional[Dict[str, dict]] = None,
+        chain_id: Optional[str] = None,
     ) -> List[DecodedEvent]:
         return ABIEventsDecoder(
-            repository=self._repository, chain_id=self._default_chain
+            repository=self._repository, chain_id=chain_id or self._default_chain
         ).decode(
             events=events,
             transaction=transaction,
             delegations=delegations or {},
             token_proxies=token_proxies or {},
+            chain_id=chain_id or self._default_chain
         )
 
     def decode_event(
@@ -122,14 +126,16 @@ class ABIDecoder(IABIDecoder):
         transaction: TransactionMetadata,
         delegations: Optional[Dict[str, set]] = None,
         token_proxies: Optional[Dict[str, dict]] = None,
+        chain_id: Optional[str] = None,
     ) -> DecodedEvent:
         return ABIEventsDecoder(
-            repository=self._repository, chain_id=self._default_chain
+            repository=self._repository, chain_id=chain_id or self._default_chain
         ).decode(
             events=events,
             transaction=transaction,
             delegations=delegations or {},
             token_proxies=token_proxies or {},
+            chain_id=chain_id or self._default_chain
         )
 
     def decode_transfers(
@@ -137,10 +143,15 @@ class ABIDecoder(IABIDecoder):
         call: DecodedCall,
         events: List[DecodedEvent],
         token_proxies: Optional[Dict[str, dict]] = None,
+        chain_id: Optional[str] = None,
     ):
         return ABITransfersDecoder(
-            repository=self._repository, chain_id=self._default_chain
-        ).decode(call=call, events=events, token_proxies=token_proxies or {})
+            repository=self._repository, chain_id=chain_id or self._default_chain
+        ).decode(
+            call=call,
+            events=events,
+            token_proxies=token_proxies or {},
+        )
 
     def decode_balances(self, transfers: List[DecodedTransfer]):
         return ABIBalancesDecoder(
@@ -169,7 +180,11 @@ class ABIDecoder(IABIDecoder):
 
         try:
             full_decoded_transaction.calls = self.decode_calls(
-                transaction.root_call, transaction.metadata, delegations, token_proxies
+                transaction.root_call,
+                transaction.metadata,
+                delegations,
+                token_proxies,
+                chain_id
             )
         except Exception as e:
             log.warning(
@@ -182,7 +197,11 @@ class ABIDecoder(IABIDecoder):
 
         try:
             full_decoded_transaction.events = self.decode_events(
-                transaction.events, transaction.metadata, delegations, token_proxies
+                transaction.events,
+                transaction.metadata,
+                delegations,
+                token_proxies,
+                chain_id
             )
         except Exception as e:
             log.warning(
@@ -198,6 +217,7 @@ class ABIDecoder(IABIDecoder):
                 full_decoded_transaction.calls,
                 full_decoded_transaction.events,
                 token_proxies,
+                chain_id
             )
         except Exception as e:
             log.warning(
