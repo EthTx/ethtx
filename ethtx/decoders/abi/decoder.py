@@ -179,23 +179,6 @@ class ABIDecoder(IABIDecoder):
         self._repository.record()
 
         try:
-            full_decoded_transaction.calls = self.decode_calls(
-                transaction.root_call,
-                transaction.metadata,
-                delegations,
-                token_proxies,
-                chain_id
-            )
-        except Exception as e:
-            log.warning(
-                "ABI decoding of calls tree for %s / %s failed.",
-                transaction.metadata.tx_hash,
-                chain_id,
-            )
-            log.warning(e)
-            return full_decoded_transaction
-
-        try:
             full_decoded_transaction.events = self.decode_events(
                 transaction.events,
                 transaction.metadata,
@@ -206,6 +189,23 @@ class ABIDecoder(IABIDecoder):
         except Exception as e:
             log.warning(
                 "ABI decoding of events for %s / %s failed.",
+                transaction.metadata.tx_hash,
+                chain_id,
+            )
+            log.warning(e)
+            return full_decoded_transaction
+
+        try:
+            full_decoded_transaction.calls = self.decode_calls(
+                transaction.root_call,
+                transaction.metadata,
+                delegations,
+                token_proxies,
+                chain_id
+            )
+        except Exception as e:
+            log.warning(
+                "ABI decoding of calls tree for %s / %s failed.",
                 transaction.metadata.tx_hash,
                 chain_id,
             )

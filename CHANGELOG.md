@@ -7,3 +7,5 @@ Caching optimization.
 ## 0.1.3
 ABI and semantic decoding fixes.
 Semantics repository reading fixes.
+## 0.1.4
+Token proxies handling fixes.

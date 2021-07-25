@@ -241,7 +241,6 @@ class Web3Provider(NodeDataProvider):
         return code_hash
 
     # get the erc20 token data from the node
-    @lru_cache(maxsize=512)
     def get_erc20_token(
         self,
         token_address: str,
