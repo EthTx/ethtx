@@ -1,5 +1,5 @@
 <h1 align='center' style='border-bottom: none'>
-  <p>EthTx -Ethereum transactions decode </p>
+  <p>EthTx - Ethereum transactions decoder </p>
 </h1>
 
 <p align="center">
@@ -13,7 +13,7 @@
     <img src="https://badgen.net/badge/Open%20Source%20%3F/Yes%21/blue?icon=github" alt="OpenSource">
 </a>
 <a target="_blank">
-    <img src="https://img.shields.io/github/license/Naereen/StrapDown.js.svg" alt="Mit">
+    <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="Apache">
 </a>
 </p>
 
