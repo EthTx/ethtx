@@ -1,4 +1,22 @@
-EthTx is the Ethereum transactions decoder.
+<h1 align='center' style='border-bottom: none'>
+  <p>EthTx -Ethereum transactions decode </p>
+</h1>
+
+<p align="center">
+<a target="_blank">
+    <img src="https://img.shields.io/badge/Made%20with-Python-1f425f.svg" alt="Python">
+</a>
+<a target="_blank">
+    <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Black">
+</a>
+<a target="_blank">
+    <img src="https://badgen.net/badge/Open%20Source%20%3F/Yes%21/blue?icon=github" alt="OpenSource">
+</a>
+<a target="_blank">
+    <img src="https://img.shields.io/github/license/Naereen/StrapDown.js.svg" alt="Mit">
+</a>
+</p>
+
 ## Installation
 `pip install ethtx
 `
