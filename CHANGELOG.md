@@ -30,7 +30,7 @@ All notable changes to this project will be documented in this file.
 - README content fix.
 
 
-### 0.1.0 - 2021-10-21
+## 0.1.0 - 2021-10-21
 ### Added
 - Initial release.
 
