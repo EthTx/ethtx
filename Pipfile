@@ -20,6 +20,7 @@ black = "==19.3b0"
 coverage = "*"
 pytest = "*"
 mongomock = "*"
+twine = "*"
 
 [requires]
 python_version = "3.8"
