@@ -88,7 +88,7 @@ class W3Transaction:
         block_number = self.blockNumber
         tx_index = self.transactionIndex
         from_address = self.from_address.lower()
-        to_address = self.to.lower() if self.to else None
+        to_address = self.to.lower() if self.to else w3receipt.contractAddress.lower() if w3receipt.contractAddress else None
         tx_value = self.value
         gas_limit = self.gas
         gas_price = self.gasPrice

@@ -54,6 +54,7 @@ class SemanticsRepository:
         return tmp_records
 
     def _read_stored_semantics(self, address: str, chain_id: str):
+
         def decode_parameter(_parameter):
             components_semantics = []
             for component in _parameter["components"]:
@@ -68,6 +69,9 @@ class SemanticsRepository:
             )
 
             return decoded_parameter
+
+        if not address:
+            return None
 
         ZERO_HASH = "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
 
@@ -161,6 +165,9 @@ class SemanticsRepository:
     @lru_cache(maxsize=128)
     def get_semantics(self, chain_id: str, address: str) -> Optional[AddressSemantics]:
 
+        if not address:
+            return None
+
         ZERO_HASH = "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
 
         address_semantics = self._read_stored_semantics(address, chain_id)
@@ -250,6 +257,9 @@ class SemanticsRepository:
         standard = None
         standard_semantics = None
 
+        if not address:
+            return standard, standard_semantics
+
         if all(erc20_event in events for erc20_event in ERC20_EVENTS) and all(
             erc20_function in functions for erc20_function in ERC20_FUNCTIONS
         ):
@@ -272,6 +282,10 @@ class SemanticsRepository:
 
     @lru_cache(maxsize=128)
     def get_event_abi(self, chain_id, address, signature):
+
+        if not address:
+            return None
+
         semantics = self.get_semantics(chain_id, address)
         event_semantics = (
             semantics.contract.events.get(signature) if semantics else None
@@ -281,6 +295,10 @@ class SemanticsRepository:
 
     @lru_cache(maxsize=128)
     def get_transformations(self, chain_id, address, signature):
+
+        if not address:
+            return None
+
         semantics = self.get_semantics(chain_id, address)
         if semantics:
             transformations = semantics.contract.transformations.get(signature)
@@ -291,6 +309,10 @@ class SemanticsRepository:
 
     @lru_cache(maxsize=128)
     def get_anonymous_event_abi(self, chain_id, address):
+
+        if not address:
+            return None
+
         semantics = self.get_semantics(chain_id, address)
         event_semantics = None
         if semantics:
@@ -307,6 +329,10 @@ class SemanticsRepository:
 
     @lru_cache(maxsize=128)
     def get_function_abi(self, chain_id, address, signature):
+
+        if not address:
+            return None
+
         semantics = self.get_semantics(chain_id, address)
         function_semantics = (
             semantics.contract.functions.get(signature) if semantics else None
@@ -316,6 +342,9 @@ class SemanticsRepository:
 
     @lru_cache(maxsize=128)
     def get_constructor_abi(self, chain_id, address):
+
+        if not address:
+            return None
 
         semantics = self.get_semantics(chain_id, address)
         constructor_semantics = (
@@ -329,6 +358,10 @@ class SemanticsRepository:
         return constructor_semantics
 
     def get_address_label(self, chain_id, address, token_proxies=None):
+
+        if not address:
+            return ''
+
         semantics = self.get_semantics(chain_id, address)
         if semantics.erc20:
             contract_label = semantics.erc20.symbol
@@ -341,6 +374,10 @@ class SemanticsRepository:
 
     @lru_cache(maxsize=128)
     def check_is_contract(self, chain_id, address):
+
+        if not address:
+            return False
+
         semantics = self.get_semantics(chain_id, address)
         is_contract = semantics is not None and semantics.is_contract
 
@@ -348,12 +385,19 @@ class SemanticsRepository:
 
     @lru_cache(maxsize=128)
     def get_standard(self, chain_id, address):
+
+        if not address:
+            return None
+
         semantics = self.get_semantics(chain_id, address)
         standard = semantics.standard if semantics is not None else None
 
         return standard
 
     def get_token_data(self, chain_id, address, token_proxies=None):
+
+        if not address:
+            return None, None, None
 
         semantics = self.get_semantics(chain_id, address)
         if semantics and semantics.erc20:
