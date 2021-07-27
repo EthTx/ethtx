@@ -34,7 +34,7 @@ REQUIRED_TEST = []
 
 about = {}
 about["__version__"] = subprocess.check_output(
-    ["git", "describe", "--abbrev=0"]
+    ["git", "describe", "--tags"]
 ).strip()
 
 try:

@@ -53,4 +53,4 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |
           make build
-          pipenv run python3 twine upload dist/*
+          pipenv run python3 -m twine upload dist/*
