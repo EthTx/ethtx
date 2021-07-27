@@ -28,14 +28,12 @@ URL = "https://github.com/EthTx/ethtx"
 EMAIL = "tomek@tfi.team, karol@tfi.team, piotr.rudnik@tfi.team"
 AUTHOR = "Tomasz Mierzwa, Karol Chojnowski, Piotr Rudnik"
 REQUIRES_PYTHON = ">=3.6.0"
-VERSION = ""
 
 REQUIRED = []
 REQUIRED_TEST = []
 
 about = {}
-
-VERSION= subprocess.check_output(["git", "describe"]).strip()
+about["__version__"] = subprocess.check_output(["git", "describe", "--tags"]).strip()
 
 try:
     with io.open(os.path.join(root, "README.md"), encoding="utf-8") as f:
