@@ -18,6 +18,5 @@ build: clean
 
 clean:
 	rm -rf ./dist
-
-get_last_changelog_entry:
-	@pipenv run python3 utils/get_last_changelog_entry.py
+	rm -rf ./build
+	rm -rf ./EthTx.egg-info
