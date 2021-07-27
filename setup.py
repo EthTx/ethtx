@@ -33,7 +33,11 @@ REQUIRED = []
 REQUIRED_TEST = []
 
 about = {}
-about["__version__"] = subprocess.check_output(["git", "describe", "--tags"]).strip()
+about["__version__"] = subprocess.check_output(
+    ["git", "describe", "--abbrev=0"]
+).strip()
+print(about["__version__"])
+print(type(about["__version__"]))
 
 try:
     with io.open(os.path.join(root, "README.md"), encoding="utf-8") as f:
