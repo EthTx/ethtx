@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.1.6 - 2021-07-27
+### Fixed
+- Fixed semantic decoding for contract creation txs 
+
+
 ## 0.1.5 - 2021-10-26
 ### Added
 - Adding badges to README.
