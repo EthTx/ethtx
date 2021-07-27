@@ -12,8 +12,8 @@
 
 import io
 import os
-import sys
 import subprocess
+import sys
 from shutil import rmtree
 
 from setuptools import find_packages, setup, Command
@@ -25,15 +25,14 @@ root = os.path.abspath(os.path.dirname(__file__))
 NAME = "EthTx"
 DESCRIPTION = "EthTx transaction decoder."
 URL = "https://github.com/EthTx/ethtx"
-EMAIL = "tomek@tfi.team, karol@tfi.team, piotr.rudnik@tfi.team"
-AUTHOR = "Tomasz Mierzwa, Karol Chojnowski, Piotr Rudnik"
-REQUIRES_PYTHON = ">=3.6.0"
+EMAIL = "karol@tfi.team, tomek@tfi.team, piotr.rudnik@tfi.team"
+AUTHOR = "Karol Chojnowski, Tomasz Mierzwa, Piotr Rudnik"
+REQUIRES_PYTHON = ">=3.7.0"
 
 REQUIRED = []
 REQUIRED_TEST = []
 
-about = {}
-about["__version__"] = subprocess.check_output(["git", "describe", "--tags"]).strip()
+about = {"__version__": subprocess.check_output(["git", "describe", "--tags"]).strip()}
 
 try:
     with io.open(os.path.join(root, "README.md"), encoding="utf-8") as f:
@@ -104,7 +103,10 @@ setup(
     test_suite="tests",
     classifiers=[
         "Operating System :: POSIX :: Linux",
-        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
     ],
     # $ setup.py publish support.
     cmdclass={"upload": UploadCommand},
