@@ -52,7 +52,9 @@ transaction: DecodedTransaction = ethtx.decoders.decode_transaction('0x50051e0a6
 ## Features
 
 EthTx most important functions:
+
 1. raw node data access:
+
 ```python
 ethtx = EthTx.initialize(ethtx_config)
 web3provider = ethtx.providers.web3provider
@@ -65,7 +67,9 @@ w3block: W3Block = web3provider.get_block(w3transaction.blockNumber)
 w3receipt: W3Receipt = web3provider.get_receipt(w3transaction.hash.hex())
 w3calls: W3CallTree = web3provider.get_calls(w3transaction.hash.hex()
 ```
+
 2. ABI decoding:
+
 ```python
 from ethtx.models.objects_model import Transaction, Event, Call
 from ethtx.models.decoded_model import DecodedEvent, DecodedCall, DecodedTransfer, DecodedBalance
@@ -87,7 +91,9 @@ abi_decoded_event: DecodedEvent = ethtx.decoders.abi_decoder.decode_event(raw_ev
 raw_call: Call = transaction.root_call.subcalls[3].subcalls[2]
 abi_decoded_call: DecodedCall = ethtx.decoders.abi_decoder.decode_call(raw_call, transaction.metadata)
 ```
+
 3. Semantic decoding:
+
 ```python
 from ethtx.models.decoded_model import DecodedTransactionMetadata
 
