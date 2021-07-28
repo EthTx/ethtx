@@ -1,6 +1,6 @@
 include README.md
 include CHANGELOG.md
-include LICENSE.md
+include LICENSE
 include requirements.txt
 include requirements_test.txt
 include ethtx/providers/static/tracer.js

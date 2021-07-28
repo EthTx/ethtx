@@ -20,4 +20,4 @@ clean:
 	rm -rf ./dist
 
 get_last_changelog_entry:
-	@pipenv run python3 utils/get_last_changelog_entry.py
+	@pipenv run python3 scripts/get_last_changelog_entry.py
