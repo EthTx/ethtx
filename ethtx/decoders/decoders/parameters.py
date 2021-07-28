@@ -20,9 +20,13 @@ log = logging.getLogger(__name__)
 
 
 def decode_event_parameters(data, topics, abi, anonymous):
+
+    # making copy to avoid modifying of the original list
+    amended_topics = topics.copy()
+
     # for anonymous events shift the list of topics
     if anonymous:
-        topics.insert(0, None)
+        amended_topics.insert(0, None)
 
     parameters_abi = abi.parameters if abi else []
 
@@ -40,11 +44,11 @@ def decode_event_parameters(data, topics, abi, anonymous):
             parameter_name = parameter.parameter_name
             parameter_type = parameter.parameter_type
             # assumption that topic parameters can be only static
-            if len(topics) > i + 1:
+            if len(amended_topics) > i + 1:
                 raw_parameter = (
-                    topics[i + 1]
-                    if isinstance(topics[i + 1], str)
-                    else topics[i + 1].hex()
+                    amended_topics[i + 1]
+                    if isinstance(amended_topics[i + 1], str)
+                    else amended_topics[i + 1].hex()
                 )
                 if not parameter_type:
                     parameter_value = raw_parameter
@@ -70,13 +74,15 @@ def decode_event_parameters(data, topics, abi, anonymous):
 
     else:
 
-        for i, parameter in enumerate(topics[1:]):
-            if not topics[i + 1]:
+        for i, parameter in enumerate(amended_topics[1:]):
+            if not amended_topics[i + 1]:
                 break
             parameter_name = ""
             parameter_type = "unknown"
             parameter_value = (
-                topics[i + 1] if isinstance(topics[i + 1], str) else topics[i + 1].hex()
+                amended_topics[i + 1]
+                if isinstance(amended_topics[i + 1], str)
+                else amended_topics[i + 1].hex()
             )
 
             topic_parameters[i] = Argument(
