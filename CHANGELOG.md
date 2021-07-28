@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+
+## 0.1.6 - 2021-07-28
+### Fixed
+- Fixed anonymous events processing
+
+
 ## 0.1.5 - 2021-07-27
 ### Fixed
 - Fixed semantic decoding for contract creation txs
@@ -15,7 +21,7 @@ All notable changes to this project will be documented in this file.
 
 
 ## 0.1.3 - 2021-10-24
-### Fixed 
+### Fixed
 - ABI and semantic decoding fixes.
 - Semantics repository reading fixes.
 
