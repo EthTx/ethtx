@@ -13,6 +13,7 @@
 import io
 import os
 import sys
+import subprocess
 from shutil import rmtree
 
 from setuptools import find_packages, setup, Command
@@ -27,21 +28,14 @@ URL = "https://github.com/EthTx/ethtx"
 EMAIL = "tomek@tfi.team, karol@tfi.team, piotr.rudnik@tfi.team"
 AUTHOR = "Tomasz Mierzwa, Karol Chojnowski, Piotr Rudnik"
 REQUIRES_PYTHON = ">=3.6.0"
-VERSION = ""
 
 REQUIRED = []
 REQUIRED_TEST = []
 
 about = {}
-if not VERSION:
-    with open(os.path.join("ethtx", "_version.py")) as f:
-        for line in f:
-            if line.startswith("__version__"):
-                _, _, version = line.replace('"', "").split()
-                about["__version__"] = version
-                break
-else:
-    about["__version__"] = VERSION
+about["__version__"] = subprocess.check_output(
+    ["git", "describe", "--tags"], universal_newlines=True
+).strip()
 
 try:
     with io.open(os.path.join(root, "README.md"), encoding="utf-8") as f:
