@@ -104,7 +104,7 @@ proxies = ethtx.decoders.get_proxies(transaction.root_call)
 
 # semantically decode transaction components
 decoded_metadata: DecodedTransactionMetadata = ethtx.decoders.semantic_decoder.decode_metadata(block.metadata, transaction.metadata)
-decoded_events: List[DecodedEvent] = ethtx.decoders.semantic_decoder.decode_events(abi_decoded_events, decoded_metadata, token_proxies)
+decoded_events: List[DecodedEvent] = ethtx.decoders.semantic_decoder.decode_events(abi_decoded_events, decoded_metadata, proxies)
 decoded_calls: Call = ethtx.decoders.semantic_decoder.decode_calls(abi_decoded_calls, decoded_metadata, proxies)
 decoded_transfers: List[DecodedTransfer] = ethtx.decoders.semantic_decoder.decode_transfers(abi_decoded_transfers)
 decoded_balances: List[DecodedBalance] = ethtx.decoders.semantic_decoder.decode_balances(abi_decoded_balances)
