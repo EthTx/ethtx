@@ -105,11 +105,13 @@ def decode_event_parameters(data, topics, abi, anonymous):
         ni = nd = 0
         for i in range(len(parameters_abi)):
             if idx_parameters[i]:
-                event_parameters.append(topic_parameters[ni])
-                ni += 1
+                if len(topic_parameters) > ni:
+                    event_parameters.append(topic_parameters[ni])
+                    ni += 1
             else:
-                event_parameters.append(data_parameters[nd])
-                nd += 1
+                if len(data_parameters) > nd:
+                    event_parameters.append(data_parameters[nd])
+                    nd += 1
     else:
         for _, parameter in topic_parameters.items():
             event_parameters.append(parameter)
