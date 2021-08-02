@@ -74,12 +74,12 @@ class ISemanticDecoder(ABC):
 
     @abstractmethod
     def decode_transfers(
-        self, transfers: List[DecodedTransfer]
+        self, transfers: List[DecodedTransfer], tx_metadata: TransactionMetadata
     ) -> SemanticSubmoduleAbc.decode:
         ...
 
     @abstractmethod
     def decode_balances(
-        self, balances: List[DecodedBalance]
+        self, balances: List[DecodedBalance], tx_metadata: TransactionMetadata
     ) -> SemanticSubmoduleAbc.decode:
         ...
