@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.1.7 - 2021-07-30
+### Fixed
+- Delegate calls pruning fix
+
+
 ## 0.1.6 - 2021-07-28
 ### Fixed
 - Fixed anonymous events processing
