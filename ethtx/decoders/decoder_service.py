@@ -10,7 +10,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from typing import Dict
+from typing import Dict, List, Union
 
 from ..models.decoded_model import DecodedTransaction
 from ..models.objects_model import Block, Call
@@ -23,23 +23,34 @@ class DecoderService:
         self.web3provider = web3provider
         self.default_chain = default_chain
 
-    def get_delegations(self, call: Call) -> Dict[str, set]:
+    def get_delegations(
+            self,
+            calls: Union[Call, List[Call]]
+    ) -> Dict[str, set]:
+
         delegations = {}
 
-        if not call:
+        if not calls:
             return delegations
 
-        calls_queue = [call]
-        while calls_queue:
+        if isinstance(calls, list):
+            for call in calls:
+                if call.call_type == "delegatecall":
+                    if call.from_address not in delegations:
+                        delegations[call.from_address] = set()
+                    delegations[call.from_address].add(call.to_address)
+        else:
+            calls_queue = [calls]
 
-            call = calls_queue.pop()
-            for _, sub_call in enumerate(call.subcalls):
-                calls_queue.insert(0, sub_call)
+            while calls_queue:
+                call = calls_queue.pop()
+                for _, sub_call in enumerate(call.subcalls):
+                    calls_queue.insert(0, sub_call)
 
-            if call.call_type == "delegatecall":
-                if call.from_address not in delegations:
-                    delegations[call.from_address] = set()
-                delegations[call.from_address].add(call.to_address)
+                if call.call_type == "delegatecall":
+                    if call.from_address not in delegations:
+                        delegations[call.from_address] = set()
+                    delegations[call.from_address].add(call.to_address)
 
         return delegations
 
