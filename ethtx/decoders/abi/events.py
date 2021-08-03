@@ -13,7 +13,7 @@
 from typing import List, Dict, Union, Optional
 
 from ethtx.models.decoded_model import DecodedEvent
-from ethtx.models.objects_model import TransactionMetadata, Event
+from ethtx.models.objects_model import BlockMetadata, TransactionMetadata, Event
 from ethtx.semantics.standards.erc20 import ERC20_EVENTS
 from .abc import ABISubmoduleAbc
 from ..decoders.parameters import decode_event_parameters
@@ -25,6 +25,7 @@ class ABIEventsDecoder(ABISubmoduleAbc):
     def decode(
         self,
         events: Union[Event, List[Event]],
+        block: BlockMetadata,
         transaction: TransactionMetadata,
         delegations: Optional[Dict[str, set]] = None,
         token_proxies: Optional[Dict[str, dict]] = None,
@@ -35,7 +36,7 @@ class ABIEventsDecoder(ABISubmoduleAbc):
             return (
                 [
                     self.decode_event(
-                        event, transaction, delegations, token_proxies, chain_id
+                        event, block, transaction, delegations, token_proxies, chain_id
                     )
                     for event in events
                 ]
@@ -44,12 +45,13 @@ class ABIEventsDecoder(ABISubmoduleAbc):
             )
 
         return self.decode_event(
-            events, transaction, delegations, token_proxies, chain_id
+            events, block, transaction, delegations, token_proxies, chain_id
         )
 
     def decode_event(
         self,
         event: Event,
+        block: BlockMetadata,
         transaction: TransactionMetadata,
         delegations: Dict[str, set] = None,
         token_proxies: Dict[str, dict] = None,
@@ -103,9 +105,11 @@ class ABIEventsDecoder(ABISubmoduleAbc):
         return DecodedEvent(
             chain_id=chain_id,
             tx_hash=transaction.tx_hash,
+            timestamp=block.timestamp,
             contract_address=event.contract,
             contract_name=contract_name,
             index=event.log_index,
+            call_id=event.call_id,
             event_signature=event_signature,
             event_name=event_name,
             parameters=parameters,

@@ -31,6 +31,7 @@ class SemanticMetadataDecoder(SemanticSubmoduleAbc):
             chain_id=chain_id,
             tx_hash=tx_metadata.tx_hash,
             block_number=block_metadata.block_number,
+            block_hash=block_metadata.block_hash,
             timestamp=block_metadata.timestamp,
             gas_price=tx_metadata.gas_price / 10 ** 9,
             sender=AddressInfo(

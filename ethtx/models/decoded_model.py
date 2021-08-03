@@ -43,6 +43,7 @@ class DecodedTransactionMetadata(JsonObject):
     chain_id: str
     tx_hash: str
     block_number: int
+    block_hash: str
     timestamp: datetime
     gas_price: int
     sender: AddressInfo
@@ -59,6 +60,7 @@ class DecodedTransactionMetadata(JsonObject):
         chain_id: str,
         tx_hash: str,
         block_number: int,
+        block_hash: str,
         timestamp: datetime,
         gas_price: int,
         sender: AddressInfo,
@@ -73,6 +75,7 @@ class DecodedTransactionMetadata(JsonObject):
         self.chain_id = chain_id
         self.tx_hash = tx_hash
         self.block_number = block_number
+        self.block_hash = block_hash
         self.timestamp = timestamp
         self.gas_price = gas_price
         self.sender = sender
@@ -108,8 +111,10 @@ class Argument(JsonObject):
 class DecodedEvent(JsonObject):
     chain_id: str
     tx_hash: str
+    timestamp: datetime
     contract: AddressInfo
     index: int
+    call_id: str
     event_signature: str
     event_name: str
     parameters: List[Argument]
@@ -118,18 +123,22 @@ class DecodedEvent(JsonObject):
         self,
         chain_id: str,
         tx_hash: str,
+        timestamp: datetime,
         contract_address: str,
         contract_name: str,
         index: int,
+        call_id: str,
         event_signature: str,
         event_name: str,
         parameters: List[Argument],
     ):
         self.chain_id = chain_id
         self.tx_hash = tx_hash
+        self.timestamp = timestamp
         self.contract = AddressInfo(contract_address, contract_name)
         self.contract_name = contract_name
         self.index = index
+        self.call_id = call_id
         self.event_signature = event_signature
         self.event_name = event_name
         self.parameters = parameters
@@ -139,9 +148,11 @@ class DecodedEvent(JsonObject):
             return (
                 self.chain_id == other.chain_id
                 and self.tx_hash == other.tx_hash
+                and self.timestamp == other.timestamp
                 and self.contract == other.contract
                 and self.contract_name == other.contract_name
                 and self.index == other.index
+                and self.call_id == other.call_id
                 and self.event_signature == other.event_signature
                 and self.event_name == other.event_name
                 and self.parameters == other.parameters
@@ -151,6 +162,7 @@ class DecodedEvent(JsonObject):
 
 class DecodedCall(JsonObject):
     chain_id: str
+    timestamp: datetime
     tx_hash: str
     call_id: str
     call_type: str
@@ -170,6 +182,7 @@ class DecodedCall(JsonObject):
         self,
         chain_id: str,
         tx_hash: str,
+        timestamp: datetime,
         call_id: str,
         call_type: str,
         from_address: str,
@@ -189,6 +202,7 @@ class DecodedCall(JsonObject):
     ):
         self.chain_id = chain_id
         self.tx_hash = tx_hash
+        self.timestamp = timestamp
         self.call_id = call_id
         self.call_type = call_type
         self.from_address = AddressInfo(from_address, from_name)
@@ -210,6 +224,7 @@ class DecodedCall(JsonObject):
             return (
                 self.chain_id == other.chain_id
                 and self.tx_hash == other.tx_hash
+                and self.timestamp == other.timestamp
                 and self.call_type == other.call_type
                 and self.from_address == other.from_address
                 and self.to_address == other.to_address

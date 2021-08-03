@@ -13,7 +13,7 @@
 from typing import Optional, Dict
 
 from ethtx.models.decoded_model import DecodedCall
-from ethtx.models.objects_model import Call, TransactionMetadata
+from ethtx.models.objects_model import Call, TransactionMetadata, BlockMetadata
 from ethtx.utils.measurable import RecursionLimit
 from .abc import ABISubmoduleAbc
 from ..decoders.parameters import decode_function_parameters, decode_graffiti_parameters
@@ -27,6 +27,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
     def decode(
         self,
         call: Call,
+        block: BlockMetadata,
         transaction: TransactionMetadata,
         delegations: Optional[Dict[str, set]] = None,
         token_proxies: Optional[Dict[str, dict]] = None,
@@ -43,6 +44,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
 
         decoded_root_call = self.decode_call(
             call,
+            block,
             transaction,
             call_id,
             indent,
@@ -55,6 +57,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
         with RecursionLimit(RECURSION_LIMIT):
             calls_tree = self._decode_nested_calls(
                 decoded_root_call,
+                block,
                 transaction,
                 call.subcalls,
                 indent,
@@ -71,6 +74,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
     def decode_call(
         self,
         call: Call,
+        block: BlockMetadata,
         transaction: TransactionMetadata,
         call_id: str = "",
         indent: int = 0,
@@ -137,6 +141,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
         return DecodedCall(
             chain_id=chain_id,
             tx_hash=transaction.tx_hash,
+            timestamp=block.timestamp,
             call_id=call_id,
             call_type=call.call_type,
             from_address=call.from_address,
@@ -157,6 +162,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
     def _decode_nested_calls(
         self,
         call: DecodedCall,
+        block: BlockMetadata,
         transaction: TransactionMetadata,
         sub_calls,
         indent,
@@ -174,6 +180,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
             )
             decoded = self.decode_call(
                 sub_call,
+                block,
                 transaction,
                 sub_call_id,
                 indent + 1,
@@ -187,6 +194,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
             if sub_call.subcalls:
                 self._decode_nested_calls(
                     decoded,
+                    block,
                     transaction,
                     sub_call.subcalls,
                     indent + 1,
