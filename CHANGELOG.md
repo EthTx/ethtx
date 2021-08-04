@@ -1,6 +1,19 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.1.8 - 2021-08-04
+### Fixed
+- fixed badges for transfers and balances
+- fixed events parameters decoding
+
+### Changed
+- changed decoded models
+- changed delegations processing for proxy detection
+
+### Added
+- added precompiled contracts calls processing
+
+
 ## 0.1.7 - 2021-07-30
 ### Fixed
 - Delegate calls pruning fix
