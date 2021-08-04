@@ -205,7 +205,7 @@ class Web3Provider(NodeDataProvider):
             logs=_logs,
             logsBloom=raw_receipt.logsBloom,
             root=_root,
-            status=raw_receipt.status,
+            status=raw_receipt.get('status', True),
             to_address=raw_receipt.to,
             transactionHash=raw_receipt.transactionHash,
             transactionIndex=raw_receipt.transactionIndex,

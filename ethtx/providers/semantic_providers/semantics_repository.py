@@ -29,6 +29,7 @@ from ethtx.providers.web3_provider import Web3Provider
 from ethtx.semantics.protocols_router import amend_contract_semantics
 from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS, ERC20_EVENTS
 from ethtx.semantics.standards.erc721 import ERC721_FUNCTIONS, ERC721_EVENTS
+from ethtx.semantics.solidity.precompiles import precompiles
 
 
 class SemanticsRepository:
@@ -172,6 +173,7 @@ class SemanticsRepository:
 
         address_semantics = self._read_stored_semantics(address, chain_id)
         if not address_semantics:
+
             # try to read the semantics form the Etherscan provider
             provider = self._web3provider
             code_hash = provider.get_code_hash(address)
@@ -246,7 +248,7 @@ class SemanticsRepository:
                     chain_id, address, address, False, contract_semantics, None, None
                 )
 
-            self.update_semantics(address_semantics)
+        self.update_semantics(address_semantics)
 
         # amend semantics with locally stored updates
         amend_contract_semantics(address_semantics.contract)
@@ -362,13 +364,16 @@ class SemanticsRepository:
         if not address:
             return ''
 
-        semantics = self.get_semantics(chain_id, address)
-        if semantics.erc20:
-            contract_label = semantics.erc20.symbol
-        elif token_proxies and address in token_proxies:
-            contract_label = token_proxies[address][1] + "_proxy"
+        if int(address, 16) in precompiles:
+            contract_label = 'Precompiled'
         else:
-            contract_label = semantics.name if semantics and semantics.name else address
+            semantics = self.get_semantics(chain_id, address)
+            if semantics.erc20:
+                contract_label = semantics.erc20.symbol
+            elif token_proxies and address in token_proxies:
+                contract_label = token_proxies[address][1] + "_proxy"
+            else:
+                contract_label = semantics.name if semantics and semantics.name else address
 
         return contract_label
 
