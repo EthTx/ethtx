@@ -12,17 +12,28 @@
 
 from typing import List
 
-from ethtx.models.decoded_model import DecodedBalance
+from ethtx.models.decoded_model import DecodedBalance, DecodedTransactionMetadata
+from .helpers.utils import get_badge
 from .abc import SemanticSubmoduleAbc
 
 
 class SemanticBalancesDecoder(SemanticSubmoduleAbc):
     """Semantic Balances Decoder."""
 
-    def decode(self, balances: List[DecodedBalance]) -> List[DecodedBalance]:
+    def decode(
+        self, balances: List[DecodedBalance], tx_metadata: DecodedTransactionMetadata
+    ) -> List[DecodedBalance]:
         """Semantically decode balances."""
 
         for balance in balances:
+
+            # decode the proper holder badge
+            balance.holder.badge = get_badge(
+                balance.holder.address,
+                tx_metadata.sender.address,
+                tx_metadata.receiver.address,
+            )
+
             for token in balance.tokens:
                 token["balance"] = f"{token['balance']:,.4f}"
 

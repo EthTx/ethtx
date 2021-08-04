@@ -44,8 +44,12 @@ class SemanticDecoder(ISemanticDecoder):
         transaction.calls = self.decode_calls(
             transaction.calls, transaction.metadata, token_proxies
         )
-        transaction.transfers = self.decode_transfers(transaction.transfers)
-        transaction.balances = self.decode_balances(transaction.balances)
+        transaction.transfers = self.decode_transfers(
+            transaction.transfers, transaction.metadata
+        )
+        transaction.balances = self.decode_balances(
+            transaction.balances, transaction.metadata
+        )
 
         return transaction
 
@@ -99,13 +103,15 @@ class SemanticDecoder(ISemanticDecoder):
         )
 
     def decode_transfers(
-        self, transfers: List[DecodedTransfer]
+        self, transfers: List[DecodedTransfer], tx_metadata: DecodedTransactionMetadata
     ) -> List[DecodedTransfer]:
         return SemanticTransfersDecoder(repository=self.repository).decode(
-            transfers=transfers
+            transfers=transfers, tx_metadata=tx_metadata
         )
 
-    def decode_balances(self, balances: List[DecodedBalance]) -> List[DecodedBalance]:
+    def decode_balances(
+        self, balances: List[DecodedBalance], tx_metadata: DecodedTransactionMetadata
+    ) -> List[DecodedBalance]:
         return SemanticBalancesDecoder(repository=self.repository).decode(
-            balances=balances
+            balances=balances, tx_metadata=tx_metadata
         )

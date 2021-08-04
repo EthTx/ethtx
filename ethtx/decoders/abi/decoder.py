@@ -71,6 +71,7 @@ class ABIDecoder(IABIDecoder):
     def decode_calls(
         self,
         root_call: Call,
+        block: BlockMetadata,
         transaction: TransactionMetadata,
         delegations: Optional[Dict[str, set]] = None,
         token_proxies: Optional[Dict[str, dict]] = None,
@@ -80,6 +81,7 @@ class ABIDecoder(IABIDecoder):
             repository=self._repository, chain_id=chain_id or self._default_chain
         ).decode(
             call=root_call,
+            block=block,
             transaction=transaction,
             delegations=delegations,
             token_proxies=token_proxies,
@@ -89,6 +91,7 @@ class ABIDecoder(IABIDecoder):
     def decode_call(
         self,
         root_call: Call,
+        block: BlockMetadata,
         transaction: TransactionMetadata,
         delegations: Optional[Dict[str, set]] = None,
         token_proxies: Optional[Dict[str, dict]] = None,
@@ -97,6 +100,7 @@ class ABIDecoder(IABIDecoder):
             repository=self._repository, chain_id=self._default_chain
         ).decode(
             call=root_call,
+            block=block,
             transaction=transaction,
             delegations=delegations,
             token_proxies=token_proxies,
@@ -105,6 +109,7 @@ class ABIDecoder(IABIDecoder):
     def decode_events(
         self,
         events: [Event],
+        block: BlockMetadata,
         transaction: TransactionMetadata,
         delegations: Optional[Dict[str, set]] = None,
         token_proxies: Optional[Dict[str, dict]] = None,
@@ -114,6 +119,7 @@ class ABIDecoder(IABIDecoder):
             repository=self._repository, chain_id=chain_id or self._default_chain
         ).decode(
             events=events,
+            block=block,
             transaction=transaction,
             delegations=delegations or {},
             token_proxies=token_proxies or {},
@@ -123,6 +129,7 @@ class ABIDecoder(IABIDecoder):
     def decode_event(
         self,
         events: Event,
+        block: BlockMetadata,
         transaction: TransactionMetadata,
         delegations: Optional[Dict[str, set]] = None,
         token_proxies: Optional[Dict[str, dict]] = None,
@@ -132,6 +139,7 @@ class ABIDecoder(IABIDecoder):
             repository=self._repository, chain_id=chain_id or self._default_chain
         ).decode(
             events=events,
+            block=block,
             transaction=transaction,
             delegations=delegations or {},
             token_proxies=token_proxies or {},
@@ -181,6 +189,7 @@ class ABIDecoder(IABIDecoder):
         try:
             full_decoded_transaction.events = self.decode_events(
                 transaction.events,
+                block,
                 transaction.metadata,
                 delegations,
                 token_proxies,
@@ -198,6 +207,7 @@ class ABIDecoder(IABIDecoder):
         try:
             full_decoded_transaction.calls = self.decode_calls(
                 transaction.root_call,
+                block,
                 transaction.metadata,
                 delegations,
                 token_proxies,

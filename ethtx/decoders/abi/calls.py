@@ -13,8 +13,9 @@
 from typing import Optional, Dict
 
 from ethtx.models.decoded_model import DecodedCall
-from ethtx.models.objects_model import Call, TransactionMetadata
+from ethtx.models.objects_model import Call, TransactionMetadata, BlockMetadata
 from ethtx.utils.measurable import RecursionLimit
+from ethtx.semantics.solidity.precompiles import precompiles
 from .abc import ABISubmoduleAbc
 from ..decoders.parameters import decode_function_parameters, decode_graffiti_parameters
 
@@ -27,6 +28,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
     def decode(
         self,
         call: Call,
+        block: BlockMetadata,
         transaction: TransactionMetadata,
         delegations: Optional[Dict[str, set]] = None,
         token_proxies: Optional[Dict[str, dict]] = None,
@@ -43,6 +45,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
 
         decoded_root_call = self.decode_call(
             call,
+            block,
             transaction,
             call_id,
             indent,
@@ -55,6 +58,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
         with RecursionLimit(RECURSION_LIMIT):
             calls_tree = self._decode_nested_calls(
                 decoded_root_call,
+                block,
                 transaction,
                 call.subcalls,
                 indent,
@@ -71,6 +75,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
     def decode_call(
         self,
         call: Call,
+        block: BlockMetadata,
         transaction: TransactionMetadata,
         call_id: str = "",
         indent: int = 0,
@@ -101,9 +106,13 @@ class ABICallsDecoder(ABISubmoduleAbc):
             function_name = call.call_type
             function_input, function_output = [], []
         elif call.call_type == "create2":
+            # ToDo: parse constructor
+            # ToDo: force semantics reload
+
             # constructor_abi = self.repository.get_constructor_abi(call.chain_id, call.to_address)
             function_name = "new"
             function_input, function_output = [], []
+
         elif self._repository.check_is_contract(chain_id, call.to_address):
 
             function_abi = self._repository.get_function_abi(
@@ -129,6 +138,13 @@ class ABICallsDecoder(ABISubmoduleAbc):
             ):
                 error_description = function_output.pop()
                 call.error = f'Failed with "{error_description.value}"'
+        elif int(call.to_address, 16) in precompiles:
+            function_semantics = precompiles[int(call.to_address, 16)]
+            function_name = function_semantics.name
+            function_input, function_output = decode_function_parameters(
+                call.call_data, call.return_value, function_semantics, call.status,
+                strip_signature=False
+            )
         else:
             function_name = "fallback"
             function_input = decode_graffiti_parameters(call.call_data)
@@ -137,6 +153,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
         return DecodedCall(
             chain_id=chain_id,
             tx_hash=transaction.tx_hash,
+            timestamp=block.timestamp,
             call_id=call_id,
             call_type=call.call_type,
             from_address=call.from_address,
@@ -157,6 +174,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
     def _decode_nested_calls(
         self,
         call: DecodedCall,
+        block: BlockMetadata,
         transaction: TransactionMetadata,
         sub_calls,
         indent,
@@ -174,6 +192,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
             )
             decoded = self.decode_call(
                 sub_call,
+                block,
                 transaction,
                 sub_call_id,
                 indent + 1,
@@ -187,6 +206,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
             if sub_call.subcalls:
                 self._decode_nested_calls(
                     decoded,
+                    block,
                     transaction,
                     sub_call.subcalls,
                     indent + 1,
