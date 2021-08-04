@@ -15,6 +15,7 @@ from typing import Optional, Dict
 from ethtx.models.decoded_model import DecodedCall
 from ethtx.models.objects_model import Call, TransactionMetadata, BlockMetadata
 from ethtx.utils.measurable import RecursionLimit
+from ethtx.semantics.solidity.precompiles import precompiles
 from .abc import ABISubmoduleAbc
 from ..decoders.parameters import decode_function_parameters, decode_graffiti_parameters
 
@@ -105,9 +106,13 @@ class ABICallsDecoder(ABISubmoduleAbc):
             function_name = call.call_type
             function_input, function_output = [], []
         elif call.call_type == "create2":
+            # ToDo: parse constructor
+            # ToDo: force semantics reload
+
             # constructor_abi = self.repository.get_constructor_abi(call.chain_id, call.to_address)
             function_name = "new"
             function_input, function_output = [], []
+
         elif self._repository.check_is_contract(chain_id, call.to_address):
 
             function_abi = self._repository.get_function_abi(
@@ -133,6 +138,13 @@ class ABICallsDecoder(ABISubmoduleAbc):
             ):
                 error_description = function_output.pop()
                 call.error = f'Failed with "{error_description.value}"'
+        elif int(call.to_address, 16) in precompiles:
+            function_semantics = precompiles[int(call.to_address, 16)]
+            function_name = function_semantics.name
+            function_input, function_output = decode_function_parameters(
+                call.call_data, call.return_value, function_semantics, call.status,
+                strip_signature=False
+            )
         else:
             function_name = "fallback"
             function_input = decode_graffiti_parameters(call.call_data)

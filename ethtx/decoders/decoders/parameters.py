@@ -121,14 +121,23 @@ def decode_event_parameters(data, topics, abi, anonymous):
     return event_parameters
 
 
-def decode_function_parameters(input_data, output, abi, status=True):
+def decode_function_parameters(input_data, output, abi, status=True, strip_signature=True):
+
+    if strip_signature and len(input_data) >= 10:
+        stripped_input_data = input_data[10:]
+    else:
+        stripped_input_data = input_data[2:]
+
     if abi:
-        input_parameters, _ = decode_struct(input_data[10:], abi.inputs)
+        if len(abi.inputs) == 1 and abi.inputs[0].parameter_type == 'raw':
+            input_parameters = [dict(name=abi.inputs[0].parameter_name, type='bytes', value=input_data)]
+        else:
+            input_parameters, _ = decode_struct(stripped_input_data, abi.inputs)
         for i, parameter in enumerate(input_parameters):
             input_parameters[i] = Argument(**parameter)
-    elif input_data[10:]:
+    elif stripped_input_data:
         input_parameters = [
-            Argument(name="call_data", type="bytes", value="0x" + input_data[10:])
+            Argument(name="call_data", type="bytes", value="0x" + stripped_input_data)
         ]
     else:
         input_parameters = []
@@ -143,9 +152,12 @@ def decode_function_parameters(input_data, output, abi, status=True):
                 log.warning("Warning: missing output data...")
                 output_parameters = []
             else:
-                output_parameters, _ = decode_struct(output[2:], abi.outputs)
-                for i, parameter in enumerate(output_parameters):
-                    output_parameters[i] = Argument(**parameter)
+                if len(abi.outputs) == 1 and abi.outputs[0].parameter_type == 'raw':
+                    output_parameters = [dict(name=abi.outputs[0].parameter_name, type='bytes', value=output)]
+                else:
+                    output_parameters, _ = decode_struct(output[2:], abi.outputs)
+                    for i, parameter in enumerate(output_parameters):
+                        output_parameters[i] = Argument(**parameter)
         elif output != "0x":
             output_parameters = [
                 Argument(name="output_data", type="bytes", value=output)
