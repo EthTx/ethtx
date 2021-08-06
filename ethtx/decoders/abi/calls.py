@@ -138,7 +138,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
             ):
                 error_description = function_output.pop()
                 call.error = f'Failed with "{error_description.value}"'
-        elif int(call.to_address, 16) in precompiles:
+        elif call.to_address and int(call.to_address, 16) in precompiles:
             function_semantics = precompiles[int(call.to_address, 16)]
             function_name = function_semantics.name
             function_input, function_output = decode_function_parameters(
