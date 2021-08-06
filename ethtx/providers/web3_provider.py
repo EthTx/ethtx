@@ -409,8 +409,8 @@ class Web3Provider(NodeDataProvider):
         def prep_raw_dict(dct: [AttributeDict, Dict]):
             if not isinstance(dct, dict):
                 dct = dct.__dict__
-            dct["from_address"] = dct.pop("from")
-            dct["to_address"] = dct.pop("to")
+            dct["from_address"] = dct.pop("from", None)
+            dct["to_address"] = dct.pop("to", None)
             dct["input"] = dct.pop("input", "0x")
             dct["output"] = dct.pop("output", "0x")
             calls = dct.pop("calls", [])
