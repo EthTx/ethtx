@@ -21,6 +21,7 @@ import requests
 from ethtx.decoders.decoders.parameters import decode_function_parameters
 from ethtx.models.decoded_model import AddressInfo
 from ethtx.semantics.utilities.functions import add_utils_to_context
+from ethtx.models.semantics_model import FunctionSemantics
 
 log = logging.getLogger(__name__)
 
@@ -142,7 +143,9 @@ def decode_call(transaction, repository, contract_address, data):
             transaction.chain_id, contract_address, function_signature
         )
         function_name = function_abi.name if function_abi else function_signature
-        function_input, _ = decode_function_parameters(data, "0x", function_abi)
+        stripped_function_abi = FunctionSemantics(signature=function_abi.signature, name=function_abi.name,
+                                                  inputs=function_abi.inputs, outputs=[])
+        function_input, _ = decode_function_parameters(data, "0x", stripped_function_abi)
 
         # perform arguments transformations
         context = create_transformation_context(

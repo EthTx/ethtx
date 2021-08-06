@@ -130,11 +130,11 @@ def decode_function_parameters(input_data, output, abi, status=True, strip_signa
 
     if abi:
         if len(abi.inputs) == 1 and abi.inputs[0].parameter_type == 'raw':
-            input_parameters = [dict(name=abi.inputs[0].parameter_name, type='bytes', value=input_data)]
+            input_parameters = [Argument(name=abi.inputs[0].parameter_name, type='bytes', value=input_data)]
         else:
             input_parameters, _ = decode_struct(stripped_input_data, abi.inputs)
-        for i, parameter in enumerate(input_parameters):
-            input_parameters[i] = Argument(**parameter)
+            for i, parameter in enumerate(input_parameters):
+                input_parameters[i] = Argument(**parameter)
     elif stripped_input_data:
         input_parameters = [
             Argument(name="call_data", type="bytes", value="0x" + stripped_input_data)
@@ -148,16 +148,18 @@ def decode_function_parameters(input_data, output, abi, status=True, strip_signa
         output_parameters = [Argument(**error_parameters[0])]
     else:
         if abi:
-            if abi.outputs and output == "0x":
+            if abi.outputs and status and output == "0x":
                 log.warning("Warning: missing output data...")
                 output_parameters = []
-            else:
+            elif output != '0x':
                 if len(abi.outputs) == 1 and abi.outputs[0].parameter_type == 'raw':
-                    output_parameters = [dict(name=abi.outputs[0].parameter_name, type='bytes', value=output)]
+                    output_parameters = [Argument(name=abi.outputs[0].parameter_name, type='bytes', value=output)]
                 else:
                     output_parameters, _ = decode_struct(output[2:], abi.outputs)
                     for i, parameter in enumerate(output_parameters):
                         output_parameters[i] = Argument(**parameter)
+            else:
+                output_parameters = []
         elif output != "0x":
             output_parameters = [
                 Argument(name="output_data", type="bytes", value=output)
@@ -271,18 +273,18 @@ def decode_tuple(data, argument_abi, is_list):
 # helper function to decode dynamic arrays
 def decode_dynamic_array(data, array_type):
     count = int(data[:64], 16)
-    sub_bytes = data[64:]
+    sub_data = data[64:]
     decoded_argument = []
 
-    for _ in range(count):
+    for i in range(count):
         if array_type in ("bytes", "string"):
-            offset = int(sub_bytes[:64], 16) * 2
-            decoded = decode_dynamic_argument(sub_bytes[offset:], array_type)
+            offset = int(sub_data[64 * i: 64 * (i + 1)], 16) * 2
+            decoded = decode_dynamic_argument(sub_data[offset:], array_type)
         else:
-            decoded = decode_static_argument(sub_bytes[:64], array_type)
+            offset = 64 * i
+            decoded = decode_static_argument(sub_data[offset: offset+64], array_type)
 
         decoded_argument.append(decoded)
-        sub_bytes = sub_bytes[64:]
 
     return decoded_argument
 
@@ -295,7 +297,7 @@ def decode_dynamic_argument(argument_bytes, argument_type):
 
         if argument_type == "string":
             decoded_value = (
-                bytes.fromhex(value).decode("utf-8").replace("\x00", "").encode()
+                bytes.fromhex(value).decode("utf-8").replace("\x00", "")
             )
         else:
             decoded_value = "0x" + value
@@ -389,6 +391,7 @@ def decode_graffiti_parameters(input_data):
             message = bytearray.fromhex(input_data[2:]).decode()
             input_parameters = [Argument(name="message", type="string", value=message)]
         except Exception as e:
-            log.warning(e)
+            # log.warning(e)
+            pass
 
     return input_parameters
