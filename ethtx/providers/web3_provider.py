@@ -17,6 +17,7 @@ from typing import List, Dict, Optional
 
 from web3 import Web3
 from web3.datastructures import AttributeDict
+from web3.middleware import geth_poa_middleware
 from web3.types import BlockData, TxData, TxReceipt, HexStr
 
 from ..exceptions import Web3ConnectionException, ProcessingException
@@ -34,7 +35,10 @@ log = logging.getLogger(__name__)
 
 
 def connect_chain(
-    http_hook: str = None, ipc_hook: str = None, ws_hook: str = None
+    http_hook: str = None,
+    ipc_hook: str = None,
+    ws_hook: str = None,
+    poa: bool = False
 ) -> Web3 or None:
     if http_hook:
         method = "HTTP"
@@ -55,6 +59,11 @@ def connect_chain(
 
     try:
         w3 = Web3(provider(hook, request_kwargs={"timeout": 600}))
+
+        # middleware injection for POA chains
+        if poa:
+            w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+
         if w3.isConnected():
             log.info(
                 "Connected to %s: %s with latest block %s.",
@@ -111,7 +120,13 @@ class Web3Provider(NodeDataProvider):
             raise ProcessingException(
                 "chain_id must be provided as an argument or constructor default"
             )
-        return connect_chain(http_hook=self.nodes[chain_id])
+
+        if chain_id not in self.nodes:
+            raise ProcessingException(
+                "unknown chain_id, it must be defined in the EthTxConfig object"
+            )
+
+        return connect_chain(http_hook=self.nodes[chain_id]['hook'], poa=self.nodes[chain_id]['poa'])
 
     # get the raw block data from the node
     @lru_cache(maxsize=512)
@@ -121,7 +136,7 @@ class Web3Provider(NodeDataProvider):
         block = W3Block(
             chain_id=chain_id or self.default_chain,
             difficulty=raw_block.difficulty,
-            extraData=raw_block.extraData,
+            extraData=raw_block.get('extraData', None),
             gasLimit=raw_block.gasLimit,
             gasUsed=raw_block.gasUsed,
             hash=raw_block.hash,

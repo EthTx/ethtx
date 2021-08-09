@@ -93,7 +93,7 @@ class DecoderService:
         )
         # read a raw block from a node
         block = Block.from_raw(
-            w3block=self.web3provider.get_block(transaction.metadata.block_number),
+            w3block=self.web3provider.get_block(transaction.metadata.block_number, chain_id),
             chain_id=chain_id,
         )
 
