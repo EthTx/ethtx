@@ -39,7 +39,7 @@ ethtx_config = EthTxConfig(
     mongo_database= ##MongoDB database,
     etherscan_api_key= ##Etherscan API key,
     web3nodes={
-        "mainnet": ##Geth archive node URL,
+        "mainnet": dict(hook=[_Geth_archive_node_URL_], poa=[_POA_chain_indicator_])
     },
     default_chain="mainnet",
     etherscan_urls={
