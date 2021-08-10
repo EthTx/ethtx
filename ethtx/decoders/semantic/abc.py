@@ -50,7 +50,10 @@ class ISemanticDecoder(ABC):
 
     @abstractmethod
     def decode_metadata(
-        self, block_metadata: BlockMetadata, tx_metadata: TransactionMetadata
+        self,
+        block_metadata: BlockMetadata,
+        tx_metadata: TransactionMetadata,
+        chain_id: str
     ):
         ...
 

@@ -32,7 +32,7 @@ from .utils.validators import assert_tx_hash
 class EthTxConfig:
     mongo_connection_string: str
     etherscan_api_key: str
-    web3nodes: Dict[str, str]
+    web3nodes: Dict[str, dict]
     mongo_database: str
     etherscan_urls: Dict[str, str]
     default_chain: str
@@ -41,7 +41,7 @@ class EthTxConfig:
         self,
         mongo_connection_string: str,
         mongo_database: str,
-        web3nodes: Dict[str, str],
+        web3nodes: Dict[str, dict],
         etherscan_api_key: str,
         etherscan_urls: Dict[str, str],
         default_chain: str = "mainnet",

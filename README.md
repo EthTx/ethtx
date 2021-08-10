@@ -39,7 +39,7 @@ ethtx_config = EthTxConfig(
     mongo_database= ##MongoDB database,
     etherscan_api_key= ##Etherscan API key,
     web3nodes={
-        "mainnet": ##Geth archive node URL,
+        "mainnet": dict(hook=[_Geth_archive_node_URL_], poa=[_POA_chain_indicator_])
     },
     default_chain="mainnet",
     etherscan_urls={
@@ -103,7 +103,7 @@ from ethtx.models.decoded_model import DecodedTransactionMetadata
 proxies = ethtx.decoders.get_proxies(transaction.root_call)
 
 # semantically decode transaction components
-decoded_metadata: DecodedTransactionMetadata = ethtx.decoders.semantic_decoder.decode_metadata(block.metadata, transaction.metadata)
+decoded_metadata: DecodedTransactionMetadata = ethtx.decoders.semantic_decoder.decode_metadata(block.metadata, transaction.metadata, chain_id)
 decoded_events: List[DecodedEvent] = ethtx.decoders.semantic_decoder.decode_events(abi_decoded_events, decoded_metadata, proxies)
 decoded_calls: Call = ethtx.decoders.semantic_decoder.decode_calls(abi_decoded_calls, decoded_metadata, proxies)
 decoded_transfers: List[DecodedTransfer] = ethtx.decoders.semantic_decoder.decode_transfers(abi_decoded_transfers)
