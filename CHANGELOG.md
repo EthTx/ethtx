@@ -1,6 +1,18 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.2.1 - 2021-08-10
+### Added
+- Added support for Goerli nodes
+
+### Fixed
+- Fixed return values and dynamic arrays processing
+- Proper handling of block ExtraBytes for PoA chains
+
+### Changed
+- EthTxConfig object format
+
+
 ## 0.1.9 - 2021-08-04
 ### Fixed
 - Added missing files, fixed broken build
