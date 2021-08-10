@@ -15,7 +15,11 @@ from typing import Optional, Dict
 from ethtx.models.decoded_model import DecodedCall
 from ethtx.models.objects_model import Call, TransactionMetadata, BlockMetadata
 from ethtx.utils.measurable import RecursionLimit
+
+from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS
+from ethtx.semantics.standards.erc721 import ERC721_FUNCTIONS
 from ethtx.semantics.solidity.precompiles import precompiles
+
 from .abc import ABISubmoduleAbc
 from ..decoders.parameters import decode_function_parameters, decode_graffiti_parameters
 
@@ -105,6 +109,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
         if call.call_type == "selfdestruct":
             function_name = call.call_type
             function_input, function_output = [], []
+
         elif call.call_type == "create2":
             # ToDo: parse constructor
             # ToDo: force semantics reload
@@ -115,9 +120,22 @@ class ABICallsDecoder(ABISubmoduleAbc):
 
         elif self._repository.check_is_contract(chain_id, call.to_address):
 
+            standard = self._repository.get_standard(chain_id, call.to_address)
+
             function_abi = self._repository.get_function_abi(
                 chain_id, call.to_address, function_signature
             )
+
+            function_signature = call.call_data[:10] if call.call_data else ''
+
+            if not function_abi:
+                if standard == "ERC20":
+                    # decode ERC20 calls if ABI for them is not defined
+                    function_abi = ERC20_FUNCTIONS.get(function_signature)
+                elif standard == "ERC721":
+                    # decode ERC721 calls if ABI for them is not defined
+                    function_abi = ERC721_FUNCTIONS.get(function_signature)
+
             if not function_abi and call.to_address in delegations:
                 # try to find signature in delegate-called contracts
                 for delegate in delegations[call.to_address]:
@@ -138,6 +156,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
             ):
                 error_description = function_output.pop()
                 call.error = f'Failed with "{error_description.value}"'
+
         elif call.to_address and int(call.to_address, 16) in precompiles:
             function_semantics = precompiles[int(call.to_address, 16)]
             function_name = function_semantics.name
