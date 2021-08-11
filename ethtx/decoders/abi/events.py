@@ -15,6 +15,7 @@ from typing import List, Dict, Union, Optional
 from ethtx.models.decoded_model import DecodedEvent
 from ethtx.models.objects_model import BlockMetadata, TransactionMetadata, Event
 from ethtx.semantics.standards.erc20 import ERC20_EVENTS
+from ethtx.semantics.standards.erc721 import ERC721_EVENTS
 from .abc import ABISubmoduleAbc
 from ..decoders.parameters import decode_event_parameters
 
@@ -74,7 +75,14 @@ class ABIEventsDecoder(ABISubmoduleAbc):
 
             if event_signature in ERC20_EVENTS:
                 # try standard ERC20 events
-                event_abi = ERC20_EVENTS[event_signature]
+                if len([parameter for parameter in ERC20_EVENTS[event_signature].parameters if parameter.indexed]) == \
+                   len([topic for topic in event.topics if topic]) - 1:
+                    event_abi = ERC20_EVENTS[event_signature]
+                elif event_signature in ERC721_EVENTS:
+                    # try standard ERC721 events
+                    if len([parameter for parameter in ERC721_EVENTS[event_signature].parameters if parameter.indexed]) == \
+                       len([topic for topic in event.topics if topic]) - 1:
+                        event_abi = ERC721_EVENTS[event_signature]
 
             if not event_abi:
                 # if signature is not known but there is exactly one anonymous event in tha ABI

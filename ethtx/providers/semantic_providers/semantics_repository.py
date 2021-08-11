@@ -194,7 +194,7 @@ class SemanticsRepository:
                     if standard == "ERC20":
                         erc20_semantics = standard_semantics
                     else:
-                        proxy_erc20 = provider.guess_erc20_proxy(address)
+                        proxy_erc20 = provider.guess_erc20_proxy(address, chain_id)
                         if proxy_erc20:
                             erc20_semantics = ERC20Semantics(**proxy_erc20)
                         else:
