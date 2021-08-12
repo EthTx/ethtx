@@ -403,7 +403,7 @@ class SemanticsRepository:
     def get_token_data(self, chain_id, address, token_proxies=None):
 
         if not address:
-            return None, None, None
+            return None, None, None, None
 
         semantics = self.get_semantics(chain_id, address)
         if semantics and semantics.erc20:
@@ -423,7 +423,7 @@ class SemanticsRepository:
             token_symbol = "Unknown"
             token_decimals = 18
 
-        return token_name, token_symbol, token_decimals
+        return token_name, token_symbol, token_decimals, 'ERC20'
 
     def update_address(self, chain_id, address, contract):
 

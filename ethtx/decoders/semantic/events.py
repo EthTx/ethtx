@@ -110,7 +110,7 @@ class SemanticEventsDecoder(SemanticSubmoduleAbc):
         )
         standard = self.repository.get_standard(event.chain_id, event.contract.address)
         if not standard and event.contract.address in token_proxies:
-            standard = "ERC20"
+            standard = token_proxies[event.contract.address][3]
 
         # perform parameters transformation
         for i, parameter in enumerate(event.parameters):

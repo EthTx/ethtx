@@ -68,9 +68,12 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                     event.chain_id, event.contract.address
                 )
 
-                if standard == "ERC20" or event.contract.address in token_proxies:
+                if not standard and event.contract.address in token_proxies:
+                    standard = token_proxies[event.contract.address][3]
 
-                    _, token_symbol, token_decimals = self._repository.get_token_data(
+                if standard == "ERC20":
+
+                    _, token_symbol, token_decimals, _ = self._repository.get_token_data(
                         event.chain_id, event.contract.address, token_proxies
                     )
                     value = event.parameters[2].value / 10 ** token_decimals

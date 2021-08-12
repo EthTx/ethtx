@@ -417,6 +417,36 @@ class Web3Provider(NodeDataProvider):
 
         return None
 
+    # guess if the contract is and erc721 token proxy and get the data
+    @lru_cache(maxsize=512)
+    def guess_erc721_proxy(self, contract_address, chain_id: Optional[str] = None):
+        chain = self._get_node_connection(chain_id)
+
+        name_abi = (
+            '{"name":"name", "constant":true, "payable":false,'
+            ' "type":"function", "inputs":[], "outputs":[{"name":"","type":"string"}]}'
+        )
+        symbol_abi = (
+            '{"name":"symbol", "constant":true, "payable":false,'
+            '"type":"function", "inputs":[], "outputs":[{"name":"","type":"string"}]}'
+        )
+
+        abi = f'[{",".join([name_abi, symbol_abi])}]'
+
+        try:
+            token = chain.eth.contract(
+                address=Web3.toChecksumAddress(contract_address), abi=abi
+            )
+            name = token.functions.name().call()
+            symbol = token.functions.symbol().call()
+
+            return dict(symbol=symbol, name=name)
+
+        except Exception:
+            pass
+
+        return None
+
     @staticmethod
     def _create_call_from_debug_trace_tx(
         tx_hash: str, chain_id: str, input_rpc: AttributeDict
