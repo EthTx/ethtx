@@ -58,8 +58,9 @@ class SemanticsRepository:
 
         def decode_parameter(_parameter):
             components_semantics = []
-            for component in _parameter["components"]:
-                components_semantics.append(decode_parameter(component))
+            if 'component' in _parameter:
+                for component in _parameter["components"]:
+                    components_semantics.append(decode_parameter(component))
 
             decoded_parameter = ParameterSemantics(
                 _parameter["parameter_name"],
