@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.2.2 - 2021-08-17
+### Fixed
+- Proper decoding of guessed ERC20 ABI and transformations
+- ERC20 and ERC721 events processing fixes
+- Reading stored semantics fix
+- ERC721 proxies processing fix
+
+
 ## 0.2.1 - 2021-08-10
 ### Added
 - Added support for Goerli nodes
