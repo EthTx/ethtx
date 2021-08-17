@@ -58,8 +58,9 @@ class SemanticsRepository:
 
         def decode_parameter(_parameter):
             components_semantics = []
-            for component in _parameter["components"]:
-                components_semantics.append(decode_parameter(component))
+            if 'component' in _parameter:
+                for component in _parameter["components"]:
+                    components_semantics.append(decode_parameter(component))
 
             decoded_parameter = ParameterSemantics(
                 _parameter["parameter_name"],
@@ -194,7 +195,7 @@ class SemanticsRepository:
                     if standard == "ERC20":
                         erc20_semantics = standard_semantics
                     else:
-                        proxy_erc20 = provider.guess_erc20_proxy(address)
+                        proxy_erc20 = provider.guess_erc20_proxy(address, chain_id)
                         if proxy_erc20:
                             erc20_semantics = ERC20Semantics(**proxy_erc20)
                         else:
@@ -402,7 +403,7 @@ class SemanticsRepository:
     def get_token_data(self, chain_id, address, token_proxies=None):
 
         if not address:
-            return None, None, None
+            return None, None, None, None
 
         semantics = self.get_semantics(chain_id, address)
         if semantics and semantics.erc20:
@@ -422,7 +423,7 @@ class SemanticsRepository:
             token_symbol = "Unknown"
             token_decimals = 18
 
-        return token_name, token_symbol, token_decimals
+        return token_name, token_symbol, token_decimals, 'ERC20'
 
     def update_address(self, chain_id, address, contract):
 

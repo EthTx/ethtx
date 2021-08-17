@@ -114,7 +114,10 @@ erc20_balanceOf_function_transformation = {
 }
 
 erc20_totalSupply_function = FunctionSemantics(
-    "0x18160ddd", "totalSupply", [], [ParameterSemantics("", "uint256", [])]
+    "0x18160ddd",
+    "totalSupply",
+    [],
+    [ParameterSemantics("", "uint256", [])]
 )
 
 erc20_totalSupply_function_transformation = {

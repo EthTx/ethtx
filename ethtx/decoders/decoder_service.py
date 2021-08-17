@@ -75,6 +75,15 @@ class DecoderService:
                     ):
                         token_proxies[delegator] = delegate_semantic
                         break
+
+                if potential_proxy := self.web3provider.guess_erc20_proxy(delegator):
+                    token_proxies[delegator] = (potential_proxy['name'], potential_proxy['symbol'], potential_proxy['decimals'], 'ERC20')
+                    break
+
+                if potential_proxy := self.web3provider.guess_erc721_proxy(delegator):
+                    token_proxies[delegator] = (potential_proxy['name'], potential_proxy['symbol'], 1, 'ERC721')
+                    break
+
             elif all(delegator_semantic):
                 token_proxies[delegator] = delegator_semantic
 

@@ -59,11 +59,20 @@ class SemanticEventsDecoder(SemanticSubmoduleAbc):
     ) -> DecodedEvent:
         """Semantically decode event"""
 
+        def _get_parameters_str(parameters):
+            parameters_types = []
+            for parameter in parameters:
+                if parameter.type == 'tuple':
+                    parameters_types.append(_get_parameters_str(parameter.value))
+                else:
+                    parameters_types.append(parameter.type)
+            return f'({",".join(parameters_types)})'
+
         if event.event_name != event.event_signature:
             # calculate signature to account for anonymous events
-            parameters_types = [parameter.type for parameter in event.parameters]
+            parameters_str = _get_parameters_str(event.parameters)
             calculated_event_signature = Web3.keccak(
-                text=f'{event.event_name}({",".join(parameters_types)})'
+                text=f'{event.event_name}{parameters_str}'
             ).hex()
         else:
             calculated_event_signature = event.event_signature
@@ -101,7 +110,7 @@ class SemanticEventsDecoder(SemanticSubmoduleAbc):
         )
         standard = self.repository.get_standard(event.chain_id, event.contract.address)
         if not standard and event.contract.address in token_proxies:
-            standard = "ERC20"
+            standard = token_proxies[event.contract.address][3]
 
         # perform parameters transformation
         for i, parameter in enumerate(event.parameters):
