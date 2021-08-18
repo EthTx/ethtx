@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.2.3 - 2021-08-18
+### Fixed
+- Fixed Web3 requests for testnets
+
+
 ## 0.2.2 - 2021-08-17
 ### Fixed
 - Proper decoding of guessed ERC20 ABI and transformations
