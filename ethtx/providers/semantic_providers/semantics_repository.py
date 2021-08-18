@@ -177,7 +177,7 @@ class SemanticsRepository:
 
             # try to read the semantics form the Etherscan provider
             provider = self._web3provider
-            code_hash = provider.get_code_hash(address)
+            code_hash = provider.get_code_hash(address, chain_id)
 
             if code_hash != ZERO_HASH:
                 # smart contract
@@ -215,7 +215,7 @@ class SemanticsRepository:
 
                 else:
                     # try to guess if the address is a toke
-                    potential_erc20_semantics = provider.guess_erc20_token(address)
+                    potential_erc20_semantics = provider.guess_erc20_token(address, chain_id)
                     if potential_erc20_semantics:
                         standard = "ERC20"
                         erc20_semantics = ERC20Semantics(
