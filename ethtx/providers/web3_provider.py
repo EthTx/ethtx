@@ -35,10 +35,7 @@ log = logging.getLogger(__name__)
 
 
 def connect_chain(
-    http_hook: str = None,
-    ipc_hook: str = None,
-    ws_hook: str = None,
-    poa: bool = False
+    http_hook: str = None, ipc_hook: str = None, ws_hook: str = None, poa: bool = False
 ) -> Web3 or None:
     if http_hook:
         method = "HTTP"
@@ -126,7 +123,9 @@ class Web3Provider(NodeDataProvider):
                 "unknown chain_id, it must be defined in the EthTxConfig object"
             )
 
-        return connect_chain(http_hook=self.nodes[chain_id]['hook'], poa=self.nodes[chain_id]['poa'])
+        return connect_chain(
+            http_hook=self.nodes[chain_id]["hook"], poa=self.nodes[chain_id]["poa"]
+        )
 
     # get the raw block data from the node
     @lru_cache(maxsize=512)
@@ -136,7 +135,7 @@ class Web3Provider(NodeDataProvider):
         block = W3Block(
             chain_id=chain_id or self.default_chain,
             difficulty=raw_block.difficulty,
-            extraData=raw_block.get('extraData', None),
+            extraData=raw_block.get("extraData", None),
             gasLimit=raw_block.gasLimit,
             gasUsed=raw_block.gasUsed,
             hash=raw_block.hash,
@@ -220,7 +219,7 @@ class Web3Provider(NodeDataProvider):
             logs=_logs,
             logsBloom=raw_receipt.logsBloom,
             root=_root,
-            status=raw_receipt.get('status', True),
+            status=raw_receipt.get("status", True),
             to_address=raw_receipt.to,
             transactionHash=raw_receipt.transactionHash,
             transactionIndex=raw_receipt.transactionIndex,
@@ -238,7 +237,7 @@ class Web3Provider(NodeDataProvider):
         chain = self._get_node_connection(chain_id)
         tracer = self._get_custom_calls_tracer()
         response = chain.manager.request_blocking(
-            "debug_traceTransaction", [tx_hash, {"tracer": tracer}]
+            "debug_traceTransaction", [tx_hash, {"tracer": tracer, "timeout": "100s"}]
         )
 
         return self._create_call_from_debug_trace_tx(
