@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## 0.2.4 - 2021-08-31
 ### Fixed
-- Added bigger timeout for 'debug_traceTransaction' call
+- Increased timeout for 'debug_traceTransaction' call
 
 
 ## 0.2.3 - 2021-08-18
