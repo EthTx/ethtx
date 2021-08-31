@@ -237,7 +237,7 @@ class Web3Provider(NodeDataProvider):
         chain = self._get_node_connection(chain_id)
         tracer = self._get_custom_calls_tracer()
         response = chain.manager.request_blocking(
-            "debug_traceTransaction", [tx_hash, {"tracer": tracer, "timeout": "20s"}]
+            "debug_traceTransaction", [tx_hash, {"tracer": tracer, "timeout": "60s"}]
         )
 
         return self._create_call_from_debug_trace_tx(
