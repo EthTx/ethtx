@@ -55,10 +55,9 @@ class SemanticsRepository:
         return tmp_records
 
     def _read_stored_semantics(self, address: str, chain_id: str):
-
         def decode_parameter(_parameter):
             components_semantics = []
-            if 'component' in _parameter:
+            if "component" in _parameter:
                 for component in _parameter["components"]:
                     components_semantics.append(decode_parameter(component))
 
@@ -215,7 +214,9 @@ class SemanticsRepository:
 
                 else:
                     # try to guess if the address is a toke
-                    potential_erc20_semantics = provider.guess_erc20_token(address, chain_id)
+                    potential_erc20_semantics = provider.guess_erc20_token(
+                        address, chain_id
+                    )
                     if potential_erc20_semantics:
                         standard = "ERC20"
                         erc20_semantics = ERC20Semantics(
@@ -363,10 +364,10 @@ class SemanticsRepository:
     def get_address_label(self, chain_id, address, token_proxies=None):
 
         if not address:
-            return ''
+            return ""
 
         if int(address, 16) in precompiles:
-            contract_label = 'Precompiled'
+            contract_label = "Precompiled"
         else:
             semantics = self.get_semantics(chain_id, address)
             if semantics.erc20:
@@ -374,7 +375,9 @@ class SemanticsRepository:
             elif token_proxies and address in token_proxies:
                 contract_label = token_proxies[address][1] + "_proxy"
             else:
-                contract_label = semantics.name if semantics and semantics.name else address
+                contract_label = (
+                    semantics.name if semantics and semantics.name else address
+                )
 
         return contract_label
 
@@ -423,7 +426,7 @@ class SemanticsRepository:
             token_symbol = "Unknown"
             token_decimals = 18
 
-        return token_name, token_symbol, token_decimals, 'ERC20'
+        return token_name, token_symbol, token_decimals, "ERC20"
 
     def update_address(self, chain_id, address, contract):
 
@@ -437,7 +440,7 @@ class SemanticsRepository:
         if not semantics:
             return
 
-        address_semantics = semantics.json(False)
+        address_semantics = semantics.json(entire=False)
         contract_semantics = semantics.contract.json()
 
         self.database.insert_contract(contract_semantics, update_if_exist=True)
