@@ -111,11 +111,11 @@ class Argument(JsonObject):
 class Signature(JsonObject):
     text_signature: str
     bytes_signature: bytes
-    hex_signature: hex
+    hex_signature: str
     type: str
 
     def __init__(
-        self, text_signature: str, bytes_signature: bytes, hex_signature: hex, type: str
+        self, text_signature: str, bytes_signature: bytes, hex_signature: str, type: str
     ):
         self.text_signature = text_signature
         self.bytes_signature = bytes_signature

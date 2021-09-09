@@ -63,6 +63,16 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
     def get_signature_semantics(self, signature_hash):
         return self._signatures.find_one({"_id": signature_hash}, {"_id": 0})
 
+    def insert_signature(self, signature, update_if_exist=False):
+        signature_with_id = {"_id": signature["hex_signature"], **signature}
+
+        if update_if_exist:
+            self._signatures.replace_one(
+                {"_id": signature_with_id["_id"]}, signature_with_id, upsert=True
+            )
+        else:
+            self._signatures.insert_one(signature_with_id)
+
     def get_contract_semantics(self, code_hash):
         """Contract hashes are always the same, no mather what chain we use, so there is no need
         to use chain_id"""
@@ -90,13 +100,3 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
             )
         else:
             self._addresses.insert_one(address_with_id)
-
-    def insert_signature(self, signature, update_if_exist=False):
-        signature_with_id = {"_id": signature["hash"], **signature}
-
-        if update_if_exist:
-            self._signatures.replace_one(
-                {"_id": signature_with_id["_id"]}, signature_with_id, upsert=True
-            )
-        else:
-            self._signatures.insert_one(signature_with_id)
