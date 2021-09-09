@@ -108,6 +108,21 @@ class Argument(JsonObject):
         return False
 
 
+class Signature(JsonObject):
+    text_signature: str
+    bytes_signature: str
+    hex_signature: str
+    type: str
+
+    def __init__(
+        self, text_signature: str, bytes_signature: str, hex_signature: str, type: str
+    ):
+        self.text_signature = text_signature
+        self.bytes_signature = bytes_signature
+        self.hex_signature = hex_signature
+        self.type = type
+
+
 class DecodedEvent(JsonObject):
     chain_id: str
     tx_hash: str
