@@ -10,15 +10,16 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 from abc import ABC, abstractmethod
+from typing import Dict
 
 
 class SignatureProvider(ABC):
     @abstractmethod
-    def list_function_signatures(self, filters):
+    def list_function_signatures(self, filters: Dict):
         ...
 
     @abstractmethod
-    def list_event_signatures(self, filters):
+    def list_event_signatures(self, filters: Dict):
         ...
 
     @abstractmethod
@@ -28,3 +29,17 @@ class SignatureProvider(ABC):
     @abstractmethod
     def get_text_event_signatures(self, hex_signature: str):
         ...
+
+
+class FourBytesDirectoryProvider(SignatureProvider):
+    def list_function_signatures(self, filters: Dict):
+        pass
+
+    def list_event_signatures(self, filters: Dict):
+        pass
+
+    def get_text_function_signatures(self, hex_signature: str):
+        pass
+
+    def get_text_event_signatures(self, hex_signature: str):
+        pass
