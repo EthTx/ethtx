@@ -38,18 +38,18 @@ class FourBytesDirectoryProvider(SignatureProvider):
     FUNCTION_ENDPOINT: str = "signatures"
     EVENT_ENDPOINT: str = "event-signatures"
 
-    def list_function_signatures(self, filters: Dict = None) -> List:
+    def list_function_signatures(self, filters: Dict = None) -> List[Dict]:
         return self._get_all(endpoint=self.FUNCTION_ENDPOINT, filters=filters)
 
-    def list_event_signatures(self, filters: Dict = None) -> List:
+    def list_event_signatures(self, filters: Dict = None) -> List[Dict]:
         return self._get_all(endpoint=self.EVENT_ENDPOINT, filters=filters)
 
-    def get_text_function_signatures(self, hex_signature: str) -> List:
+    def get_text_function_signatures(self, hex_signature: str) -> List[Dict]:
         return self._get_all(
             endpoint=self.FUNCTION_ENDPOINT, filters={"hex_signature": hex_signature}
         )
 
-    def get_text_event_signatures(self, hex_signature: str) -> List:
+    def get_text_event_signatures(self, hex_signature: str) -> List[Dict]:
         return self._get_all(
             endpoint=self.FUNCTION_ENDPOINT, filters={"hex_signature": hex_signature}
         )
@@ -57,7 +57,7 @@ class FourBytesDirectoryProvider(SignatureProvider):
     def url(self, endpoint: str) -> str:
         return f"{self.API_URL}/{endpoint}/"
 
-    def _get_all(self, endpoint: str, filters: Dict = None) -> List:
+    def _get_all(self, endpoint: str, filters: Dict = None) -> List[Dict]:
         page = 1
         results = []
 
