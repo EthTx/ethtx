@@ -17,11 +17,11 @@ import requests
 
 class SignatureProvider(ABC):
     @abstractmethod
-    def list_function_signatures(self, filters: Dict, **kwargs):
+    def list_function_signatures(self, filters: Dict):
         ...
 
     @abstractmethod
-    def list_event_signatures(self, filters: Dict, **kwargs):
+    def list_event_signatures(self, filters: Dict):
         ...
 
     @abstractmethod
@@ -35,22 +35,24 @@ class SignatureProvider(ABC):
 
 class FourBytesDirectoryProvider(SignatureProvider):
     API_URL: str = "https://www.4byte.directory/api/v1"
+    FUNCTION_ENDPOINT: str = "signatures"
+    EVENT_ENDPOINT: str = "event-signatures"
 
-    def list_function_signatures(
-        self, endpoint: str = "signatures", filters: Dict = None
-    ):
-        return self._get_all(endpoint=endpoint, filters=filters)
+    def list_function_signatures(self, filters: Dict = None):
+        return self._get_all(endpoint=self.FUNCTION_ENDPOINT, filters=filters)
 
-    def list_event_signatures(
-        self, endpoint: str = "event-signatures", filters: Dict = None
-    ):
-        return self._get_all(endpoint=endpoint, filters=filters)
+    def list_event_signatures(self, filters: Dict = None):
+        return self._get_all(endpoint=self.EVENT_ENDPOINT, filters=filters)
 
     def get_text_function_signatures(self, hex_signature: str):
-        pass
+        return self._get_all(
+            endpoint=self.FUNCTION_ENDPOINT, filters={"hex_signature": hex_signature}
+        )
 
     def get_text_event_signatures(self, hex_signature: str):
-        pass
+        return self._get_all(
+            endpoint=self.FUNCTION_ENDPOINT, filters={"hex_signature": hex_signature}
+        )
 
     def url(self, endpoint: str):
         return "{url}/{endpoint}/".format(url=self.API_URL, endpoint=endpoint)
@@ -76,8 +78,3 @@ class FourBytesDirectoryProvider(SignatureProvider):
         filters["page"] = page
 
         return requests.get(self.url(endpoint), params=filters).json()
-
-
-if __name__ == "__main__":
-    t = FourBytesDirectoryProvider()
-    print(t.list_function_signatures())
