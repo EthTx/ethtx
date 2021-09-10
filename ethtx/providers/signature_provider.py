@@ -12,14 +12,16 @@
 from abc import ABC, abstractmethod
 from typing import Dict
 
+import requests
+
 
 class SignatureProvider(ABC):
     @abstractmethod
-    def list_function_signatures(self, filters: Dict):
+    def list_function_signatures(self, filters: Dict, **kwargs):
         ...
 
     @abstractmethod
-    def list_event_signatures(self, filters: Dict):
+    def list_event_signatures(self, filters: Dict, **kwargs):
         ...
 
     @abstractmethod
@@ -32,14 +34,50 @@ class SignatureProvider(ABC):
 
 
 class FourBytesDirectoryProvider(SignatureProvider):
-    def list_function_signatures(self, filters: Dict):
-        pass
+    API_URL: str = "https://www.4byte.directory/api/v1"
 
-    def list_event_signatures(self, filters: Dict):
-        pass
+    def list_function_signatures(
+        self, endpoint: str = "signatures", filters: Dict = None
+    ):
+        return self._get_all(endpoint=endpoint, filters=filters)
+
+    def list_event_signatures(
+        self, endpoint: str = "event-signatures", filters: Dict = None
+    ):
+        return self._get_all(endpoint=endpoint, filters=filters)
 
     def get_text_function_signatures(self, hex_signature: str):
         pass
 
     def get_text_event_signatures(self, hex_signature: str):
         pass
+
+    def url(self, endpoint: str):
+        return "{url}/{endpoint}/".format(url=self.API_URL, endpoint=endpoint)
+
+    def _get_all(self, endpoint: str, filters: Dict = None):
+        page = 1
+        results = []
+
+        while True:
+            res = self._get(endpoint, page, filters)
+            next_url = res.get("next")
+            results.extend(res.get("results", []))
+
+            if not next_url:
+                break
+            page += 1
+
+        return results
+
+    def _get(self, endpoint: str, page: int = 0, filters: Dict = None):
+        if filters is None:
+            filters = {}
+        filters["page"] = page
+
+        return requests.get(self.url(endpoint), params=filters).json()
+
+
+if __name__ == "__main__":
+    t = FourBytesDirectoryProvider()
+    print(t.list_function_signatures())
