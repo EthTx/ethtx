@@ -77,6 +77,8 @@ class FourBytesDirectoryProvider(SignatureProvider):
     ) -> Dict[str, Any]:
         if filters is None:
             filters = {}
-        filters["page"] = page
+
+        if page:
+            filters["page"] = page
 
         return requests.get(self.url(endpoint), params=filters).json()
