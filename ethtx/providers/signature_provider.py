@@ -10,7 +10,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Dict, List, Any
 
 import requests
 
@@ -38,26 +38,26 @@ class FourBytesDirectoryProvider(SignatureProvider):
     FUNCTION_ENDPOINT: str = "signatures"
     EVENT_ENDPOINT: str = "event-signatures"
 
-    def list_function_signatures(self, filters: Dict = None):
+    def list_function_signatures(self, filters: Dict = None) -> List:
         return self._get_all(endpoint=self.FUNCTION_ENDPOINT, filters=filters)
 
-    def list_event_signatures(self, filters: Dict = None):
+    def list_event_signatures(self, filters: Dict = None) -> List:
         return self._get_all(endpoint=self.EVENT_ENDPOINT, filters=filters)
 
-    def get_text_function_signatures(self, hex_signature: str):
+    def get_text_function_signatures(self, hex_signature: str) -> List:
         return self._get_all(
             endpoint=self.FUNCTION_ENDPOINT, filters={"hex_signature": hex_signature}
         )
 
-    def get_text_event_signatures(self, hex_signature: str):
+    def get_text_event_signatures(self, hex_signature: str) -> List:
         return self._get_all(
             endpoint=self.FUNCTION_ENDPOINT, filters={"hex_signature": hex_signature}
         )
 
-    def url(self, endpoint: str):
-        return "{url}/{endpoint}/".format(url=self.API_URL, endpoint=endpoint)
+    def url(self, endpoint: str) -> str:
+        return f"{self.API_URL}/{endpoint}/"
 
-    def _get_all(self, endpoint: str, filters: Dict = None):
+    def _get_all(self, endpoint: str, filters: Dict = None) -> List:
         page = 1
         results = []
 
@@ -72,7 +72,9 @@ class FourBytesDirectoryProvider(SignatureProvider):
 
         return results
 
-    def _get(self, endpoint: str, page: int = 0, filters: Dict = None):
+    def _get(
+        self, endpoint: str, page: int = 0, filters: Dict = None
+    ) -> Dict[str, Any]:
         if filters is None:
             filters = {}
         filters["page"] = page
