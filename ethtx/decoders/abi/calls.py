@@ -9,19 +9,17 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
 from typing import Optional, Dict
 
-from ethtx.models.decoded_model import DecodedCall
+from ethtx.models.decoded_model import DecodedCall, Signature
 from ethtx.models.objects_model import Call, TransactionMetadata, BlockMetadata
-from ethtx.utils.measurable import RecursionLimit
-
+from ethtx.semantics.solidity.precompiles import precompiles
 from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS
 from ethtx.semantics.standards.erc721 import ERC721_FUNCTIONS
-from ethtx.semantics.solidity.precompiles import precompiles
-
+from ethtx.utils.measurable import RecursionLimit
 from .abc import ABISubmoduleAbc
 from ..decoders.parameters import decode_function_parameters, decode_graffiti_parameters
+from ...providers import FourByteProvider
 
 RECURSION_LIMIT = 2000
 
@@ -93,9 +91,9 @@ class ABICallsDecoder(ABISubmoduleAbc):
         chain_id = chain_id or self._default_chain
 
         if call.call_data:
-            function_signature = call.call_data[:10]
+            function_signature = Signature(hex_signature=call.call_data[:10])
         else:
-            function_signature = None
+            function_signature = Signature()
 
         from_name = self._repository.get_address_label(
             chain_id, call.from_address, token_proxies
@@ -123,29 +121,37 @@ class ABICallsDecoder(ABISubmoduleAbc):
             standard = self._repository.get_standard(chain_id, call.to_address)
 
             function_abi = self._repository.get_function_abi(
-                chain_id, call.to_address, function_signature
+                chain_id, call.to_address, function_signature.hex_signature
             )
 
-            function_signature = call.call_data[:10] if call.call_data else ''
+            function_signature = (
+                Signature(hex_signature=call.call_data[:10])
+                if call.call_data
+                else Signature()
+            )
 
             if not function_abi:
                 if standard == "ERC20":
                     # decode ERC20 calls if ABI for them is not defined
-                    function_abi = ERC20_FUNCTIONS.get(function_signature)
+                    function_abi = ERC20_FUNCTIONS.get(function_signature.hex_signature)
                 elif standard == "ERC721":
                     # decode ERC721 calls if ABI for them is not defined
-                    function_abi = ERC721_FUNCTIONS.get(function_signature)
+                    function_abi = ERC721_FUNCTIONS.get(
+                        function_signature.hex_signature
+                    )
 
             if not function_abi and call.to_address in delegations:
                 # try to find signature in delegate-called contracts
                 for delegate in delegations[call.to_address]:
                     function_abi = self._repository.get_function_abi(
-                        chain_id, delegate, function_signature
+                        chain_id, delegate, function_signature.hex_signature
                     )
                     if function_abi:
                         break
 
-            function_name = function_abi.name if function_abi else function_signature
+            function_name = (
+                function_abi.name if function_abi else function_signature.hex_signature
+            )
             function_input, function_output = decode_function_parameters(
                 call.call_data, call.return_value, function_abi, call.status
             )
@@ -161,13 +167,25 @@ class ABICallsDecoder(ABISubmoduleAbc):
             function_semantics = precompiles[int(call.to_address, 16)]
             function_name = function_semantics.name
             function_input, function_output = decode_function_parameters(
-                call.call_data, call.return_value, function_semantics, call.status,
-                strip_signature=False
+                call.call_data,
+                call.return_value,
+                function_semantics,
+                call.status,
+                strip_signature=False,
             )
         else:
             function_name = "fallback"
             function_input = decode_graffiti_parameters(call.call_data)
             function_output = []
+
+        if (
+            function_signature.hex_signature
+            and len(function_signature.hex_signature) > 2
+            and function_signature.hex_signature.startswith("0x")
+        ):
+            function_signature.text_signature = FourByteProvider.get_text_function_signatures(
+                function_signature.hex_signature
+            )
 
         return DecodedCall(
             chain_id=chain_id,
