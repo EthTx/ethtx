@@ -109,14 +109,12 @@ class Argument(JsonObject):
 
 
 class Signature(JsonObject):
-    text_signature: str
     hex_signature: str
-    type: str
+    text_signature: str
 
-    def __init__(self, hex_signature: str, type: str, text_signature: str):
+    def __init__(self, hex_signature: str, text_signature: Optional[str] = None):
         self.text_signature = text_signature
         self.hex_signature = hex_signature
-        self.type = type
 
 
 class DecodedEvent(JsonObject):
