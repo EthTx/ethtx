@@ -85,7 +85,7 @@ class ABIDecoder(IABIDecoder):
             transaction=transaction,
             delegations=delegations,
             token_proxies=token_proxies,
-            chain_id=chain_id or self._default_chain
+            chain_id=chain_id or self._default_chain,
         )
 
     def decode_call(
@@ -123,7 +123,7 @@ class ABIDecoder(IABIDecoder):
             transaction=transaction,
             delegations=delegations or {},
             token_proxies=token_proxies or {},
-            chain_id=chain_id or self._default_chain
+            chain_id=chain_id or self._default_chain,
         )
 
     def decode_event(
@@ -143,7 +143,7 @@ class ABIDecoder(IABIDecoder):
             transaction=transaction,
             delegations=delegations or {},
             token_proxies=token_proxies or {},
-            chain_id=chain_id or self._default_chain
+            chain_id=chain_id or self._default_chain,
         )
 
     def decode_transfers(
@@ -155,11 +155,7 @@ class ABIDecoder(IABIDecoder):
     ):
         return ABITransfersDecoder(
             repository=self._repository, chain_id=chain_id or self._default_chain
-        ).decode(
-            call=call,
-            events=events,
-            token_proxies=token_proxies or {},
-        )
+        ).decode(call=call, events=events, token_proxies=token_proxies or {})
 
     def decode_balances(self, transfers: List[DecodedTransfer]):
         return ABIBalancesDecoder(
@@ -193,7 +189,7 @@ class ABIDecoder(IABIDecoder):
                 transaction.metadata,
                 delegations,
                 token_proxies,
-                chain_id
+                chain_id,
             )
         except Exception as e:
             log.warning(
@@ -211,7 +207,7 @@ class ABIDecoder(IABIDecoder):
                 transaction.metadata,
                 delegations,
                 token_proxies,
-                chain_id
+                chain_id,
             )
         except Exception as e:
             log.warning(
@@ -227,7 +223,7 @@ class ABIDecoder(IABIDecoder):
                 full_decoded_transaction.calls,
                 full_decoded_transaction.events,
                 token_proxies,
-                chain_id
+                chain_id,
             )
         except Exception as e:
             log.warning(

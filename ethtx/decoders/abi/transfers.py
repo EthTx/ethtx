@@ -23,11 +23,7 @@ ZERO_ADDRESS = "0x" + 40 * "0"
 class ABITransfersDecoder(ABISubmoduleAbc):
     """Abi Transfers Decoder."""
 
-    def decode(
-        self,
-        call: DecodedCall,
-        events, token_proxies
-    ) -> List:
+    def decode(self, call: DecodedCall, events, token_proxies) -> List:
         """Decode transfers."""
         transfers = []
 

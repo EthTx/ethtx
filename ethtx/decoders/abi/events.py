@@ -75,13 +75,31 @@ class ABIEventsDecoder(ABISubmoduleAbc):
 
             if event_signature in ERC20_EVENTS:
                 # try standard ERC20 events
-                if len([parameter for parameter in ERC20_EVENTS[event_signature].parameters if parameter.indexed]) == \
-                   len([topic for topic in event.topics if topic]) - 1:
+                if (
+                    len(
+                        [
+                            parameter
+                            for parameter in ERC20_EVENTS[event_signature].parameters
+                            if parameter.indexed
+                        ]
+                    )
+                    == len([topic for topic in event.topics if topic]) - 1
+                ):
                     event_abi = ERC20_EVENTS[event_signature]
                 elif event_signature in ERC721_EVENTS:
                     # try standard ERC721 events
-                    if len([parameter for parameter in ERC721_EVENTS[event_signature].parameters if parameter.indexed]) == \
-                       len([topic for topic in event.topics if topic]) - 1:
+                    if (
+                        len(
+                            [
+                                parameter
+                                for parameter in ERC721_EVENTS[
+                                    event_signature
+                                ].parameters
+                                if parameter.indexed
+                            ]
+                        )
+                        == len([topic for topic in event.topics if topic]) - 1
+                    ):
                         event_abi = ERC721_EVENTS[event_signature]
 
             if not event_abi:
