@@ -33,7 +33,7 @@ class SignatureProvider(ABC):
         ...
 
 
-class FourBytesDirectoryProvider(SignatureProvider):
+class FourByteProvider(SignatureProvider):
     API_URL: str = "https://www.4byte.directory/api/v1"
     FUNCTION_ENDPOINT: str = "signatures"
     EVENT_ENDPOINT: str = "event-signatures"
