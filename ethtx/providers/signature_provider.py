@@ -45,12 +45,18 @@ class FourBytesDirectoryProvider(SignatureProvider):
         return self._get_all(endpoint=self.EVENT_ENDPOINT, filters=filters)
 
     def get_text_function_signatures(self, hex_signature: str) -> str:
+        if hex_signature == "0x":
+            raise ValueError(f"Signature can not be: {hex_signature}")
+
         data = self._get_all(
             endpoint=self.FUNCTION_ENDPOINT, filters={"hex_signature": hex_signature}
         )
         return data[0].get("text_signature", "") if data else ""
 
     def get_text_event_signatures(self, hex_signature: str) -> str:
+        if hex_signature == "0x":
+            raise ValueError(f"Signature can not be: {hex_signature}")
+
         data = self._get_all(
             endpoint=self.FUNCTION_ENDPOINT, filters={"hex_signature": hex_signature}
         )
