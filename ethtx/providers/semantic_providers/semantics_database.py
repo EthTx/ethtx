@@ -64,7 +64,7 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         return self._signatures.find_one({"_id": signature_hash}, {"_id": 0})
 
     def insert_signature(self, signature, update_if_exist=False):
-        signature_with_id = {"_id": signature["hex_signature"], **signature}
+        signature_with_id = {"_id": signature["signature"], **signature}
 
         if update_if_exist:
             self._signatures.replace_one(
