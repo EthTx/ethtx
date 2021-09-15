@@ -25,11 +25,11 @@ class SignatureProvider(ABC):
         ...
 
     @abstractmethod
-    def get_text_function_signatures(self, hex_signature: str):
+    def get_function(self, signature: str):
         ...
 
     @abstractmethod
-    def get_text_event_signatures(self, hex_signature: str):
+    def get_event(self, signature: str):
         ...
 
 
@@ -44,21 +44,21 @@ class FourByteProvider(SignatureProvider):
     def list_event_signatures(self, filters: Dict = None) -> List[Dict]:
         return self._get_all(endpoint=self.EVENT_ENDPOINT, filters=filters)
 
-    def get_text_function_signatures(self, hex_signature: str) -> str:
-        if hex_signature == "0x":
-            raise ValueError(f"Signature can not be: {hex_signature}")
+    def get_function(self, signature: str) -> str:
+        if signature == "0x":
+            raise ValueError(f"Signature can not be: {signature}")
 
         data = self._get_all(
-            endpoint=self.FUNCTION_ENDPOINT, filters={"hex_signature": hex_signature}
+            endpoint=self.FUNCTION_ENDPOINT, filters={"hex_signature": signature}
         )
         return data[0].get("text_signature", "") if data else ""
 
-    def get_text_event_signatures(self, hex_signature: str) -> str:
-        if hex_signature == "0x":
-            raise ValueError(f"Signature can not be: {hex_signature}")
+    def get_event(self, signature: str) -> str:
+        if signature == "0x":
+            raise ValueError(f"Signature can not be: {signature}")
 
         data = self._get_all(
-            endpoint=self.FUNCTION_ENDPOINT, filters={"hex_signature": hex_signature}
+            endpoint=self.FUNCTION_ENDPOINT, filters={"hex_signature": signature}
         )
         return data[0].get("text_signature", "") if data else ""
 
