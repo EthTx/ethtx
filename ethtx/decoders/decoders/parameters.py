@@ -309,6 +309,30 @@ def decode_dynamic_argument(argument_bytes, argument_type):
 
 # helper function to decode ABI 2.0 structs
 def decode_struct(data, arguments_abi):
+
+    def decode_array(raw_value, argument_type, slot):
+
+        array_type = argument_type.rsplit("[", 1)[0]
+        if argument_type[-2:] == "[]":
+            offset = int(raw_value, 16) * 2
+            array_values = decode_dynamic_array(data[offset:], array_type)
+            slot += 1
+        else:
+            array_size = int(argument_type[:-1].split("[")[-1])
+            array_values = []
+            for _ in range(array_size):
+                if array_type[-1] == ']':
+                    array_subvalues, slot = decode_array(raw_value, array_type, slot)
+                    array_values.append(array_subvalues)
+                else:
+                    array_values.append(
+                        decode_static_argument(raw_value, array_type)
+                    )
+                    slot += 1
+                raw_value = data[slot * 64: (slot + 1) * 64]
+
+        return array_values, slot
+
     if arguments_abi:
         no_arguments = len(arguments_abi)
     else:
@@ -351,21 +375,7 @@ def decode_struct(data, arguments_abi):
                 slot += 1
 
             elif argument_type[-1:] == "]":
-                array_type = argument_type[:-1].split("[")[0]
-
-                if argument_type[-2:] == "[]":
-                    offset = int(raw_value, 16) * 2
-                    argument_value = decode_dynamic_array(data[offset:], array_type)
-                    slot += 1
-                else:
-                    array_size = int(argument_type[:-1].split("[")[1])
-                    argument_value = []
-                    for _ in range(array_size):
-                        argument_value.append(
-                            decode_static_argument(raw_value, array_type)
-                        )
-                        slot += 1
-                        raw_value = data[slot * 64 : (slot + 1) * 64]
+                argument_value, slot = decode_array(raw_value, argument_type, slot)
 
             else:
                 argument_value = decode_static_argument(raw_value, argument_type)
