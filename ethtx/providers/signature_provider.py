@@ -44,23 +44,25 @@ class FourByteProvider(SignatureProvider):
     def list_event_signatures(self, filters: Dict = None) -> List[Dict]:
         return self._get_all(endpoint=self.EVENT_ENDPOINT, filters=filters)
 
-    def get_function(self, signature: str) -> str:
+    def get_function(self, signature: str) -> Dict[str, List[str]]:
         if signature == "0x":
             raise ValueError(f"Signature can not be: {signature}")
 
         data = self._get_all(
             endpoint=self.FUNCTION_ENDPOINT, filters={"hex_signature": signature}
         )
-        return data[0].get("text_signature", "") if data else ""
 
-    def get_event(self, signature: str) -> str:
+        return self._parse_text_signature_response(data)
+
+    def get_event(self, signature: str) -> Dict[str, List[str]]:
         if signature == "0x":
             raise ValueError(f"Signature can not be: {signature}")
 
         data = self._get_all(
             endpoint=self.FUNCTION_ENDPOINT, filters={"hex_signature": signature}
         )
-        return data[0].get("text_signature", "") if data else ""
+
+        return self._parse_text_signature_response(data)
 
     def url(self, endpoint: str) -> str:
         return f"{self.API_URL}/{endpoint}/"
@@ -90,3 +92,16 @@ class FourByteProvider(SignatureProvider):
             filters["page"] = page
 
         return requests.get(self.url(endpoint), params=filters).json()
+
+    @staticmethod
+    def _parse_text_signature_response(response: List) -> Dict[str, List[str]]:
+        text_sig = response[0].get("text_signature", "") if response else ""
+        if text_sig:
+            func_name = text_sig.split("(")[0]
+            types = text_sig[text_sig.find("(") + 1 : text_sig.rfind(")")]
+            if "(" in types:
+                types = types[types.find("(") + 1 : types.rfind(")")]
+
+            return {func_name: types.split(",")}
+
+        return {text_sig: []}
