@@ -56,13 +56,21 @@ class EtherscanProvider:
 
         chain_id = self._get_chain_id(chain_id)
         headers = {"User-Agent": "API"}
-        resp = requests.get(
-            url=self.endpoints[chain_id], params=params, headers=headers
-        )
+
+        # TODO: etherscan sometimes returns HTTP 502 with no apparent reason, so it's a quick fix
+        # that should help, but number of tries should be taken from config in final solution I think
+        for i in range(3):
+            resp = requests.get(
+                url=self.endpoints[chain_id], params=params, headers=headers
+            )
+
+            if resp.status_code == 200:
+                break
+
 
         if resp.status_code != 200:
             raise Exception(
-                "Invalid status code for etherscan get: " + str(resp.status_code)
+                "Invalid status code for etherscan request: " + str(resp.status_code) + " for params: " + json.dumps(params)
             )
 
         return resp.json()
