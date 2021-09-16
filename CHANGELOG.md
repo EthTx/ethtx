@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.2.5 - 2021-09-16
+### Fixed
+- Fixed multidimensional arrays processing
+- Fixed unnecessary semantics saving
+
+### Changed
+- Increased log level for exceptions in every decoding part and exposing more information
+
+
 ## 0.2.4 - 2021-08-31
 ### Fixed
 - Increased timeout for 'debug_traceTransaction' call
