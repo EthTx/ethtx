@@ -60,7 +60,7 @@ class ABIDecoder(IABIDecoder):
                 )
                 return full_decoded_transaction
         except Exception as e:
-            log.warning(
+            log.error(
                 "ABI decoding of %s / %s failed.",
                 transaction.metadata.tx_hash,
                 chain_id,
@@ -196,12 +196,12 @@ class ABIDecoder(IABIDecoder):
                 chain_id
             )
         except Exception as e:
-            log.warning(
+            log.error(
                 "ABI decoding of events for %s / %s failed.",
                 transaction.metadata.tx_hash,
                 chain_id,
             )
-            log.warning(e)
+            log.error(e)
             return full_decoded_transaction
 
         try:
@@ -214,12 +214,12 @@ class ABIDecoder(IABIDecoder):
                 chain_id
             )
         except Exception as e:
-            log.warning(
+            log.error(
                 "ABI decoding of calls tree for %s / %s failed.",
                 transaction.metadata.tx_hash,
                 chain_id,
             )
-            log.warning(e)
+            log.error(e)
             return full_decoded_transaction
 
         try:
@@ -230,12 +230,12 @@ class ABIDecoder(IABIDecoder):
                 chain_id
             )
         except Exception as e:
-            log.warning(
+            log.error(
                 "ABI decoding of transfers for %s / %s failed.",
                 transaction.metadata.tx_hash,
                 chain_id,
             )
-            log.warning(e)
+            log.error(e)
             return full_decoded_transaction
 
         try:
@@ -243,12 +243,12 @@ class ABIDecoder(IABIDecoder):
                 full_decoded_transaction.transfers
             )
         except Exception as e:
-            log.warning(
+            log.error(
                 "ABI decoding of balances for %s / %s failed.",
                 transaction.metadata.tx_hash,
                 chain_id,
             )
-            log.warning(e)
+            log.error(e)
             return full_decoded_transaction
 
         used_semantics = self._repository.end_record()
