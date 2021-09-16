@@ -11,7 +11,6 @@
 #  limitations under the License.
 
 import logging
-import traceback
 from typing import Optional, Dict, List
 
 from ethtx.models.decoded_model import (
