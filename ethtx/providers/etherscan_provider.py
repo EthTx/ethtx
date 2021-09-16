@@ -18,7 +18,7 @@ from typing import Dict, Optional
 import requests
 from web3 import Web3
 
-from ethtx.exceptions import ProcessingException
+from ethtx.exceptions import ProcessingException, InvalidEtherscanReturnCodeException
 
 log = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ class EtherscanProvider:
 
         # TODO: etherscan sometimes returns HTTP 502 with no apparent reason, so it's a quick fix
         # that should help, but number of tries should be taken from config in final solution I think
-        for i in range(3):
+        for _ in range(3):
             resp = requests.get(
                 url=self.endpoints[chain_id], params=params, headers=headers
             )
@@ -69,9 +69,7 @@ class EtherscanProvider:
 
 
         if resp.status_code != 200:
-            raise Exception(
-                "Invalid status code for etherscan request: " + str(resp.status_code) + " for params: " + json.dumps(params)
-            )
+            raise InvalidEtherscanReturnCodeException(resp.status_code, params)
 
         return resp.json()
 

@@ -13,6 +13,9 @@
 
 __all__ = ["Web3ConnectionException", "ProcessingException", "InvalidTransactionHash"]
 
+import json
+from typing import Dict
+
 
 class Web3ConnectionException(Exception):
     """Web3 Connection Exception."""
@@ -33,3 +36,10 @@ class InvalidTransactionHash(Exception):
 
     def __init__(self, tx_hash):
         super().__init__("Invalid transaction hash provided: " + tx_hash)
+
+class InvalidEtherscanReturnCodeException(Exception):
+
+    def __init__(self, returned_code: int, params: Dict = None):
+        params_msg = " with params: " + json.dumps(params) if params else ""
+        msg = f"Invalid status code for etherscan request: {returned_code} {params_msg}"
+        super().__init__(msg)
