@@ -104,4 +104,4 @@ class FourByteProvider(SignatureProvider):
 
             return {func_name: types.split(",")}
 
-        return {text_sig: []}
+        return {}
