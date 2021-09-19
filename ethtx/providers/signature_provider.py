@@ -59,7 +59,7 @@ class FourByteProvider(SignatureProvider):
             raise ValueError(f"Signature can not be: {signature}")
 
         data = self._get_all(
-            endpoint=self.FUNCTION_ENDPOINT, filters={"hex_signature": signature}
+            endpoint=self.EVENT_ENDPOINT, filters={"hex_signature": signature}
         )
 
         return self._parse_text_signature_response(data)
