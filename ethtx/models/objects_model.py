@@ -41,6 +41,7 @@ class TransactionMetadata:
     tx_hash: str
     block_number: int
     block_hash: str
+    chain_id: str
     gas_price: int
     from_address: str
     to_address: str
