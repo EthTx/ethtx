@@ -279,7 +279,7 @@ class DecodedBalance(JsonObject):
 
 class DecodedTransaction(JsonObject):
     block_metadata: BlockMetadata
-    metadata: TransactionMetadata
+    metadata: DecodedTransactionMetadata
     events: List[DecodedEvent]
     calls: Optional[DecodedCall]
     transfers: List[DecodedTransfer]
