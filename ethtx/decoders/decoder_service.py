@@ -135,7 +135,7 @@ class DecoderService:
 
         used_semantics = self.semantic_decoder.repository.end_record()
         log.info(
-            f"Semantics used in decoding {transaction.metadata.tx_hash}: "
+            f"Semantics used in decoding {tx_hash}: "
             + ", ".join(used_semantics)
         )
 
