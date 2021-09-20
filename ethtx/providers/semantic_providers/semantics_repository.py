@@ -23,21 +23,20 @@ from ethtx.models.semantics_model import (
     FunctionSemantics,
     EventSemantics,
 )
-from ethtx.providers.etherscan_provider import EtherscanProvider
+from ethtx.providers import EtherscanProvider, Web3Provider
 from ethtx.providers.semantic_providers.semantics_database import ISemanticsDatabase
-from ethtx.providers.web3_provider import Web3Provider
 from ethtx.semantics.protocols_router import amend_contract_semantics
+from ethtx.semantics.solidity.precompiles import precompiles
 from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS, ERC20_EVENTS
 from ethtx.semantics.standards.erc721 import ERC721_FUNCTIONS, ERC721_EVENTS
-from ethtx.semantics.solidity.precompiles import precompiles
 
 
 class SemanticsRepository:
     def __init__(
-        self,
-        database_connection: ISemanticsDatabase,
-        etherscan_provider: EtherscanProvider,
-        web3provider: Web3Provider,
+            self,
+            database_connection: ISemanticsDatabase,
+            etherscan_provider: EtherscanProvider,
+            web3provider: Web3Provider,
     ):
         self.database = database_connection
         self.etherscan = etherscan_provider
@@ -265,7 +264,7 @@ class SemanticsRepository:
             return standard, standard_semantics
 
         if all(erc20_event in events for erc20_event in ERC20_EVENTS) and all(
-            erc20_function in functions for erc20_function in ERC20_FUNCTIONS
+                erc20_function in functions for erc20_function in ERC20_FUNCTIONS
         ):
             standard = "ERC20"
             try:
@@ -277,7 +276,7 @@ class SemanticsRepository:
             except Exception:
                 standard_semantics = ERC20Semantics(name, name, 18)
         elif all(erc721_event in events for erc721_event in ERC721_EVENTS) and all(
-            erc721_function in functions for erc721_function in ERC721_FUNCTIONS
+                erc721_function in functions for erc721_function in ERC721_FUNCTIONS
         ):
             standard = "ERC721"
             standard_semantics = None

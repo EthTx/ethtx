@@ -1,4 +1,4 @@
-from ethtx.providers.web3_provider import Web3Provider
+from ethtx.providers import Web3Provider
 from .mocks.web3provider import MockWeb3Provider
 
 
