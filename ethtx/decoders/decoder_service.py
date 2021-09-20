@@ -16,6 +16,7 @@ from .abi.decoder import ABIDecoder
 from .semantic.decoder import SemanticDecoder
 from ..models.decoded_model import DecodedTransaction
 from ..models.objects_model import Block, Call
+from ..providers.web3_provider import NodeDataProvider
 
 log = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ class DecoderService:
     def __init__(self, abi_decoder: ABIDecoder, semantic_decoder: SemanticDecoder, web3provider, default_chain: str):
         self.abi_decoder: ABIDecoder = abi_decoder
         self.semantic_decoder: SemanticDecoder = semantic_decoder
-        self.web3provider = web3provider
+        self.web3provider: NodeDataProvider = web3provider
         self.default_chain: str = default_chain
 
 
