@@ -14,14 +14,14 @@ from typing import Optional, Dict
 
 from ethtx.models.decoded_model import DecodedCall
 from ethtx.models.objects_model import Call, TransactionMetadata, BlockMetadata
-from ethtx.utils.measurable import RecursionLimit
-
+from ethtx.semantics.solidity.precompiles import precompiles
 from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS
 from ethtx.semantics.standards.erc721 import ERC721_FUNCTIONS
-from ethtx.semantics.solidity.precompiles import precompiles
-
+from ethtx.utils.measurable import RecursionLimit
 from .abc import ABISubmoduleAbc
 from ..decoders.parameters import decode_function_parameters, decode_graffiti_parameters
+from ...models.semantics_model import FunctionSemantics, ParameterSemantics
+from ...providers import FourByteProvider
 
 RECURSION_LIMIT = 2000
 
@@ -119,7 +119,6 @@ class ABICallsDecoder(ABISubmoduleAbc):
             function_input, function_output = [], []
 
         elif self._repository.check_is_contract(chain_id, call.to_address):
-
             standard = self._repository.get_standard(chain_id, call.to_address)
 
             function_abi = self._repository.get_function_abi(
@@ -146,9 +145,32 @@ class ABICallsDecoder(ABISubmoduleAbc):
                         break
 
             function_name = function_abi.name if function_abi else function_signature
+
             function_input, function_output = decode_function_parameters(
                 call.call_data, call.return_value, function_abi, call.status
             )
+
+            if function_name.startswith("0x") and len(function_signature) > 2:
+                txt = FourByteProvider.get_function(function_signature)
+                if txt:
+                    function_name = (
+                        list(txt.keys())[0]
+                        if list(txt.keys())[0]
+                        else function_signature
+                    )
+                    test = FunctionSemantics(
+                        function_signature,
+                        list(txt.keys())[0],
+                        [
+                            ParameterSemantics(f"arg{i}", x, [])
+                            for i, x in enumerate(list(txt.values())[0])
+                        ],
+                        [],
+                    )
+                    function_input, function_output = decode_function_parameters(
+                        call.call_data, call.return_value, test, call.status
+                    )
+
             if (
                 not call.status
                 and function_output
