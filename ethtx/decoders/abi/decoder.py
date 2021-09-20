@@ -52,9 +52,6 @@ class ABIDecoder(IABIDecoder):
 
         try:
             with ExecutionTimer(f"ABI decoding for " + transaction.metadata.tx_hash):
-                log.info(
-                    "ABI decoding for %s / %s.", transaction.metadata.tx_hash, chain_id
-                )
                 full_decoded_transaction = self._decode_transaction(
                     block.metadata, transaction, chain_id, delegations, token_proxies
                 )
