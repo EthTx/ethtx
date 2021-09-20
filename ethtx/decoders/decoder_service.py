@@ -21,7 +21,7 @@ from ..providers.web3_provider import NodeDataProvider
 log = logging.getLogger(__name__)
 
 class DecoderService:
-    def __init__(self, abi_decoder: ABIDecoder, semantic_decoder: SemanticDecoder, web3provider, default_chain: str):
+    def __init__(self, abi_decoder: ABIDecoder, semantic_decoder: SemanticDecoder, web3provider: NodeDataProvider, default_chain: str):
         self.abi_decoder: ABIDecoder = abi_decoder
         self.semantic_decoder: SemanticDecoder = semantic_decoder
         self.web3provider: NodeDataProvider = web3provider
