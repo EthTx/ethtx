@@ -94,38 +94,42 @@ class FunctionSemantics:
         self.outputs = outputs
 
 
-class FunctionArgSignature(JsonObject):
+class SignatureArg(JsonObject):
     name: str
     type: str
 
-    def __init__(self, name: str, type: str):
+
+class FunctionArgSignature(JsonObject):
+    name: str
+    args: List[SignatureArg]
+    count: int
+
+    def __init__(self, name: str, args: List[SignatureArg], count: int = 1):
         self.name = name
-        self.type = type
+        self.args = args
+        self.count = count
 
 
 class EventArgSignature(JsonObject):
     name: str
-    type: str
+    args: List[SignatureArg]
+    count: int
 
-    def __init__(self, name: str, type: str):
+    def __init__(self, name: str, args: List[SignatureArg], count: int = 1):
         self.name = name
-        self.type = type
+        self.args = args
+        self.count = count
 
 
 class Signature(JsonObject):
     signature: str
-    function_signature: List[FunctionArgSignature]
-    event_signature: List[EventArgSignature]
+    data: List[Union[FunctionArgSignature, EventArgSignature]]
 
     def __init__(
-        self,
-        signature: str,
-        function_signature: List[FunctionArgSignature],
-        event_signature: List[EventArgSignature] = None,
+        self, signature: str, data: List[Union[FunctionArgSignature, EventArgSignature]]
     ):
         self.signature = signature
-        self.function_signature = function_signature
-        self.event_signature = event_signature
+        self.data = data
 
 
 class ERC20Semantics:
