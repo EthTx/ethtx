@@ -9,7 +9,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
+import logging
 from typing import Optional, Dict
 
 from ethtx.models.decoded_model import DecodedCall
@@ -19,9 +19,8 @@ from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS
 from ethtx.semantics.standards.erc721 import ERC721_FUNCTIONS
 from ethtx.utils.measurable import RecursionLimit
 from .abc import ABISubmoduleAbc
+from .helpers.utils import decode_function_abi_with_provider
 from ..decoders.parameters import decode_function_parameters, decode_graffiti_parameters
-from ...models.semantics_model import FunctionSemantics, ParameterSemantics
-from ...providers import FourByteProvider
 
 RECURSION_LIMIT = 2000
 
@@ -151,25 +150,25 @@ class ABICallsDecoder(ABISubmoduleAbc):
             )
 
             if function_name.startswith("0x") and len(function_signature) > 2:
-                txt = FourByteProvider.get_function(function_signature)
-                if txt:
-                    function_name = (
-                        list(txt.keys())[0]
-                        if list(txt.keys())[0]
-                        else function_signature
-                    )
-                    test = FunctionSemantics(
-                        function_signature,
-                        list(txt.keys())[0],
-                        [
-                            ParameterSemantics(f"arg{i}", x, [])
-                            for i, x in enumerate(list(txt.values())[0])
-                        ],
-                        [],
-                    )
-                    function_input, function_output = decode_function_parameters(
-                        call.call_data, call.return_value, test, call.status
-                    )
+                functions_abi_provider = decode_function_abi_with_provider(
+                    signature=function_signature
+                )
+                for function_abi_provider in functions_abi_provider:
+                    try:
+                        function_input, function_output = decode_function_parameters(
+                            call.call_data,
+                            call.return_value,
+                            function_abi_provider,
+                            call.status,
+                        )
+                    except Exception as e:
+                        logging.debug(
+                            "Skipping function from provider and trying to get next. Error: %s",
+                            e,
+                        )
+                        continue
+                    else:
+                        break
 
             if (
                 not call.status

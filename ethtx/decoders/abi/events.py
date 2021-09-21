@@ -18,8 +18,6 @@ from ethtx.semantics.standards.erc20 import ERC20_EVENTS
 from ethtx.semantics.standards.erc721 import ERC721_EVENTS
 from .abc import ABISubmoduleAbc
 from ..decoders.parameters import decode_event_parameters
-from ...models.semantics_model import ParameterSemantics, EventSemantics
-from ...providers import FourByteProvider
 
 
 class ABIEventsDecoder(ABISubmoduleAbc):
@@ -72,6 +70,8 @@ class ABIEventsDecoder(ABISubmoduleAbc):
         event_abi = self._repository.get_event_abi(
             chain_id, event.contract, event_signature
         )
+
+        print("EVENT")
 
         if not event_abi:
 
@@ -131,12 +131,12 @@ class ABIEventsDecoder(ABISubmoduleAbc):
             event.log_data, event.topics, event_abi, anonymous
         )
 
-        if event_name.startswith("0x") and len(event_name) > 2:
-            txt = FourByteProvider.get_event(event_signature)
-            if txt:
-                event_name = (
-                    list(txt.keys())[0] if list(txt.keys())[0] else event_signature
-                )
+        # if event_name.startswith("0x") and len(event_name) > 2:
+        #     txt = FourByteProvider.get_event(event_signature)
+        #     if txt:
+        #         event_name = (
+        #             list(txt.keys())[0] if list(txt.keys())[0] else event_signature
+        #         )
 
         return DecodedEvent(
             chain_id=chain_id,
