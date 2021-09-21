@@ -21,6 +21,7 @@ def decode_function_abi_with_provider(
 ) -> Iterator[FunctionSemantics]:
     functions = _provider.get_function(signature=signature)
     for func in functions:
+
         if not func:
             yield
 
@@ -41,7 +42,8 @@ def decode_event_abi_name_with_provider(
     events = _provider.get_event(signature=signature)
 
     for event in events:
-        if not event:
-            yield
 
-        yield event.get("name")
+        if not event:
+            return signature
+
+        return event.get("name", signature)
