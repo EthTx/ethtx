@@ -289,7 +289,7 @@ class DecodedTransaction(JsonObject):
     def __init__(
         self,
         block_metadata: BlockMetadata,
-        tx_metadata: TransactionMetadata,
+        tx_metadata: DecodedTransactionMetadata,
         events: List[DecodedEvent],
         calls: Optional[DecodedCall],
         transfers: List[DecodedTransfer],
