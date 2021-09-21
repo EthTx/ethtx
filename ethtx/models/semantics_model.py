@@ -114,14 +114,14 @@ class EventArgSignature(JsonObject):
 
 class Signature(JsonObject):
     signature: str
-    function_signature: FunctionArgSignature
-    event_signature: EventArgSignature
+    function_signature: List[FunctionArgSignature]
+    event_signature: List[EventArgSignature]
 
     def __init__(
         self,
         signature: str,
-        function_signature: FunctionArgSignature,
-        event_signature: EventArgSignature = None,
+        function_signature: List[FunctionArgSignature],
+        event_signature: List[EventArgSignature] = None,
     ):
         self.signature = signature
         self.function_signature = function_signature
