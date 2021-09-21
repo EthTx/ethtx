@@ -33,3 +33,15 @@ def decode_function_abi_with_provider(
             ],
             [],
         )
+
+
+def decode_event_abi_name_with_provider(
+    signature: str, _provider: Optional[SignatureProvider] = FourByteProvider
+) -> str:
+    events = _provider.get_event(signature=signature)
+
+    for event in events:
+        if not event:
+            yield
+
+        yield event.get("name")
