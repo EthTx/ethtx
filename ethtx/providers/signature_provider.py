@@ -10,9 +10,14 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Iterator
+from typing import Dict, List, Any, Iterator, TypedDict, Optional, Union
 
 import requests
+
+
+class SignatureReturnType(TypedDict):
+    name: str
+    args: List[str]
 
 
 class SignatureProvider(ABC):
@@ -44,7 +49,7 @@ class FourByteProvider(SignatureProvider):
     def list_event_signatures(self, filters: Dict = None) -> List[Dict]:
         return self._get_all(endpoint=self.EVENT_ENDPOINT, filters=filters)
 
-    def get_function(self, signature: str) -> Iterator[Dict[str, List[str]]]:
+    def get_function(self, signature: str) -> Iterator[SignatureReturnType]:
         if signature == "0x":
             raise ValueError(f"Signature can not be: {signature}")
 
@@ -55,7 +60,7 @@ class FourByteProvider(SignatureProvider):
         for function in reversed(data):
             yield self._parse_text_signature_response(function)
 
-    def get_event(self, signature: str) -> Iterator[Dict[str, List[str]]]:
+    def get_event(self, signature: str) -> Iterator[SignatureReturnType]:
         if signature == "0x":
             raise ValueError(f"Signature can not be: {signature}")
 
@@ -96,14 +101,14 @@ class FourByteProvider(SignatureProvider):
         return requests.get(self.url(endpoint), params=filters).json()
 
     @staticmethod
-    def _parse_text_signature_response(data: Dict) -> Dict[str, List[str]]:
+    def _parse_text_signature_response(data: Dict) -> SignatureReturnType:
         text_sig = data.get("text_signature", "")
-        if text_sig:
-            func_name = text_sig.split("(")[0]
-            types = text_sig[text_sig.find("(") + 1 : text_sig.rfind(")")]
-            if "(" in types:
-                types = types[types.find("(") + 1 : types.rfind(")")]
+        name = text_sig.split("(")[0] if text_sig else ""
 
-            return {func_name: types.split(",")}
+        types = (
+            text_sig[text_sig.find("(") + 1 : text_sig.rfind(")")] if text_sig else ""
+        )
+        if "(" in types:
+            types = types[types.find("(") + 1 : types.rfind(")")]
 
-        return {}
+        return {"name": name, "args": types.split(",")}
