@@ -11,7 +11,6 @@
 #  limitations under the License.
 
 import logging
-import traceback
 from typing import Optional, Dict, List
 
 from ethtx.models.decoded_model import (
@@ -56,14 +55,14 @@ class ABIDecoder(IABIDecoder):
                     block.metadata, transaction, chain_id, delegations, token_proxies
                 )
                 return full_decoded_transaction
-        except Exception as e:
-            log.warning(
+        except Exception:
+            log.exception(
                 "ABI decoding of %s / %s failed.",
                 transaction.metadata.tx_hash,
                 chain_id,
             )
-            traceback.print_exc(e)
-            return None
+
+        return None
 
     def decode_calls(
         self,
@@ -188,13 +187,12 @@ class ABIDecoder(IABIDecoder):
                 token_proxies,
                 chain_id,
             )
-        except Exception as e:
-            log.warning(
+        except Exception:
+            log.exception(
                 "ABI decoding of events for %s / %s failed.",
                 transaction.metadata.tx_hash,
                 chain_id,
             )
-            log.warning(e)
             return full_decoded_transaction
 
         try:
@@ -206,13 +204,12 @@ class ABIDecoder(IABIDecoder):
                 token_proxies,
                 chain_id,
             )
-        except Exception as e:
-            log.warning(
+        except Exception:
+            log.exception(
                 "ABI decoding of calls tree for %s / %s failed.",
                 transaction.metadata.tx_hash,
                 chain_id,
             )
-            log.warning(e)
             return full_decoded_transaction
 
         try:
@@ -222,26 +219,24 @@ class ABIDecoder(IABIDecoder):
                 token_proxies,
                 chain_id,
             )
-        except Exception as e:
-            log.warning(
+        except Exception:
+            log.exception(
                 "ABI decoding of transfers for %s / %s failed.",
                 transaction.metadata.tx_hash,
                 chain_id,
             )
-            log.warning(e)
             return full_decoded_transaction
 
         try:
             full_decoded_transaction.balances = self.decode_balances(
                 full_decoded_transaction.transfers
             )
-        except Exception as e:
-            log.warning(
+        except Exception:
+            log.exception(
                 "ABI decoding of balances for %s / %s failed.",
                 transaction.metadata.tx_hash,
                 chain_id,
             )
-            log.warning(e)
             return full_decoded_transaction
 
         used_semantics = self._repository.end_record()

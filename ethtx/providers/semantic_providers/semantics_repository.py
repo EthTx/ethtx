@@ -249,7 +249,7 @@ class SemanticsRepository:
                     chain_id, address, address, False, contract_semantics, None, None
                 )
 
-        self.update_semantics(address_semantics)
+            self.update_semantics(address_semantics)
 
         # amend semantics with locally stored updates
         amend_contract_semantics(address_semantics.contract)
