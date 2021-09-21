@@ -10,7 +10,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Iterator
 
 import requests
 
@@ -44,7 +44,7 @@ class FourByteProvider(SignatureProvider):
     def list_event_signatures(self, filters: Dict = None) -> List[Dict]:
         return self._get_all(endpoint=self.EVENT_ENDPOINT, filters=filters)
 
-    def get_function(self, signature: str) -> Dict[str, List[str]]:
+    def get_function(self, signature: str) -> Iterator[Dict[str, List[str]]]:
         if signature == "0x":
             raise ValueError(f"Signature can not be: {signature}")
 
@@ -52,9 +52,10 @@ class FourByteProvider(SignatureProvider):
             endpoint=self.FUNCTION_ENDPOINT, filters={"hex_signature": signature}
         )
 
-        return self._parse_text_signature_response(data)
+        for i in reversed(data):
+            yield self._parse_text_signature_response(i)
 
-    def get_event(self, signature: str) -> Dict[str, List[str]]:
+    def get_event(self, signature: str) -> Iterator[Dict[str, List[str]]]:
         if signature == "0x":
             raise ValueError(f"Signature can not be: {signature}")
 
@@ -62,7 +63,8 @@ class FourByteProvider(SignatureProvider):
             endpoint=self.EVENT_ENDPOINT, filters={"hex_signature": signature}
         )
 
-        return self._parse_text_signature_response(data)
+        for i in reversed(data):
+            yield self._parse_text_signature_response(i)
 
     def url(self, endpoint: str) -> str:
         return f"{self.API_URL}/{endpoint}/"
@@ -94,8 +96,8 @@ class FourByteProvider(SignatureProvider):
         return requests.get(self.url(endpoint), params=filters).json()
 
     @staticmethod
-    def _parse_text_signature_response(response: List) -> Dict[str, List[str]]:
-        text_sig = response[0].get("text_signature", "") if response else ""
+    def _parse_text_signature_response(data: Dict) -> Dict[str, List[str]]:
+        text_sig = data.get("text_signature", "")
         if text_sig:
             func_name = text_sig.split("(")[0]
             types = text_sig[text_sig.find("(") + 1 : text_sig.rfind(")")]
