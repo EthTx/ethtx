@@ -52,8 +52,8 @@ class FourByteProvider(SignatureProvider):
             endpoint=self.FUNCTION_ENDPOINT, filters={"hex_signature": signature}
         )
 
-        for i in reversed(data):
-            yield self._parse_text_signature_response(i)
+        for function in reversed(data):
+            yield self._parse_text_signature_response(function)
 
     def get_event(self, signature: str) -> Iterator[Dict[str, List[str]]]:
         if signature == "0x":
@@ -63,8 +63,8 @@ class FourByteProvider(SignatureProvider):
             endpoint=self.EVENT_ENDPOINT, filters={"hex_signature": signature}
         )
 
-        for i in reversed(data):
-            yield self._parse_text_signature_response(i)
+        for event in reversed(data):
+            yield self._parse_text_signature_response(event)
 
     def url(self, endpoint: str) -> str:
         return f"{self.API_URL}/{endpoint}/"
