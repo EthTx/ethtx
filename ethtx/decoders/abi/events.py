@@ -72,8 +72,6 @@ class ABIEventsDecoder(ABISubmoduleAbc):
             chain_id, event.contract, event_signature
         )
 
-        print("EVENT")
-
         if not event_abi:
 
             if event_signature in ERC20_EVENTS:
