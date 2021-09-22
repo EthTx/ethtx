@@ -19,7 +19,7 @@ from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS
 from ethtx.semantics.standards.erc721 import ERC721_FUNCTIONS
 from ethtx.utils.measurable import RecursionLimit
 from .abc import ABISubmoduleAbc
-from .helpers.utils import decode_function_abi_with_provider
+from .helpers.utils import decode_function_abi_with_external_source
 from ..decoders.parameters import decode_function_parameters, decode_graffiti_parameters
 
 log = logging.getLogger(__name__)
@@ -152,8 +152,8 @@ class ABICallsDecoder(ABISubmoduleAbc):
             )
 
             if function_name.startswith("0x") and len(function_signature) > 2:
-                functions_abi_provider = decode_function_abi_with_provider(
-                    signature=function_signature
+                functions_abi_provider = decode_function_abi_with_external_source(
+                    signature=function_signature, repository=self._repository
                 )
                 for function_abi_provider in functions_abi_provider:
                     try:

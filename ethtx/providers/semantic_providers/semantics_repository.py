@@ -11,7 +11,7 @@
 #  limitations under the License.
 
 from functools import lru_cache
-from typing import Optional, List
+from typing import Optional, List, Any, Dict
 
 from ethtx.decoders.decoders.semantics import decode_events_and_functions
 from ethtx.models.semantics_model import (
@@ -447,22 +447,25 @@ class SemanticsRepository:
         self.database.insert_address(address_semantics, update_if_exist=True)
 
     def get_most_common_signature(self, signature_hash: str) -> Signature:
-        signatures = self.database.get_signature_semantics(
-            signature_hash=signature_hash
-        )
+        signatures = [
+            sig
+            for sig in self.database.get_signature_semantics(
+                signature_hash=signature_hash
+            )
+        ]
 
         if signatures:
             most_common_signature = max(signatures, key=lambda x: x["count"])
             signature = Signature(
-                signature_hash=most_common_signature["signature"],
+                signature_hash=most_common_signature["signature_hash"],
                 name=most_common_signature["name"],
                 args=most_common_signature["args"],
                 count=most_common_signature["count"],
             )
             most_common_signature["count"] += 1
-            self.database.insert_signature(signature, update_if_exist=True)
+            self.database.insert_signature(most_common_signature, update_if_exist=True)
 
-            return most_common_signature
+            return signature
 
     def process_signatures(self, signature: Signature):
         signatures = self.database.get_signature_semantics(
@@ -479,4 +482,4 @@ class SemanticsRepository:
                     self.database.insert_signature(signature=sig, update_if_exist=True)
                     break
         else:
-            self.database.insert_signature(signature=signature)
+            self.database.insert_signature(signature=signature.json())

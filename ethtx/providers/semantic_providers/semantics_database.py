@@ -64,13 +64,13 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         return self._addresses.find_one({"_id": _id}, {"_id": 0})
 
     def get_signature_semantics(self, signature_hash: str) -> Cursor:
-        return self._signatures.find({"signature": signature_hash}, {"_id": 0})
+        return self._signatures.find({"signature_hash": signature_hash}, {"_id": 0})
 
-    def insert_signature(self, signature: Signature, update_if_exist=False) -> None:
+    def insert_signature(self, signature: dict, update_if_exist=False) -> None:
         if update_if_exist:
-            self._signatures.replace_one({}, signature.json(), upsert=True)
+            self._signatures.replace_one({}, signature, upsert=True)
         else:
-            self._signatures.insert_one(signature.json())
+            self._signatures.insert_one(signature)
 
     def get_contract_semantics(self, code_hash):
         """Contract hashes are always the same, no mather what chain we use, so there is no need
