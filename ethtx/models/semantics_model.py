@@ -100,15 +100,15 @@ class SignatureArg(JsonObject):
 
 
 class Signature(JsonObject):
-    signature: str
+    signature_hash: str
     name: str
     args: List[SignatureArg]
     count: int
 
     def __init__(
-        self, signature: str, name: str, args: List[SignatureArg], count: int = 1
+        self, signature_hash: str, name: str, args: List[SignatureArg], count: int = 1
     ):
-        self.signature = signature
+        self.signature_hash = signature_hash
         self.name = name
         self.args = args
         self.count = count

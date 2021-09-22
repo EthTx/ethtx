@@ -22,6 +22,7 @@ from ethtx.models.semantics_model import (
     TransformationSemantics,
     FunctionSemantics,
     EventSemantics,
+    Signature,
 )
 from ethtx.providers import EtherscanProvider, Web3Provider
 from ethtx.providers.semantic_providers.semantics_database import ISemanticsDatabase
@@ -33,10 +34,10 @@ from ethtx.semantics.standards.erc721 import ERC721_FUNCTIONS, ERC721_EVENTS
 
 class SemanticsRepository:
     def __init__(
-            self,
-            database_connection: ISemanticsDatabase,
-            etherscan_provider: EtherscanProvider,
-            web3provider: Web3Provider,
+        self,
+        database_connection: ISemanticsDatabase,
+        etherscan_provider: EtherscanProvider,
+        web3provider: Web3Provider,
     ):
         self.database = database_connection
         self.etherscan = etherscan_provider
@@ -264,7 +265,7 @@ class SemanticsRepository:
             return standard, standard_semantics
 
         if all(erc20_event in events for erc20_event in ERC20_EVENTS) and all(
-                erc20_function in functions for erc20_function in ERC20_FUNCTIONS
+            erc20_function in functions for erc20_function in ERC20_FUNCTIONS
         ):
             standard = "ERC20"
             try:
@@ -276,7 +277,7 @@ class SemanticsRepository:
             except Exception:
                 standard_semantics = ERC20Semantics(name, name, 18)
         elif all(erc721_event in events for erc721_event in ERC721_EVENTS) and all(
-                erc721_function in functions for erc721_function in ERC721_FUNCTIONS
+            erc721_function in functions for erc721_function in ERC721_FUNCTIONS
         ):
             standard = "ERC721"
             standard_semantics = None
@@ -444,3 +445,20 @@ class SemanticsRepository:
 
         self.database.insert_contract(contract_semantics, update_if_exist=True)
         self.database.insert_address(address_semantics, update_if_exist=True)
+
+    def process_signatures(self, signature: Signature):
+        signatures = self.database.get_signature_semantics(
+            signature_hash=signature.signature_hash
+        )
+        for sig in signatures:
+            if signature.signature_hash == sig["name"] and len(signature.args) == len(
+                sig["args"]
+            ):
+                if any(arg for arg in list(sig["args"][0].values()) if "arg" in arg):
+                    for index, argument in enumerate(sig["args"]):
+                        argument["name"] = signature.args[index].name
+                        argument["type"] = signature.args[index].type
+                    self.database.insert_signature(signature=sig, update_if_exist=True)
+                    break
+        else:
+            self.database.insert_signature(signature=signature)
