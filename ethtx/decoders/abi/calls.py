@@ -22,6 +22,8 @@ from .abc import ABISubmoduleAbc
 from .helpers.utils import decode_function_abi_with_provider
 from ..decoders.parameters import decode_function_parameters, decode_graffiti_parameters
 
+log = logging.getLogger(__name__)
+
 RECURSION_LIMIT = 2000
 
 
@@ -155,14 +157,13 @@ class ABICallsDecoder(ABISubmoduleAbc):
                 )
                 for function_abi_provider in functions_abi_provider:
                     try:
+                        function_abi = function_abi_provider
+                        function_name = function_abi.name
                         function_input, function_output = decode_function_parameters(
-                            call.call_data,
-                            call.return_value,
-                            function_abi_provider,
-                            call.status,
+                            call.call_data, call.return_value, function_abi, call.status
                         )
                     except Exception as e:
-                        logging.debug(
+                        log.debug(
                             "Skipping function from provider and trying to get next. Error: %s",
                             e,
                         )
