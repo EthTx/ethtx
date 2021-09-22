@@ -461,7 +461,6 @@ class SemanticsRepository:
                     for index, argument in enumerate(sig["args"]):
                         argument["name"] = signature.args[index].name
                         argument["type"] = signature.args[index].type
-                    sig["count"] += signature.count
                     self.database.insert_signature(signature=sig, update_if_exist=True)
                     break
         else:
