@@ -77,7 +77,7 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         to use chain_id"""
         return self._contracts.find_one({"_id": code_hash}, {"_id": 0})
 
-    def insert_contract(self, contract, update_if_exist=False):
+    def insert_contract(self, contract, update_if_exist=False) -> None:
         contract_with_id = {"_id": contract["code_hash"], **contract}
 
         if update_if_exist:
@@ -87,7 +87,7 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         else:
             self._contracts.insert_one(contract_with_id)
 
-    def insert_address(self, address, update_if_exist=False):
+    def insert_address(self, address, update_if_exist=False) -> None:
         address_with_id = {
             "_id": f"{address['chain_id']}-{address['address']}",
             **address,
