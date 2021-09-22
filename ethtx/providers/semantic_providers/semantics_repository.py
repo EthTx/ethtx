@@ -446,6 +446,9 @@ class SemanticsRepository:
         self.database.insert_contract(contract_semantics, update_if_exist=True)
         self.database.insert_address(address_semantics, update_if_exist=True)
 
+    def get_most_common_signature(self):
+        pass
+
     def process_signatures(self, signature: Signature):
         signatures = self.database.get_signature_semantics(
             signature_hash=signature.signature_hash
@@ -458,6 +461,7 @@ class SemanticsRepository:
                     for index, argument in enumerate(sig["args"]):
                         argument["name"] = signature.args[index].name
                         argument["type"] = signature.args[index].type
+                    sig["count"] += signature.count
                     self.database.insert_signature(signature=sig, update_if_exist=True)
                     break
         else:
