@@ -47,3 +47,5 @@ def decode_event_abi_name_with_provider(
             return signature
 
         return event.get("name", signature)
+
+    return signature
