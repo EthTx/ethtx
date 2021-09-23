@@ -18,6 +18,7 @@ from ethtx.models.decoded_model import (
     DecodedCall,
     DecodedEvent,
     DecodedTransfer,
+    Proxy
 )
 from ethtx.models.objects_model import (
     Block,
@@ -43,8 +44,7 @@ class ABIDecoder(IABIDecoder):
         block: Block,
         transaction: Transaction,
         chain_id: str,
-        delegations: Optional[Dict[str, set]] = None,
-        token_proxies: Optional[Dict[str, dict]] = None,
+        proxies: Optional[Dict[str, Proxy]] = None,
     ) -> Optional[DecodedTransaction]:
 
         log.info("ABI decoding for %s / %s.", transaction.metadata.tx_hash, chain_id)
@@ -55,7 +55,7 @@ class ABIDecoder(IABIDecoder):
                     "ABI decoding for %s / %s.", transaction.metadata.tx_hash, chain_id
                 )
                 full_decoded_transaction = self._decode_transaction(
-                    block.metadata, transaction, chain_id, delegations, token_proxies
+                    block.metadata, transaction, chain_id, proxies
                 )
                 return full_decoded_transaction
         except Exception:
@@ -72,8 +72,7 @@ class ABIDecoder(IABIDecoder):
         root_call: Call,
         block: BlockMetadata,
         transaction: TransactionMetadata,
-        delegations: Optional[Dict[str, set]] = None,
-        token_proxies: Optional[Dict[str, dict]] = None,
+        proxies: Optional[Dict[str, Proxy]] = None,
         chain_id: Optional[str] = None,
     ) -> Optional[DecodedCall]:
         return ABICallsDecoder(
@@ -82,8 +81,7 @@ class ABIDecoder(IABIDecoder):
             call=root_call,
             block=block,
             transaction=transaction,
-            delegations=delegations,
-            token_proxies=token_proxies,
+            proxies=proxies,
             chain_id=chain_id or self._default_chain
         )
 
@@ -92,8 +90,7 @@ class ABIDecoder(IABIDecoder):
         root_call: Call,
         block: BlockMetadata,
         transaction: TransactionMetadata,
-        delegations: Optional[Dict[str, set]] = None,
-        token_proxies: Optional[Dict[str, dict]] = None,
+        proxies: Optional[Dict[str, Proxy]] = None,
     ) -> Optional[DecodedCall]:
         return ABICallsDecoder(
             repository=self._repository, chain_id=self._default_chain
@@ -101,8 +98,7 @@ class ABIDecoder(IABIDecoder):
             call=root_call,
             block=block,
             transaction=transaction,
-            delegations=delegations,
-            token_proxies=token_proxies,
+            proxies=proxies,
         )
 
     def decode_events(
@@ -110,8 +106,7 @@ class ABIDecoder(IABIDecoder):
         events: [Event],
         block: BlockMetadata,
         transaction: TransactionMetadata,
-        delegations: Optional[Dict[str, set]] = None,
-        token_proxies: Optional[Dict[str, dict]] = None,
+        proxies: Optional[Dict[str, Proxy]] = None,
         chain_id: Optional[str] = None,
     ) -> List[DecodedEvent]:
         return ABIEventsDecoder(
@@ -120,8 +115,7 @@ class ABIDecoder(IABIDecoder):
             events=events,
             block=block,
             transaction=transaction,
-            delegations=delegations or {},
-            token_proxies=token_proxies or {},
+            proxies=proxies or {},
             chain_id=chain_id or self._default_chain
         )
 
@@ -130,8 +124,7 @@ class ABIDecoder(IABIDecoder):
         events: Event,
         block: BlockMetadata,
         transaction: TransactionMetadata,
-        delegations: Optional[Dict[str, set]] = None,
-        token_proxies: Optional[Dict[str, dict]] = None,
+        proxies: Optional[Dict[str, Proxy]] = None,
         chain_id: Optional[str] = None,
     ) -> DecodedEvent:
         return ABIEventsDecoder(
@@ -140,8 +133,7 @@ class ABIDecoder(IABIDecoder):
             events=events,
             block=block,
             transaction=transaction,
-            delegations=delegations or {},
-            token_proxies=token_proxies or {},
+            proxies=proxies or {},
             chain_id=chain_id or self._default_chain
         )
 
@@ -149,7 +141,7 @@ class ABIDecoder(IABIDecoder):
         self,
         call: DecodedCall,
         events: List[DecodedEvent],
-        token_proxies: Optional[Dict[str, dict]] = None,
+        proxies: Optional[Dict[str, Proxy]] = None,
         chain_id: Optional[str] = None,
     ):
         return ABITransfersDecoder(
@@ -157,7 +149,7 @@ class ABIDecoder(IABIDecoder):
         ).decode(
             call=call,
             events=events,
-            token_proxies=token_proxies or {},
+            proxies=proxies or {},
         )
 
     def decode_balances(self, transfers: List[DecodedTransfer]):
@@ -170,8 +162,7 @@ class ABIDecoder(IABIDecoder):
         block: BlockMetadata,
         transaction: Transaction,
         chain_id: str,
-        delegations: Optional[Dict[str, set]] = None,
-        token_proxies: Optional[Dict[str, dict]] = None,
+        proxies: Optional[Dict[str, Proxy]] = None,
     ) -> DecodedTransaction:
 
         full_decoded_transaction = DecodedTransaction(
@@ -190,8 +181,7 @@ class ABIDecoder(IABIDecoder):
                 transaction.events,
                 block,
                 transaction.metadata,
-                delegations,
-                token_proxies,
+                proxies,
                 chain_id
             )
         except Exception:
@@ -207,8 +197,7 @@ class ABIDecoder(IABIDecoder):
                 transaction.root_call,
                 block,
                 transaction.metadata,
-                delegations,
-                token_proxies,
+                proxies,
                 chain_id
             )
         except Exception:
@@ -223,7 +212,7 @@ class ABIDecoder(IABIDecoder):
             full_decoded_transaction.transfers = self.decode_transfers(
                 full_decoded_transaction.calls,
                 full_decoded_transaction.events,
-                token_proxies,
+                proxies,
                 chain_id
             )
         except Exception:
