@@ -20,7 +20,7 @@ from ethtx.decoders.semantic.helpers.utils import (
     semantically_decode_parameter,
     get_badge,
 )
-from ethtx.models.decoded_model import DecodedEvent, DecodedTransactionMetadata
+from ethtx.models.decoded_model import DecodedEvent, DecodedTransactionMetadata, Proxy
 from ethtx.semantics.protocols.anonymous import anonymous_events
 from ethtx.semantics.standards.erc20 import ERC20_EVENTS, ERC20_TRANSFORMATIONS
 from ethtx.semantics.standards.erc721 import ERC721_TRANSFORMATIONS, ERC721_EVENTS
@@ -36,26 +36,26 @@ class SemanticEventsDecoder(SemanticSubmoduleAbc):
         self,
         events: Union[DecodedEvent, List[DecodedEvent]],
         tx_metadata: DecodedTransactionMetadata,
-        token_proxies: Dict[str, Dict],
+        proxies: Dict[str, Proxy],
     ) -> Union[DecodedEvent, List[DecodedEvent]]:
         """Semantically decode events."""
         if isinstance(events, list):
             return (
                 [
-                    self.decode_event(event, tx_metadata, token_proxies)
+                    self.decode_event(event, tx_metadata, proxies)
                     for event in events
                 ]
                 if events
                 else []
             )
 
-        return self.decode_event(events, tx_metadata, token_proxies)
+        return self.decode_event(events, tx_metadata, proxies)
 
     def decode_event(
         self,
         event: DecodedEvent,
         tx_metadata: DecodedTransactionMetadata,
-        token_proxies: Dict[str, Dict],
+        proxies: Dict[str, Proxy],
     ) -> DecodedEvent:
         """Semantically decode event"""
 
@@ -100,7 +100,7 @@ class SemanticEventsDecoder(SemanticSubmoduleAbc):
             event.contract.address, event.parameters, [], tx_metadata, self.repository
         )
         standard = self.repository.get_standard(event.chain_id, event.contract.address)
-        if not standard and event.contract.address in token_proxies:
+        if not standard and event.contract.address in proxies and proxies[event.contract.address].token:
             standard = "ERC20"
 
         # perform parameters transformation
@@ -110,7 +110,7 @@ class SemanticEventsDecoder(SemanticSubmoduleAbc):
                 parameter,
                 f"__input{i}__",
                 event_transformations,
-                token_proxies,
+                proxies,
                 context,
             )
 
@@ -128,7 +128,7 @@ class SemanticEventsDecoder(SemanticSubmoduleAbc):
                             parameter,
                             f"__input{i}__",
                             event_transformations,
-                            token_proxies,
+                            proxies,
                             context,
                         )
         elif standard == "ERC721":
@@ -147,7 +147,7 @@ class SemanticEventsDecoder(SemanticSubmoduleAbc):
                             parameter,
                             f"__input{i}__",
                             event_transformations,
-                            token_proxies,
+                            proxies,
                             context,
                         )
 

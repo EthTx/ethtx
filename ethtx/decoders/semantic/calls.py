@@ -12,7 +12,7 @@
 
 from typing import Dict
 
-from ethtx.models.decoded_model import DecodedCall, DecodedTransactionMetadata
+from ethtx.models.decoded_model import DecodedCall, DecodedTransactionMetadata, Proxy
 from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS, ERC20_TRANSFORMATIONS
 from ethtx.semantics.standards.erc721 import ERC721_FUNCTIONS, ERC721_TRANSFORMATIONS
 from ethtx.utils.measurable import RecursionLimit
@@ -33,7 +33,7 @@ class SemanticCallsDecoder(SemanticSubmoduleAbc):
         self,
         call: DecodedCall,
         tx_metadata: DecodedTransactionMetadata,
-        token_proxies: Dict[str, Dict],
+        proxies: Dict[str, Proxy],
     ) -> DecodedCall:
 
         function_transformations = self.repository.get_transformations(
@@ -64,7 +64,7 @@ class SemanticCallsDecoder(SemanticSubmoduleAbc):
                 parameter,
                 f"__input{i}__",
                 function_transformations,
-                token_proxies,
+                proxies,
                 context,
             )
         for i, parameter in enumerate(call.outputs):
@@ -73,7 +73,7 @@ class SemanticCallsDecoder(SemanticSubmoduleAbc):
                 parameter,
                 f"__output{i}__",
                 function_transformations,
-                token_proxies,
+                proxies,
                 context,
             )
 
@@ -93,7 +93,7 @@ class SemanticCallsDecoder(SemanticSubmoduleAbc):
                             parameter,
                             f"__input{i}__",
                             function_transformations,
-                            token_proxies,
+                            proxies,
                             context,
                         )
                     for i, parameter in enumerate(call.outputs):
@@ -102,7 +102,7 @@ class SemanticCallsDecoder(SemanticSubmoduleAbc):
                             parameter,
                             f"__output{i}__",
                             function_transformations,
-                            token_proxies,
+                            proxies,
                             context,
                         )
         elif standard == "ERC721":
@@ -121,7 +121,7 @@ class SemanticCallsDecoder(SemanticSubmoduleAbc):
                             parameter,
                             f"__input{i}__",
                             function_transformations,
-                            token_proxies,
+                            proxies,
                             context,
                         )
                     for i, parameter in enumerate(call.outputs):
@@ -130,7 +130,7 @@ class SemanticCallsDecoder(SemanticSubmoduleAbc):
                             parameter,
                             f"__output{i}__",
                             function_transformations,
-                            token_proxies,
+                            proxies,
                             context,
                         )
 
@@ -153,6 +153,6 @@ class SemanticCallsDecoder(SemanticSubmoduleAbc):
         with RecursionLimit(RECURSION_LIMIT):
             if call.subcalls:
                 for sub_call in call.subcalls:
-                    self.decode(sub_call, tx_metadata, token_proxies)
+                    self.decode(sub_call, tx_metadata, proxies)
 
         return call

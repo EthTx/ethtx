@@ -12,7 +12,7 @@
 
 from typing import List, Dict, Union, Optional
 
-from ethtx.models.decoded_model import DecodedEvent
+from ethtx.models.decoded_model import DecodedEvent, Proxy
 from ethtx.models.objects_model import BlockMetadata, TransactionMetadata, Event
 from ethtx.semantics.standards.erc20 import ERC20_EVENTS
 from .abc import ABISubmoduleAbc
@@ -27,8 +27,7 @@ class ABIEventsDecoder(ABISubmoduleAbc):
         events: Union[Event, List[Event]],
         block: BlockMetadata,
         transaction: TransactionMetadata,
-        delegations: Optional[Dict[str, set]] = None,
-        token_proxies: Optional[Dict[str, dict]] = None,
+        proxies: Optional[Dict[str, Proxy]] = None,
         chain_id: Optional[str] = None,
     ) -> Union[DecodedEvent, List[DecodedEvent]]:
         """Return list of decoded events."""
@@ -36,7 +35,7 @@ class ABIEventsDecoder(ABISubmoduleAbc):
             return (
                 [
                     self.decode_event(
-                        event, block, transaction, delegations, token_proxies, chain_id
+                        event, block, transaction, proxies, chain_id
                     )
                     for event in events
                 ]
@@ -45,7 +44,7 @@ class ABIEventsDecoder(ABISubmoduleAbc):
             )
 
         return self.decode_event(
-            events, block, transaction, delegations, token_proxies, chain_id
+            events, block, transaction, proxies, chain_id
         )
 
     def decode_event(
@@ -53,8 +52,7 @@ class ABIEventsDecoder(ABISubmoduleAbc):
         event: Event,
         block: BlockMetadata,
         transaction: TransactionMetadata,
-        delegations: Dict[str, set] = None,
-        token_proxies: Dict[str, dict] = None,
+        proxies: Dict[str, Proxy] = None,
         chain_id: str = None,
     ) -> DecodedEvent:
 
@@ -85,17 +83,15 @@ class ABIEventsDecoder(ABISubmoduleAbc):
                 if event_abi:
                     anonymous = True
 
-            if not event_abi and event.contract in delegations:
+            if not event_abi and event.contract in proxies:
                 # try to find signature in delegate-called contracts
-                for delegate in delegations[event.contract]:
-                    event_abi = self._repository.get_event_abi(
-                        chain_id, delegate, event_signature
-                    )
+                for semantic in proxies[event.contract].semantics:
+                    event_abi = semantic.contract.events[event_signature] if event_signature in semantic.contract.events else None
                     if event_abi:
                         break
 
         contract_name = self._repository.get_address_label(
-            chain_id, event.contract, token_proxies
+            chain_id, event.contract, proxies
         )
         event_name = event_abi.name if event_abi else event_signature
         parameters = decode_event_parameters(
