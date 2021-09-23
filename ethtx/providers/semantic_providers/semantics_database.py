@@ -64,11 +64,13 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         return self._addresses.find_one({"_id": _id}, {"_id": 0})
 
     def get_signature_semantics(self, signature_hash: str) -> Cursor:
-        return self._signatures.find({"signature_hash": signature_hash}, {"_id": 0})
+        return self._signatures.find({"signature_hash": signature_hash})
 
     def insert_signature(self, signature: dict, update_if_exist=False) -> None:
         if update_if_exist:
-            self._signatures.replace_one({}, signature, upsert=True)
+            self._signatures.replace_one(
+                {"_id": signature["_id"]}, signature, upsert=True
+            )
         else:
             self._signatures.insert_one(signature)
 

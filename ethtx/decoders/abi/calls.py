@@ -163,8 +163,8 @@ class ABICallsDecoder(ABISubmoduleAbc):
                             call.call_data, call.return_value, function_abi, call.status
                         )
                     except Exception as e:
-                        log.debug(
-                            "Skipping function from provider and trying to get next. Error: %s",
+                        log.info(
+                            "Skipping getting function from external source and trying to get next. Error: %s",
                             e,
                         )
                         continue

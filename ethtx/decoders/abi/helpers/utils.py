@@ -30,6 +30,7 @@ def decode_function_abi_with_external_source(
     repository: SemanticsRepository,
     _provider: Optional[SignatureProvider] = FourByteProvider,
 ) -> Iterator[FunctionSemantics]:
+
     function = repository.get_most_common_signature(signature_hash=signature)
     if function:
         log.info(
@@ -46,7 +47,6 @@ def decode_function_abi_with_external_source(
 
     functions = _provider.get_function(signature=signature)
     for func in functions:
-
         if not func:
             yield
 
