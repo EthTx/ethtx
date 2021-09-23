@@ -11,9 +11,12 @@
 #  limitations under the License.
 
 from abc import ABC
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 
+from pymongo.cursor import Cursor
 from pymongo.database import Database as MongoDatabase
+
+from ethtx.models.semantics_model import Signature
 
 
 class ISemanticsDatabase(ABC):
@@ -27,16 +30,16 @@ class ISemanticsDatabase(ABC):
     def get_contract_semantics(self, code_hash: str) -> Optional[Dict]:
         ...
 
-    def get_signature_semantics(self, signature_hash: str) -> Optional[Dict]:
+    def get_signature_semantics(self, signature_hash: str) -> Any:
         ...
 
-    def insert_contract(self, contract: dict, update_if_exist: bool = False):
+    def insert_contract(self, contract: dict, update_if_exist: bool = False) -> None:
         ...
 
-    def insert_address(self, address_data: dict, update_if_exist: bool = False):
+    def insert_address(self, address_data: dict, update_if_exist: bool = False) -> None:
         ...
 
-    def insert_signature(self, signature, update_if_exist: bool = False):
+    def insert_signature(self, signature, update_if_exist: bool = False) -> None:
         ...
 
 
@@ -60,15 +63,23 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         _id = f"{chain_id}-{address}"
         return self._addresses.find_one({"_id": _id}, {"_id": 0})
 
-    def get_signature_semantics(self, signature_hash):
-        return self._signatures.find_one({"_id": signature_hash}, {"_id": 0})
+    def get_signature_semantics(self, signature_hash: str) -> Cursor:
+        return self._signatures.find({"signature_hash": signature_hash})
+
+    def insert_signature(self, signature: dict, update_if_exist=False) -> None:
+        if update_if_exist:
+            self._signatures.replace_one(
+                {"_id": signature["_id"]}, signature, upsert=True
+            )
+        else:
+            self._signatures.insert_one(signature)
 
     def get_contract_semantics(self, code_hash):
         """Contract hashes are always the same, no mather what chain we use, so there is no need
         to use chain_id"""
         return self._contracts.find_one({"_id": code_hash}, {"_id": 0})
 
-    def insert_contract(self, contract, update_if_exist=False):
+    def insert_contract(self, contract, update_if_exist=False) -> None:
         contract_with_id = {"_id": contract["code_hash"], **contract}
 
         if update_if_exist:
@@ -78,7 +89,7 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         else:
             self._contracts.insert_one(contract_with_id)
 
-    def insert_address(self, address, update_if_exist=False):
+    def insert_address(self, address, update_if_exist=False) -> None:
         address_with_id = {
             "_id": f"{address['chain_id']}-{address['address']}",
             **address,
@@ -90,13 +101,3 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
             )
         else:
             self._addresses.insert_one(address_with_id)
-
-    def insert_signature(self, signature, update_if_exist=False):
-        signature_with_id = {"_id": signature["hash"], **signature}
-
-        if update_if_exist:
-            self._signatures.replace_one(
-                {"_id": signature_with_id["_id"]}, signature_with_id, upsert=True
-            )
-        else:
-            self._signatures.insert_one(signature_with_id)

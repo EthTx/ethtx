@@ -9,19 +9,20 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
+import logging
 from typing import Optional, Dict
 
 from ethtx.models.decoded_model import DecodedCall
 from ethtx.models.objects_model import Call, TransactionMetadata, BlockMetadata
-from ethtx.utils.measurable import RecursionLimit
-
+from ethtx.semantics.solidity.precompiles import precompiles
 from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS
 from ethtx.semantics.standards.erc721 import ERC721_FUNCTIONS
-from ethtx.semantics.solidity.precompiles import precompiles
-
+from ethtx.utils.measurable import RecursionLimit
 from .abc import ABISubmoduleAbc
+from .helpers.utils import decode_function_abi_with_external_source
 from ..decoders.parameters import decode_function_parameters, decode_graffiti_parameters
+
+log = logging.getLogger(__name__)
 
 RECURSION_LIMIT = 2000
 
@@ -119,14 +120,13 @@ class ABICallsDecoder(ABISubmoduleAbc):
             function_input, function_output = [], []
 
         elif self._repository.check_is_contract(chain_id, call.to_address):
-
             standard = self._repository.get_standard(chain_id, call.to_address)
 
             function_abi = self._repository.get_function_abi(
                 chain_id, call.to_address, function_signature
             )
 
-            function_signature = call.call_data[:10] if call.call_data else ''
+            function_signature = call.call_data[:10] if call.call_data else ""
 
             if not function_abi:
                 if standard == "ERC20":
@@ -146,9 +146,31 @@ class ABICallsDecoder(ABISubmoduleAbc):
                         break
 
             function_name = function_abi.name if function_abi else function_signature
+
             function_input, function_output = decode_function_parameters(
                 call.call_data, call.return_value, function_abi, call.status
             )
+
+            if function_name.startswith("0x") and len(function_signature) > 2:
+                functions_abi_provider = decode_function_abi_with_external_source(
+                    signature=function_signature, repository=self._repository
+                )
+                for function_abi_provider in functions_abi_provider:
+                    try:
+                        function_abi = function_abi_provider
+                        function_name = function_abi.name
+                        function_input, function_output = decode_function_parameters(
+                            call.call_data, call.return_value, function_abi, call.status
+                        )
+                    except Exception as e:
+                        log.info(
+                            "Skipping getting function from external source and trying to get next. Error: %s",
+                            e,
+                        )
+                        continue
+                    else:
+                        break
+
             if (
                 not call.status
                 and function_output
@@ -161,8 +183,11 @@ class ABICallsDecoder(ABISubmoduleAbc):
             function_semantics = precompiles[int(call.to_address, 16)]
             function_name = function_semantics.name
             function_input, function_output = decode_function_parameters(
-                call.call_data, call.return_value, function_semantics, call.status,
-                strip_signature=False
+                call.call_data,
+                call.return_value,
+                function_semantics,
+                call.status,
+                strip_signature=False,
             )
         else:
             function_name = "fallback"

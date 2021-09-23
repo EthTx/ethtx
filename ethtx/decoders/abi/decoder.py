@@ -51,9 +51,6 @@ class ABIDecoder(IABIDecoder):
 
         try:
             with ExecutionTimer(f"ABI decoding for " + transaction.metadata.tx_hash):
-                log.info(
-                    "ABI decoding for %s / %s.", transaction.metadata.tx_hash, chain_id
-                )
                 full_decoded_transaction = self._decode_transaction(
                     block.metadata, transaction, chain_id, delegations, token_proxies
                 )
@@ -84,7 +81,7 @@ class ABIDecoder(IABIDecoder):
             transaction=transaction,
             delegations=delegations,
             token_proxies=token_proxies,
-            chain_id=chain_id or self._default_chain
+            chain_id=chain_id or self._default_chain,
         )
 
     def decode_call(
@@ -122,7 +119,7 @@ class ABIDecoder(IABIDecoder):
             transaction=transaction,
             delegations=delegations or {},
             token_proxies=token_proxies or {},
-            chain_id=chain_id or self._default_chain
+            chain_id=chain_id or self._default_chain,
         )
 
     def decode_event(
@@ -142,7 +139,7 @@ class ABIDecoder(IABIDecoder):
             transaction=transaction,
             delegations=delegations or {},
             token_proxies=token_proxies or {},
-            chain_id=chain_id or self._default_chain
+            chain_id=chain_id or self._default_chain,
         )
 
     def decode_transfers(
@@ -154,11 +151,7 @@ class ABIDecoder(IABIDecoder):
     ):
         return ABITransfersDecoder(
             repository=self._repository, chain_id=chain_id or self._default_chain
-        ).decode(
-            call=call,
-            events=events,
-            token_proxies=token_proxies or {},
-        )
+        ).decode(call=call, events=events, token_proxies=token_proxies or {})
 
     def decode_balances(self, transfers: List[DecodedTransfer]):
         return ABIBalancesDecoder(
@@ -192,7 +185,7 @@ class ABIDecoder(IABIDecoder):
                 transaction.metadata,
                 delegations,
                 token_proxies,
-                chain_id
+                chain_id,
             )
         except Exception:
             log.exception(
@@ -209,7 +202,7 @@ class ABIDecoder(IABIDecoder):
                 transaction.metadata,
                 delegations,
                 token_proxies,
-                chain_id
+                chain_id,
             )
         except Exception:
             log.exception(
@@ -224,7 +217,7 @@ class ABIDecoder(IABIDecoder):
                 full_decoded_transaction.calls,
                 full_decoded_transaction.events,
                 token_proxies,
-                chain_id
+                chain_id,
             )
         except Exception:
             log.exception(

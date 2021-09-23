@@ -11,7 +11,7 @@
 #  limitations under the License.
 
 from functools import lru_cache
-from typing import Optional, List
+from typing import Optional, List, Any, Dict
 
 from ethtx.decoders.decoders.semantics import decode_events_and_functions
 from ethtx.models.semantics_model import (
@@ -22,14 +22,14 @@ from ethtx.models.semantics_model import (
     TransformationSemantics,
     FunctionSemantics,
     EventSemantics,
+    Signature,
 )
-from ethtx.providers.etherscan_provider import EtherscanProvider
+from ethtx.providers import EtherscanProvider, Web3Provider
 from ethtx.providers.semantic_providers.semantics_database import ISemanticsDatabase
-from ethtx.providers.web3_provider import Web3Provider
 from ethtx.semantics.protocols_router import amend_contract_semantics
+from ethtx.semantics.solidity.precompiles import precompiles
 from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS, ERC20_EVENTS
 from ethtx.semantics.standards.erc721 import ERC721_FUNCTIONS, ERC721_EVENTS
-from ethtx.semantics.solidity.precompiles import precompiles
 
 
 class SemanticsRepository:
@@ -55,10 +55,9 @@ class SemanticsRepository:
         return tmp_records
 
     def _read_stored_semantics(self, address: str, chain_id: str):
-
         def decode_parameter(_parameter):
             components_semantics = []
-            if 'component' in _parameter:
+            if "component" in _parameter:
                 for component in _parameter["components"]:
                     components_semantics.append(decode_parameter(component))
 
@@ -215,7 +214,9 @@ class SemanticsRepository:
 
                 else:
                     # try to guess if the address is a toke
-                    potential_erc20_semantics = provider.guess_erc20_token(address, chain_id)
+                    potential_erc20_semantics = provider.guess_erc20_token(
+                        address, chain_id
+                    )
                     if potential_erc20_semantics:
                         standard = "ERC20"
                         erc20_semantics = ERC20Semantics(
@@ -363,10 +364,10 @@ class SemanticsRepository:
     def get_address_label(self, chain_id, address, token_proxies=None):
 
         if not address:
-            return ''
+            return ""
 
         if int(address, 16) in precompiles:
-            contract_label = 'Precompiled'
+            contract_label = "Precompiled"
         else:
             semantics = self.get_semantics(chain_id, address)
             if semantics.erc20:
@@ -374,7 +375,9 @@ class SemanticsRepository:
             elif token_proxies and address in token_proxies:
                 contract_label = token_proxies[address][1] + "_proxy"
             else:
-                contract_label = semantics.name if semantics and semantics.name else address
+                contract_label = (
+                    semantics.name if semantics and semantics.name else address
+                )
 
         return contract_label
 
@@ -423,7 +426,7 @@ class SemanticsRepository:
             token_symbol = "Unknown"
             token_decimals = 18
 
-        return token_name, token_symbol, token_decimals, 'ERC20'
+        return token_name, token_symbol, token_decimals, "ERC20"
 
     def update_address(self, chain_id, address, contract):
 
@@ -437,8 +440,46 @@ class SemanticsRepository:
         if not semantics:
             return
 
-        address_semantics = semantics.json(False)
+        address_semantics = semantics.json(entire=False)
         contract_semantics = semantics.contract.json()
 
         self.database.insert_contract(contract_semantics, update_if_exist=True)
         self.database.insert_address(address_semantics, update_if_exist=True)
+
+    def get_most_common_signature(self, signature_hash: str) -> Signature:
+        signatures = [
+            sig
+            for sig in self.database.get_signature_semantics(
+                signature_hash=signature_hash
+            )
+        ]
+
+        if signatures:
+            most_common_signature = max(signatures, key=lambda x: x["count"])
+            signature = Signature(
+                signature_hash=most_common_signature["signature_hash"],
+                name=most_common_signature["name"],
+                args=most_common_signature["args"],
+                count=most_common_signature["count"],
+            )
+            most_common_signature["count"] += 1
+            self.database.insert_signature(most_common_signature, update_if_exist=True)
+
+            return signature
+
+    def process_signatures(self, signature: Signature):
+        signatures = self.database.get_signature_semantics(
+            signature_hash=signature.signature_hash
+        )
+        for sig in signatures:
+            if signature.signature_hash == sig["name"] and len(signature.args) == len(
+                sig["args"]
+            ):
+                if any(arg for arg in list(sig["args"][0].values()) if "arg" in arg):
+                    for index, argument in enumerate(sig["args"]):
+                        argument["name"] = signature.args[index].name
+                        argument["type"] = signature.args[index].type
+                    self.database.insert_signature(signature=sig, update_if_exist=True)
+                    break
+        else:
+            self.database.insert_signature(signature=signature.json())

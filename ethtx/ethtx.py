@@ -19,13 +19,12 @@ from .decoders.abi.decoder import ABIDecoder
 from .decoders.decoder_service import DecoderService
 from .decoders.semantic.decoder import SemanticDecoder
 from .models.objects_model import Call
-from .providers.etherscan_provider import EtherscanProvider
+from .providers import EtherscanProvider, Web3Provider
 from .providers.semantic_providers.semantics_database import (
     MongoSemanticsDatabase,
     ISemanticsDatabase,
 )
 from .providers.semantic_providers.semantics_repository import SemanticsRepository
-from .providers.web3_provider import Web3Provider
 from .utils.validators import assert_tx_hash
 
 

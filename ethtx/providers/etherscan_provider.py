@@ -67,7 +67,6 @@ class EtherscanProvider:
             if resp.status_code == 200:
                 break
 
-
         if resp.status_code != 200:
             raise InvalidEtherscanReturnCodeException(resp.status_code, params)
 
