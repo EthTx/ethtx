@@ -13,5 +13,3 @@
 from .etherscan_provider import EtherscanProvider
 from .signature_provider import FourByteProvider
 from .web3_provider import Web3Provider
-
-FourByteProvider = FourByteProvider()

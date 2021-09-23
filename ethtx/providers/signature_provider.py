@@ -10,7 +10,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Iterator, TypedDict, Optional, Union
+from typing import Dict, List, Any, Iterator, TypedDict
 
 import requests
 
@@ -112,3 +112,6 @@ class FourByteProvider(SignatureProvider):
             types = types[types.find("(") + 1 : types.rfind(")")]
 
         return {"name": name, "args": types.split(",")}
+
+
+FourByteProvider = FourByteProvider()
