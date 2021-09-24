@@ -29,7 +29,10 @@ class EtherscanProvider:
     default_chain: Optional[str]
 
     def __init__(
-        self, api_key, nodes: Dict[str, str], default_chain_id: Optional[str] = None
+        self,
+        api_key: str,
+        nodes: Dict[str, str],
+        default_chain_id: Optional[str] = None,
     ):
         self.api_key = api_key
         self.endpoints = nodes

@@ -84,24 +84,6 @@ class EthTxProviders:
 
 
 class EthTx:
-    @staticmethod
-    def initialize(config: EthTxConfig):
-        default_chain = config.default_chain
-        mongo_client: MongoClient = connect(
-            config.mongo_database, host=config.mongo_connection_string
-        )
-        repository = MongoSemanticsDatabase(mongo_client.db)
-        web3provider = Web3Provider(
-            config.web3nodes, default_chain=config.default_chain
-        )
-        etherscan = EtherscanProvider(
-            config.etherscan_api_key,
-            config.etherscan_urls,
-            default_chain_id=config.default_chain,
-        )
-
-        return EthTx(default_chain, web3provider, repository, etherscan)
-
     semantics: SemanticsRepository
 
     def __init__(
@@ -109,10 +91,12 @@ class EthTx:
         default_chain: str,
         web3provider: Web3Provider,
         repository: ISemanticsDatabase,
-        etherscan: EtherscanProvider,
+        etherscan_provider: EtherscanProvider,
     ):
         self._default_chain = default_chain
-        self._semantics = SemanticsRepository(repository, etherscan, web3provider)
+        self._semantics = SemanticsRepository(
+            repository, etherscan_provider, web3provider
+        )
         abi_decoder = ABIDecoder(self.semantics, self._default_chain)
         semantic_decoder = SemanticDecoder(self.semantics, self._default_chain)
         decoder_service = DecoderService(
@@ -120,6 +104,23 @@ class EthTx:
         )
         self._decoders = EthTxDecoders(semantic_decoder, abi_decoder, decoder_service)
         self._providers = EthTxProviders(web3provider)
+
+    @staticmethod
+    def initialize(config: EthTxConfig):
+        mongo_client: MongoClient = connect(
+            db=config.mongo_database, host=config.mongo_connection_string
+        )
+        repository = MongoSemanticsDatabase(db=mongo_client.db)
+        web3provider = Web3Provider(
+            nodes=config.web3nodes, default_chain=config.default_chain
+        )
+        etherscan = EtherscanProvider(
+            api_key=config.etherscan_api_key,
+            nodes=config.etherscan_urls,
+            default_chain_id=config.default_chain,
+        )
+
+        return EthTx(config.default_chain, web3provider, repository, etherscan)
 
     @property
     def decoders(self) -> EthTxDecoders:

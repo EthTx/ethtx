@@ -106,7 +106,7 @@ class NodeDataProvider:
 class Web3Provider(NodeDataProvider):
     chain: Web3
 
-    def __init__(self, nodes: Dict[str, str], default_chain=None):
+    def __init__(self, nodes: Dict[str, dict], default_chain=None):
         super().__init__(default_chain)
         self.nodes = nodes
 
