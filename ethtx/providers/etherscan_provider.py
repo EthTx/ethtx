@@ -45,7 +45,8 @@ class EtherscanProvider:
         self.default_chain = default_chain_id
 
         self.http = requests.session()
-        self.headers = {"User-Agent": "API"}
+        self.http.headers.update({"User-Agent": "API"})
+
         self.url = None
 
         self.url_dict = OrderedDict(
@@ -112,7 +113,7 @@ class EtherscanProvider:
         # TODO: etherscan sometimes returns HTTP 502 with no apparent reason, so it's a quick fix
         # that should help, but number of tries should be taken from config in final solution I think
         for _ in range(3):
-            resp = self.http.get(self.url, headers=self.headers)
+            resp = self.http.get(self.url)
 
             if resp.status_code == 200:
                 break
