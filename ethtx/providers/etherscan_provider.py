@@ -9,9 +9,9 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
 import json
 import logging
+from collections import OrderedDict
 from functools import lru_cache
 from typing import Dict, Optional
 
@@ -24,9 +24,16 @@ log = logging.getLogger(__name__)
 
 
 class EtherscanProvider:
-    api_key: str
+    MODULE = "module="
+    ACTION = "&action="
+    ADDRESS = "&address="
+    API_KEY = "&apikey="
+
     endpoints: Dict[str, str]
     default_chain: Optional[str]
+    http: requests.sessions.Session
+
+    url_dict: OrderedDict = {}
 
     def __init__(
         self,
@@ -34,49 +41,32 @@ class EtherscanProvider:
         nodes: Dict[str, str],
         default_chain_id: Optional[str] = None,
     ):
-        self.api_key = api_key
         self.endpoints = nodes
         self.default_chain = default_chain_id
 
-    def _get_chain_id(self, chain_id):
-        _id = chain_id or self.default_chain
+        self.http = requests.session()
+        self.headers = {"User-Agent": "API"}
+        self.url = None
 
-        if _id is None:
-            raise ProcessingException(
-                "chain_id must be provided as argument or constructor default"
-            )
-        return _id
-
-    @lru_cache(maxsize=1024)
-    def _get_contract_abi(self, chain_id, contract_name) -> Dict:
-        # Etherscan connection parameters
-        params = dict(
-            module="contract",
-            action="getsourcecode",
-            address=contract_name,
-            apikey=self.api_key,
+        self.url_dict = OrderedDict(
+            [
+                (self.MODULE, ""),
+                (self.ADDRESS, ""),
+                (self.ACTION, ""),
+                (self.API_KEY, api_key),
+            ]
         )
 
-        chain_id = self._get_chain_id(chain_id)
-        headers = {"User-Agent": "API"}
-
-        # TODO: etherscan sometimes returns HTTP 502 with no apparent reason, so it's a quick fix
-        # that should help, but number of tries should be taken from config in final solution I think
-        for _ in range(3):
-            resp = requests.get(
-                url=self.endpoints[chain_id], params=params, headers=headers
+    def build_url(self, chain_id: str) -> None:
+        self.url = (
+            self.endpoints[chain_id]
+            + "?"
+            + "".join(
+                [param + val if val else "" for param, val in self.url_dict.items()]
             )
-
-            if resp.status_code == 200:
-                break
-
-        if resp.status_code != 200:
-            raise InvalidEtherscanReturnCodeException(resp.status_code, params)
-
-        return resp.json()
+        )
 
     def get_contract_abi(self, chain_id, contract_name):
-
         decoded = False
         raw_abi = []
 
@@ -102,6 +92,35 @@ class EtherscanProvider:
         abi = self._parse_abi(raw_abi)
 
         return dict(name=contract_name, abi=abi), decoded
+
+    def _get_chain_id(self, chain_id):
+        _id = chain_id or self.default_chain
+
+        if _id is None:
+            raise ProcessingException(
+                "chain_id must be provided as argument or constructor default"
+            )
+        return _id
+
+    @lru_cache(maxsize=1024)
+    def _get_contract_abi(self, chain_id, contract_name) -> Dict:
+        self.url_dict[self.ACTION] = "getsourcecode"
+        self.url_dict[self.MODULE] = "contract"
+        self.url_dict[self.ADDRESS] = contract_name
+        self.build_url(chain_id=self._get_chain_id(chain_id))
+
+        # TODO: etherscan sometimes returns HTTP 502 with no apparent reason, so it's a quick fix
+        # that should help, but number of tries should be taken from config in final solution I think
+        for _ in range(3):
+            resp = self.http.get(self.url, headers=self.headers)
+
+            if resp.status_code == 200:
+                break
+
+        if resp.status_code != 200:
+            raise InvalidEtherscanReturnCodeException(resp.status_code, self.url_dict)
+
+        return resp.json()
 
     # helper function decoding contract ABI
     @staticmethod
