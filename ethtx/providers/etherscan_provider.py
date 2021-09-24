@@ -13,7 +13,7 @@ import json
 import logging
 from collections import OrderedDict
 from functools import lru_cache
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple, Union, Any
 
 import requests
 from web3 import Web3
@@ -47,8 +47,6 @@ class EtherscanProvider:
         self.http = requests.session()
         self.http.headers.update({"User-Agent": "API"})
 
-        self.url = None
-
         self.url_dict = OrderedDict(
             [
                 (self.MODULE, ""),
@@ -58,16 +56,16 @@ class EtherscanProvider:
             ]
         )
 
-    def build_url(self, chain_id: str) -> None:
-        self.url = (
+    def build_url(self, chain_id: str, url_dict: OrderedDict) -> str:
+        return (
             self.endpoints[chain_id]
             + "?"
-            + "".join(
-                [param + val if val else "" for param, val in self.url_dict.items()]
-            )
+            + "".join([param + val if val else "" for param, val in url_dict.items()])
         )
 
-    def get_contract_abi(self, chain_id, contract_name):
+    def get_contract_abi(
+        self, chain_id, contract_name
+    ) -> Tuple[Dict[str, Union[dict, Any]], bool]:
         decoded = False
         raw_abi = []
 
@@ -94,7 +92,7 @@ class EtherscanProvider:
 
         return dict(name=contract_name, abi=abi), decoded
 
-    def _get_chain_id(self, chain_id):
+    def _get_chain_id(self, chain_id) -> str:
         _id = chain_id or self.default_chain
 
         if _id is None:
@@ -105,21 +103,22 @@ class EtherscanProvider:
 
     @lru_cache(maxsize=1024)
     def _get_contract_abi(self, chain_id, contract_name) -> Dict:
-        self.url_dict[self.ACTION] = "getsourcecode"
-        self.url_dict[self.MODULE] = "contract"
-        self.url_dict[self.ADDRESS] = contract_name
-        self.build_url(chain_id=self._get_chain_id(chain_id))
+        url_dict = self.url_dict.copy()
+        url_dict[self.ACTION] = "getsourcecode"
+        url_dict[self.MODULE] = "contract"
+        url_dict[self.ADDRESS] = contract_name
+        url = self.build_url(chain_id=self._get_chain_id(chain_id), url_dict=url_dict)
 
         # TODO: etherscan sometimes returns HTTP 502 with no apparent reason, so it's a quick fix
         # that should help, but number of tries should be taken from config in final solution I think
         for _ in range(3):
-            resp = self.http.get(self.url)
+            resp = self.http.get(url)
 
             if resp.status_code == 200:
                 break
 
         if resp.status_code != 200:
-            raise InvalidEtherscanReturnCodeException(resp.status_code, self.url_dict)
+            raise InvalidEtherscanReturnCodeException(resp.status_code, url_dict)
 
         return resp.json()
 
