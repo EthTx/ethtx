@@ -194,13 +194,13 @@ class ABIDecoder(IABIDecoder):
                 token_proxies,
                 chain_id
             )
-        except Exception:
+        except Exception as e:
             log.exception(
                 "ABI decoding of events for %s / %s failed.",
                 transaction.metadata.tx_hash,
                 chain_id,
             )
-            return full_decoded_transaction
+            raise e
 
         try:
             full_decoded_transaction.calls = self.decode_calls(
@@ -211,13 +211,13 @@ class ABIDecoder(IABIDecoder):
                 token_proxies,
                 chain_id
             )
-        except Exception:
+        except Exception as e:
             log.exception(
                 "ABI decoding of calls tree for %s / %s failed.",
                 transaction.metadata.tx_hash,
                 chain_id,
             )
-            return full_decoded_transaction
+            raise e
 
         try:
             full_decoded_transaction.transfers = self.decode_transfers(
@@ -226,25 +226,25 @@ class ABIDecoder(IABIDecoder):
                 token_proxies,
                 chain_id
             )
-        except Exception:
+        except Exception as e:
             log.exception(
                 "ABI decoding of transfers for %s / %s failed.",
                 transaction.metadata.tx_hash,
                 chain_id,
             )
-            return full_decoded_transaction
+            raise e
 
         try:
             full_decoded_transaction.balances = self.decode_balances(
                 full_decoded_transaction.transfers
             )
-        except Exception:
+        except Exception as e:
             log.exception(
                 "ABI decoding of balances for %s / %s failed.",
                 transaction.metadata.tx_hash,
                 chain_id,
             )
-            return full_decoded_transaction
+            raise e
 
         used_semantics = self._repository.end_record()
         log.info(
