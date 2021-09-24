@@ -49,23 +49,15 @@ class ABIDecoder(IABIDecoder):
 
         log.info("ABI decoding for %s / %s.", transaction.metadata.tx_hash, chain_id)
 
-        try:
-            with ExecutionTimer(f"ABI decoding for " + transaction.metadata.tx_hash):
-                log.info(
-                    "ABI decoding for %s / %s.", transaction.metadata.tx_hash, chain_id
-                )
-                full_decoded_transaction = self._decode_transaction(
-                    block.metadata, transaction, chain_id, delegations, token_proxies
-                )
-                return full_decoded_transaction
-        except Exception:
-            log.exception(
-                "ABI decoding of %s / %s failed.",
-                transaction.metadata.tx_hash,
-                chain_id,
+        with ExecutionTimer(f"ABI decoding for " + transaction.metadata.tx_hash):
+            log.info(
+                "ABI decoding for %s / %s.", transaction.metadata.tx_hash, chain_id
+            )
+            full_decoded_transaction = self._decode_transaction(
+                block.metadata, transaction, chain_id, delegations, token_proxies
             )
 
-        return None
+        return full_decoded_transaction
 
     def decode_calls(
         self,
