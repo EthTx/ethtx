@@ -44,33 +44,38 @@ def decode_function_abi_with_external_source(
             [],
         )
         yield function_semantics
+        return
 
     functions = _provider.get_function(signature=signature)
-    for func in functions:
-        if not func:
-            yield
+    try:
+        for func in functions:
+            if not func:
+                yield
 
-        function_semantics = FunctionSemantics(
-            signature,
-            func.get("name"),
-            [
-                ParameterSemantics(f"arg{i}", arg, [])
-                for i, arg in enumerate(func.get("args"))
-            ],
-            [],
-        )
-
-        repository.process_signatures(
-            signature=Signature(
-                signature_hash=signature,
-                name=func.get("name"),
-                args=[
-                    SignatureArg(name=param.parameter_name, type=param.parameter_type)
-                    for param in function_semantics.inputs
+            function_semantics = FunctionSemantics(
+                signature,
+                func.get("name"),
+                [
+                    ParameterSemantics(f"arg{i}", arg, [])
+                    for i, arg in enumerate(func.get("args"))
                 ],
+                [],
             )
-        )
-        yield function_semantics
+            yield function_semantics
+    finally:
+        if "function_semantics" in locals():
+            repository.process_signatures(
+                signature=Signature(
+                    signature_hash=signature,
+                    name=function_semantics.name,
+                    args=[
+                        SignatureArg(
+                            name=param.parameter_name, type=param.parameter_type
+                        )
+                        for param in function_semantics.inputs
+                    ],
+                )
+            )
 
 
 def decode_event_abi_name_with_external_source(
