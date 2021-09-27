@@ -76,14 +76,10 @@ class EthTxProviders:
     etherscan_provider: EtherscanProvider
 
     def __init__(
-        self,
-        web3provider: Web3Provider,
-        etherscan_provider: EtherscanProvider,
-        ens_provider: Web3ENSProvider,
+        self, web3provider: Web3Provider, etherscan_provider: EtherscanProvider
     ):
         self.web3provider = web3provider
         self.etherscan_provider = etherscan_provider
-        self.ens_provider = ens_provider
 
 
 class EthTx:

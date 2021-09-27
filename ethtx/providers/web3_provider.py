@@ -15,6 +15,7 @@ import os
 from functools import lru_cache
 from typing import List, Dict, Optional
 
+from ens import ENS
 from web3 import Web3
 from web3.datastructures import AttributeDict
 from web3.middleware import geth_poa_middleware
@@ -77,8 +78,11 @@ def connect_chain(
         raise
 
 
-class NodeDataProvider:
+def connect_ens(web3: Web3) -> ENS:
+    return ENS.fromWeb3(web3)
 
+
+class NodeDataProvider:
     default_chain: str
 
     def __init__(self, default_chain=None):
@@ -105,6 +109,7 @@ class NodeDataProvider:
 
 class Web3Provider(NodeDataProvider):
     chain: Web3
+    ens: ENS
 
     def __init__(self, nodes: Dict[str, dict], default_chain=None):
         super().__init__(default_chain)
@@ -123,9 +128,12 @@ class Web3Provider(NodeDataProvider):
                 "unknown chain_id, it must be defined in the EthTxConfig object"
             )
 
-        return connect_chain(
+        web3 = connect_chain(
             http_hook=self.nodes[chain_id]["hook"], poa=self.nodes[chain_id]["poa"]
         )
+        self.ens = connect_ens(web3)
+
+        return web3
 
     # get the raw block data from the node
     @lru_cache(maxsize=512)
