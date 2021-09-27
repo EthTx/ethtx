@@ -31,7 +31,7 @@ class ENSProviderABC(ABC):
         ...
 
 
-class ENSProvider(ENSProviderABC):
+class Web3ENSProvider(ENSProviderABC):
     ns: ENS
 
     def __init__(self, provider: Web3):
