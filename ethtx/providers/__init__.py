@@ -10,6 +10,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from .ens_provider import ENSProvider
 from .etherscan_provider import EtherscanProvider
 from .signature_provider import FourByteProvider
 from .web3_provider import Web3Provider
