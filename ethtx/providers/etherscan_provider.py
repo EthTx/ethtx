@@ -29,11 +29,12 @@ class EtherscanProvider:
     ADDRESS = "&address="
     API_KEY = "&apikey="
 
+    api_key: str
     endpoints: Dict[str, str]
     default_chain: Optional[str]
     http: requests.sessions.Session
 
-    url_dict: OrderedDict = {}
+    url_dict = OrderedDict([(MODULE, ""), (ADDRESS, ""), (ACTION, ""), (API_KEY, "")])
 
     def __init__(
         self,
@@ -41,20 +42,12 @@ class EtherscanProvider:
         nodes: Dict[str, str],
         default_chain_id: Optional[str] = None,
     ):
+        self.api_key = api_key
         self.endpoints = nodes
         self.default_chain = default_chain_id
 
         self.http = requests.session()
         self.http.headers.update({"User-Agent": "API"})
-
-        self.url_dict = OrderedDict(
-            [
-                (self.MODULE, ""),
-                (self.ADDRESS, ""),
-                (self.ACTION, ""),
-                (self.API_KEY, api_key),
-            ]
-        )
 
     def build_url(self, chain_id: str, url_dict: OrderedDict) -> str:
         return (
@@ -92,6 +85,15 @@ class EtherscanProvider:
 
         return dict(name=contract_name, abi=abi), decoded
 
+    def _parse_url_dict(self, **params) -> OrderedDict:
+        self.url_dict[self.API_KEY] = self.api_key
+        url_dict = self.url_dict.copy()
+        url_dict[self.ACTION] = params["action"]
+        url_dict[self.MODULE] = params["module"]
+        url_dict[self.ADDRESS] = params["address"]
+
+        return url_dict
+
     def _get_chain_id(self, chain_id) -> str:
         _id = chain_id or self.default_chain
 
@@ -103,11 +105,12 @@ class EtherscanProvider:
 
     @lru_cache(maxsize=1024)
     def _get_contract_abi(self, chain_id, contract_name) -> Dict:
-        url_dict = self.url_dict.copy()
-        url_dict[self.ACTION] = "getsourcecode"
-        url_dict[self.MODULE] = "contract"
-        url_dict[self.ADDRESS] = contract_name
-        url = self.build_url(chain_id=self._get_chain_id(chain_id), url_dict=url_dict)
+        chain_id = self._get_chain_id(chain_id)
+        url_dict = self._parse_url_dict(
+            action="getsourcecode", module="contract", address=contract_name
+        )
+
+        url = self.build_url(chain_id=chain_id, url_dict=url_dict)
 
         # TODO: etherscan sometimes returns HTTP 502 with no apparent reason, so it's a quick fix
         # that should help, but number of tries should be taken from config in final solution I think
@@ -125,7 +128,6 @@ class EtherscanProvider:
     # helper function decoding contract ABI
     @staticmethod
     def _parse_abi(json_abi) -> Dict:
-
         # helper function to recursively parse components
         def _parse_components(components):
 
