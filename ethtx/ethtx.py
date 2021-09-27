@@ -73,9 +73,13 @@ class EthTxDecoders:
 
 class EthTxProviders:
     web3provider: Web3Provider
+    etherscan_provider: EtherscanProvider
 
-    def __init__(self, web3provider: Web3Provider):
+    def __init__(
+        self, web3provider: Web3Provider, etherscan_provider: EtherscanProvider
+    ):
         self.web3provider = web3provider
+        self.etherscan_provider = etherscan_provider
 
 
 class EthTx:
@@ -99,7 +103,9 @@ class EthTx:
             abi_decoder, semantic_decoder, web3provider, self._default_chain
         )
         self._decoders = EthTxDecoders(decoder_service=decoder_service)
-        self._providers = EthTxProviders(web3provider=web3provider)
+        self._providers = EthTxProviders(
+            web3provider=web3provider, etherscan_provider=etherscan_provider
+        )
 
     @staticmethod
     def initialize(config: EthTxConfig):
