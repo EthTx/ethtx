@@ -19,7 +19,7 @@ from .decoders.abi.decoder import ABIDecoder
 from .decoders.decoder_service import DecoderService
 from .decoders.semantic.decoder import SemanticDecoder
 from .models.objects_model import Call
-from .providers import EtherscanProvider, Web3Provider, Web3ENSProvider
+from .providers import EtherscanProvider, Web3Provider
 from .providers.semantic_providers.semantics_database import (
     MongoSemanticsDatabase,
     ISemanticsDatabase,
