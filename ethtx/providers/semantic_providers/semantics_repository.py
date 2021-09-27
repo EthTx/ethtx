@@ -13,6 +13,8 @@
 from functools import lru_cache
 from typing import Optional, List, Any, Dict
 
+from ens import ENS
+
 from ethtx.decoders.decoders.semantics import decode_events_and_functions
 from ethtx.models.semantics_model import (
     AddressSemantics,
@@ -148,10 +150,14 @@ class SemanticsRepository:
                     transformations,
                 )
 
+            name = address
+            if not raw_address_semantics["is_contract"]:
+                name = self._web3provider.ens.name(address)
+
             address_semantics = AddressSemantics(
                 chain_id,
                 address,
-                raw_address_semantics["name"],
+                name,
                 raw_address_semantics["is_contract"],
                 contract_semantics,
                 raw_address_semantics["standard"],
@@ -246,8 +252,15 @@ class SemanticsRepository:
                 contract_semantics = ContractSemantics(
                     ZERO_HASH, "EOA", dict(), dict(), dict()
                 )
+                ns_name = self._web3provider.ens.name(address)
                 address_semantics = AddressSemantics(
-                    chain_id, address, address, False, contract_semantics, None, None
+                    chain_id,
+                    address,
+                    ns_name if ns_name else address,
+                    False,
+                    contract_semantics,
+                    None,
+                    None,
                 )
 
             self.update_semantics(address_semantics)
