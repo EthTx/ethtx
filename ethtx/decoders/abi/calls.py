@@ -98,9 +98,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
             chain_id, call.from_address, proxies
         )
 
-        to_name = self._repository.get_address_label(
-            chain_id, call.to_address, proxies
-        )
+        to_name = self._repository.get_address_label(chain_id, call.to_address, proxies)
 
         if call.call_type == "selfdestruct":
             function_name = call.call_type
@@ -126,7 +124,11 @@ class ABICallsDecoder(ABISubmoduleAbc):
             if not function_abi and call.to_address in proxies:
                 # try to find signature in delegate-called contracts
                 for semantic in proxies[call.to_address].semantics:
-                    function_abi = semantic.contract.functions[function_signature] if function_signature in semantic.contract.functions else None
+                    function_abi = (
+                        semantic.contract.functions[function_signature]
+                        if function_signature in semantic.contract.functions
+                        else None
+                    )
                     if function_abi:
                         break
 

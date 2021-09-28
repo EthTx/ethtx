@@ -23,12 +23,7 @@ ZERO_ADDRESS = "0x" + 40 * "0"
 class ABITransfersDecoder(ABISubmoduleAbc):
     """Abi Transfers Decoder."""
 
-    def decode(
-        self,
-        call: DecodedCall,
-        events,
-        proxies
-    ) -> List:
+    def decode(self, call: DecodedCall, events, proxies) -> List:
         """Decode transfers."""
         transfers = []
 
@@ -71,7 +66,12 @@ class ABITransfersDecoder(ABISubmoduleAbc):
 
                 if standard == "ERC20" or event.contract.address in proxies:
 
-                    _, token_symbol, token_decimals, _ = self._repository.get_token_data(
+                    (
+                        _,
+                        token_symbol,
+                        token_decimals,
+                        _,
+                    ) = self._repository.get_token_data(
                         event.chain_id, event.contract.address, proxies
                     )
                     value = event.parameters[2].value / 10 ** token_decimals

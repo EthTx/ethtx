@@ -36,18 +36,14 @@ class ABIEventsDecoder(ABISubmoduleAbc):
         if isinstance(events, list):
             return (
                 [
-                    self.decode_event(
-                        event, block, transaction, proxies, chain_id
-                    )
+                    self.decode_event(event, block, transaction, proxies, chain_id)
                     for event in events
                 ]
                 if events
                 else []
             )
 
-        return self.decode_event(
-            events, block, transaction, proxies, chain_id
-        )
+        return self.decode_event(events, block, transaction, proxies, chain_id)
 
     def decode_event(
         self,
@@ -84,19 +80,41 @@ class ABIEventsDecoder(ABISubmoduleAbc):
             if not event_abi and event.contract in proxies:
                 # try to find signature in delegate-called contracts
                 for semantic in proxies[event.contract].semantics:
-                    event_abi = semantic.contract.events[event_signature] if event_signature in semantic.contract.events else None
+                    event_abi = (
+                        semantic.contract.events[event_signature]
+                        if event_signature in semantic.contract.events
+                        else None
+                    )
                     if event_abi:
                         break
 
             if not event_abi and event_signature in ERC20_EVENTS:
                 # try standard ERC20 events
-                if len([parameter for parameter in ERC20_EVENTS[event_signature].parameters if parameter.indexed]) == \
-                   len([topic for topic in event.topics if topic]) - 1:
+                if (
+                    len(
+                        [
+                            parameter
+                            for parameter in ERC20_EVENTS[event_signature].parameters
+                            if parameter.indexed
+                        ]
+                    )
+                    == len([topic for topic in event.topics if topic]) - 1
+                ):
                     event_abi = ERC20_EVENTS[event_signature]
                 elif event_signature in ERC721_EVENTS:
                     # try standard ERC721 events
-                    if len([parameter for parameter in ERC721_EVENTS[event_signature].parameters if parameter.indexed]) == \
-                       len([topic for topic in event.topics if topic]) - 1:
+                    if (
+                        len(
+                            [
+                                parameter
+                                for parameter in ERC721_EVENTS[
+                                    event_signature
+                                ].parameters
+                                if parameter.indexed
+                            ]
+                        )
+                        == len([topic for topic in event.topics if topic]) - 1
+                    ):
                         event_abi = ERC721_EVENTS[event_signature]
 
         contract_name = self._repository.get_address_label(

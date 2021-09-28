@@ -22,7 +22,6 @@ from ethtx.models.objects_model import (
     TransactionMetadata,
     BlockMetadata,
 )
-from ethtx.models.objects_model import Block, Transaction, Call, Event, TransactionMetadata, BlockMetadata
 from ethtx.providers.semantic_providers.semantics_repository import SemanticsRepository
 
 
@@ -79,10 +78,7 @@ class IABIDecoder(ABC, ABIBasic):
 
     @abstractmethod
     def decode_transfers(
-        self,
-        call: DecodedCall,
-        events: [Event],
-        proxies: Dict[str, Proxy]
+        self, call: DecodedCall, events: [Event], proxies: Dict[str, Proxy]
     ) -> ABISubmoduleAbc.decode:
         ...
 

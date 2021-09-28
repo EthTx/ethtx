@@ -19,7 +19,7 @@ from ethtx.models.decoded_model import (
     DecodedEvent,
     DecodedTransfer,
     DecodedBalance,
-    Proxy
+    Proxy,
 )
 from ethtx.models.objects_model import BlockMetadata, TransactionMetadata
 from ethtx.providers.semantic_providers.semantics_repository import SemanticsRepository
@@ -54,7 +54,7 @@ class ISemanticDecoder(ABC):
         self,
         block_metadata: BlockMetadata,
         tx_metadata: TransactionMetadata,
-        chain_id: str
+        chain_id: str,
     ):
         ...
 

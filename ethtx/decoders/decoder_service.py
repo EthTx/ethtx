@@ -24,10 +24,7 @@ class DecoderService:
         self.web3provider = web3provider
         self.default_chain = default_chain
 
-    def get_delegations(
-            self,
-            calls: Union[Call, List[Call]]
-    ) -> Dict[str, List[str]]:
+    def get_delegations(self, calls: Union[Call, List[Call]]) -> Dict[str, List[str]]:
 
         delegations = dict()
 
@@ -58,9 +55,7 @@ class DecoderService:
         return delegations
 
     def get_proxies(
-            self,
-            delegations: Dict[str, List[str]],
-            chain_id: str
+        self, delegations: Dict[str, List[str]], chain_id: str
     ) -> Dict[str, Proxy]:
 
         proxies = dict()
@@ -72,28 +67,22 @@ class DecoderService:
                 self.default_chain, delegator
             )
 
-            if is_eip1969_proxy(
-                    chain,
-                    delegator,
-                    delegations[delegator][0]
-            ):
-                proxy_type = 'EIP1969Proxy'
-                fallback_name = 'EIP1969_Proxy'
+            if is_eip1969_proxy(chain, delegator, delegations[delegator][0]):
+                proxy_type = "EIP1969Proxy"
+                fallback_name = "EIP1969_Proxy"
 
-            elif is_eip1969_beacon_proxy(
-                    chain,
-                    delegator,
-                    delegations[delegator][0]
-            ):
-                proxy_type = 'EIP1969Beacon'
-                fallback_name = 'EIP1969_BeaconProxy'
+            elif is_eip1969_beacon_proxy(chain, delegator, delegations[delegator][0]):
+                proxy_type = "EIP1969Beacon"
+                fallback_name = "EIP1969_BeaconProxy"
 
             else:
-                proxy_type = 'GenericProxy'
-                fallback_name = 'Proxy'
+                proxy_type = "GenericProxy"
+                fallback_name = "Proxy"
 
-            delegates_semantics = [self.semantic_decoder.repository.get_semantics(chain_id, delegate)
-                                    for delegate in delegations[delegator]]
+            delegates_semantics = [
+                self.semantic_decoder.repository.get_semantics(chain_id, delegate)
+                for delegate in delegations[delegator]
+            ]
 
             token_semantics = delegator_semantics.erc20
             if not token_semantics:
@@ -104,10 +93,12 @@ class DecoderService:
 
             proxies[delegator] = Proxy(
                 address=delegator,
-                name=delegator_semantics.name if delegator_semantics and delegator_semantics.name != delegator else fallback_name,
+                name=delegator_semantics.name
+                if delegator_semantics and delegator_semantics.name != delegator
+                else fallback_name,
                 type=proxy_type,
                 semantics=[semantics for semantics in delegates_semantics if semantics],
-                token=token_semantics
+                token=token_semantics,
             )
 
         return proxies
@@ -125,7 +116,9 @@ class DecoderService:
         )
         # read a raw block from a node
         block = Block.from_raw(
-            w3block=self.web3provider.get_block(transaction.metadata.block_number, chain_id),
+            w3block=self.web3provider.get_block(
+                transaction.metadata.block_number, chain_id
+            ),
             chain_id=chain_id,
         )
 

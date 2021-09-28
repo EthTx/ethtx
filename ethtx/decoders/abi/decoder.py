@@ -18,7 +18,7 @@ from ethtx.models.decoded_model import (
     DecodedCall,
     DecodedEvent,
     DecodedTransfer,
-    Proxy
+    Proxy,
 )
 from ethtx.models.objects_model import (
     Block,
@@ -175,11 +175,7 @@ class ABIDecoder(IABIDecoder):
 
         try:
             full_decoded_transaction.events = self.decode_events(
-                transaction.events,
-                block,
-                transaction.metadata,
-                proxies,
-                chain_id
+                transaction.events, block, transaction.metadata, proxies, chain_id
             )
         except Exception:
             log.exception(
@@ -210,7 +206,7 @@ class ABIDecoder(IABIDecoder):
                 full_decoded_transaction.calls,
                 full_decoded_transaction.events,
                 proxies,
-                chain_id
+                chain_id,
             )
         except Exception:
             log.exception(
