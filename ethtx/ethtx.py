@@ -68,7 +68,7 @@ class EthTxDecoders:
 
     def get_proxies(self, call_tree: Call):
         delegations = self._decoder_service.get_delegations(call_tree)
-        return self._decoder_service.get_token_proxies(delegations)
+        return self._decoder_service.get_proxies(delegations)
 
 
 class EthTxProviders:
