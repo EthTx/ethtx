@@ -186,7 +186,7 @@ class SemanticsRepository:
 
             if code_hash != ZERO_HASH:
                 # smart contract
-                raw_semantics, decoded = self.etherscan.get_contract_abi(
+                raw_semantics, decoded = self.etherscan.contract.get_contract_abi(
                     chain_id, address
                 )
                 if decoded and raw_semantics:
