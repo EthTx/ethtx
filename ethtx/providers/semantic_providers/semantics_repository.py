@@ -360,7 +360,7 @@ class SemanticsRepository:
 
         return constructor_semantics
 
-    def get_address_label(self, chain_id, address, token_proxies=None):
+    def get_address_label(self, chain_id, address, proxies=None):
 
         if not address:
             return ''
@@ -371,8 +371,8 @@ class SemanticsRepository:
             semantics = self.get_semantics(chain_id, address)
             if semantics.erc20:
                 contract_label = semantics.erc20.symbol
-            elif token_proxies and address in token_proxies:
-                contract_label = token_proxies[address][1] + "_proxy"
+            elif proxies and address in proxies:
+                contract_label = proxies[address].name
             else:
                 contract_label = semantics.name if semantics and semantics.name else address
 
@@ -400,7 +400,7 @@ class SemanticsRepository:
 
         return standard
 
-    def get_token_data(self, chain_id, address, token_proxies=None):
+    def get_token_data(self, chain_id, address, proxies=None):
 
         if not address:
             return None, None, None, None
@@ -416,8 +416,10 @@ class SemanticsRepository:
             token_decimals = (
                 semantics.erc20.decimals if semantics and semantics.erc20 else 18
             )
-        elif token_proxies and address in token_proxies:
-            token_name, token_symbol, token_decimals = token_proxies[address]
+        elif proxies and address in proxies and proxies[address].token:
+            token_name = proxies[address].token.name
+            token_symbol = proxies[address].token.symbol
+            token_decimals = proxies[address].token.decimals
         else:
             token_name = address
             token_symbol = "Unknown"

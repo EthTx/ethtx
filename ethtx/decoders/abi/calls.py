@@ -12,7 +12,7 @@
 
 from typing import Optional, Dict
 
-from ethtx.models.decoded_model import DecodedCall
+from ethtx.models.decoded_model import DecodedCall, Proxy
 from ethtx.models.objects_model import Call, TransactionMetadata, BlockMetadata
 from ethtx.utils.measurable import RecursionLimit
 
@@ -34,8 +34,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
         call: Call,
         block: BlockMetadata,
         transaction: TransactionMetadata,
-        delegations: Optional[Dict[str, set]] = None,
-        token_proxies: Optional[Dict[str, dict]] = None,
+        proxies: Optional[Dict[str, Proxy]] = None,
         chain_id: Optional[str] = None,
     ) -> Optional[DecodedCall]:
         """Decode call with sub_calls."""
@@ -54,8 +53,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
             call_id,
             indent,
             status,
-            delegations,
-            token_proxies,
+            proxies or {},
             chain_id,
         )
 
@@ -67,8 +65,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
                 call.subcalls,
                 indent,
                 status,
-                delegations,
-                token_proxies,
+                proxies,
                 chain_id,
             )
 
@@ -84,8 +81,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
         call_id: str = "",
         indent: int = 0,
         status: bool = True,
-        delegations: Dict[str, set] = None,
-        token_proxies: Dict[str, dict] = None,
+        proxies: Dict[str, Proxy] = None,
         chain_id: str = None,
     ) -> DecodedCall:
         """Decode single call."""
@@ -98,13 +94,12 @@ class ABICallsDecoder(ABISubmoduleAbc):
             function_signature = None
 
         from_name = self._repository.get_address_label(
-            chain_id, call.from_address, token_proxies
-        )
-        to_name = self._repository.get_address_label(
-            chain_id, call.to_address, token_proxies
+            chain_id, call.from_address, proxies
         )
 
-        delegations = delegations or {}
+        to_name = self._repository.get_address_label(
+            chain_id, call.to_address, proxies
+        )
 
         if call.call_type == "selfdestruct":
             function_name = call.call_type
@@ -128,6 +123,13 @@ class ABICallsDecoder(ABISubmoduleAbc):
 
             function_signature = call.call_data[:10] if call.call_data else ''
 
+            if not function_abi and call.to_address in proxies:
+                # try to find signature in delegate-called contracts
+                for semantic in proxies[call.to_address].semantics:
+                    function_abi = semantic.contract.functions[function_signature] if function_signature in semantic.contract.functions else None
+                    if function_abi:
+                        break
+
             if not function_abi:
                 if standard == "ERC20":
                     # decode ERC20 calls if ABI for them is not defined
@@ -135,15 +137,6 @@ class ABICallsDecoder(ABISubmoduleAbc):
                 elif standard == "ERC721":
                     # decode ERC721 calls if ABI for them is not defined
                     function_abi = ERC721_FUNCTIONS.get(function_signature)
-
-            if not function_abi and call.to_address in delegations:
-                # try to find signature in delegate-called contracts
-                for delegate in delegations[call.to_address]:
-                    function_abi = self._repository.get_function_abi(
-                        chain_id, delegate, function_signature
-                    )
-                    if function_abi:
-                        break
 
             function_name = function_abi.name if function_abi else function_signature
             function_input, function_output = decode_function_parameters(
@@ -198,8 +191,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
         sub_calls,
         indent,
         status,
-        delegations,
-        token_proxies,
+        proxies,
         chain_id,
     ) -> DecodedCall:
         """Decode nested calls. Call may have sub_calls, if they exist, it will recursively process them."""
@@ -216,8 +208,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
                 sub_call_id,
                 indent + 1,
                 status,
-                delegations,
-                token_proxies,
+                proxies,
                 chain_id,
             )
             call.subcalls.append(decoded)
@@ -230,8 +221,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
                     sub_call.subcalls,
                     indent + 1,
                     status,
-                    delegations,
-                    token_proxies,
+                    proxies,
                     chain_id,
                 )
 

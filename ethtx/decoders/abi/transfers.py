@@ -26,7 +26,8 @@ class ABITransfersDecoder(ABISubmoduleAbc):
     def decode(
         self,
         call: DecodedCall,
-        events, token_proxies
+        events,
+        proxies
     ) -> List:
         """Decode transfers."""
         transfers = []
@@ -57,24 +58,21 @@ class ABITransfersDecoder(ABISubmoduleAbc):
 
                 from_address = event.parameters[0].value
                 from_name = self._repository.get_address_label(
-                    event.chain_id, from_address, token_proxies
+                    event.chain_id, from_address, proxies
                 )
                 to_address = event.parameters[1].value
                 to_name = self._repository.get_address_label(
-                    event.chain_id, to_address, token_proxies
+                    event.chain_id, to_address, proxies
                 )
 
                 standard = self._repository.get_standard(
                     event.chain_id, event.contract.address
                 )
 
-                if not standard and event.contract.address in token_proxies:
-                    standard = token_proxies[event.contract.address][3]
-
-                if standard == "ERC20":
+                if standard == "ERC20" or event.contract.address in proxies:
 
                     _, token_symbol, token_decimals, _ = self._repository.get_token_data(
-                        event.chain_id, event.contract.address, token_proxies
+                        event.chain_id, event.contract.address, proxies
                     )
                     value = event.parameters[2].value / 10 ** token_decimals
                     transfers.append(
