@@ -11,9 +11,7 @@
 #  limitations under the License.
 
 from functools import lru_cache
-from typing import Optional, List, Any, Dict
-
-from ens import ENS
+from typing import Optional, List, Dict
 
 from ethtx.decoders.decoders.semantics import decode_events_and_functions
 from ethtx.models.semantics_model import (
