@@ -104,9 +104,15 @@ class FourByteProvider(SignatureProvider):
             filters["page"] = page
 
         try:
-            return requests.get(self.url(endpoint), params=filters, timeout=5).json()
-        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
-            raise FourByteConnectionException(e)
+            try:
+                return requests.get(
+                    self.url(endpoint), params=filters, timeout=5
+                ).json()
+            except (
+                requests.exceptions.ConnectionError,
+                requests.exceptions.Timeout,
+            ) as e:
+                raise FourByteConnectionException(e)
         except FourByteConnectionException:
             return {}
 
