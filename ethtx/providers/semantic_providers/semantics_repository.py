@@ -461,7 +461,7 @@ class SemanticsRepository:
         self.database.insert_contract(contract_semantics, update_if_exist=True)
         self.database.insert_address(address_semantics, update_if_exist=True)
 
-    def get_most_common_signature(self, signature_hash: str) -> Signature:
+    def get_most_used_signature(self, signature_hash: str) -> Signature:
         signatures = [
             sig
             for sig in self.database.get_signature_semantics(
@@ -477,12 +477,14 @@ class SemanticsRepository:
                 args=most_common_signature["args"],
                 count=most_common_signature["count"],
             )
-            most_common_signature["count"] += 1
-            self.database.insert_signature(most_common_signature, update_if_exist=True)
 
             return signature
 
-    def process_signatures(self, signature: Signature):
+    def update_signature_counter(self, signature: Dict):
+        signature["count"] += 1
+        self.database.insert_signature(signature, update_if_exist=True)
+
+    def update_or_insert_signature(self, signature: Signature):
         signatures = self.database.get_signature_semantics(
             signature_hash=signature.signature_hash
         )

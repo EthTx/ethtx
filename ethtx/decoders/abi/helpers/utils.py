@@ -31,7 +31,7 @@ def decode_function_abi_with_external_source(
     _provider: Optional[SignatureProvider] = FourByteProvider,
 ) -> Iterator[FunctionSemantics]:
 
-    function = repository.get_most_common_signature(signature_hash=signature)
+    function = repository.get_most_used_signature(signature_hash=signature)
     if function:
         log.info(
             "Successfully guessed function from SemanticsRepository - %s.",
@@ -64,7 +64,7 @@ def decode_function_abi_with_external_source(
             yield function_semantics
     finally:
         if "function_semantics" in locals():
-            repository.process_signatures(
+            repository.update_or_insert_signature(
                 signature=Signature(
                     signature_hash=signature,
                     name=function_semantics.name,

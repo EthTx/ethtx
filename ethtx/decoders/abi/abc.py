@@ -49,10 +49,7 @@ class IABIDecoder(ABC, ABIBasic):
 
     @abstractmethod
     def decode_transaction(
-        self,
-        block: Block,
-        transaction: Transaction,
-        proxies: Dict[str, Proxy],
+        self, block: Block, transaction: Transaction, proxies: Dict[str, Proxy]
     ):
         ...
 

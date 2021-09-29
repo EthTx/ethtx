@@ -91,12 +91,7 @@ class ABIDecoder(IABIDecoder):
     ) -> Optional[DecodedCall]:
         return ABICallsDecoder(
             repository=self._repository, chain_id=self._default_chain
-        ).decode(
-            call=root_call,
-            block=block,
-            transaction=transaction,
-            proxies=proxies,
-        )
+        ).decode(call=root_call, block=block, transaction=transaction, proxies=proxies)
 
     def decode_events(
         self,
@@ -143,11 +138,7 @@ class ABIDecoder(IABIDecoder):
     ):
         return ABITransfersDecoder(
             repository=self._repository, chain_id=chain_id or self._default_chain
-        ).decode(
-            call=call,
-            events=events,
-            proxies=proxies or {},
-        )
+        ).decode(call=call, events=events, proxies=proxies or {})
 
     def decode_balances(self, transfers: List[DecodedTransfer]):
         return ABIBalancesDecoder(
@@ -187,11 +178,7 @@ class ABIDecoder(IABIDecoder):
 
         try:
             full_decoded_transaction.calls = self.decode_calls(
-                transaction.root_call,
-                block,
-                transaction.metadata,
-                proxies,
-                chain_id,
+                transaction.root_call, block, transaction.metadata, proxies, chain_id
             )
         except Exception:
             log.exception(

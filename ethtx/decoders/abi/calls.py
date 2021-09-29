@@ -48,14 +48,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
         call_id = ""
 
         decoded_root_call = self.decode_call(
-            call,
-            block,
-            transaction,
-            call_id,
-            indent,
-            status,
-            proxies or {},
-            chain_id,
+            call, block, transaction, call_id, indent, status, proxies or {}, chain_id
         )
 
         with RecursionLimit(RECURSION_LIMIT):
