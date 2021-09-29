@@ -441,7 +441,7 @@ class SemanticsRepository:
     def update_address(self, chain_id, address, contract):
 
         updated_address = {"network": chain_id, "address": address, **contract}
-        self.database.insert_address(address_data=updated_address, update_if_exist=True)
+        self.database.insert_address(address=updated_address, update_if_exist=True)
 
         return updated_address
 
@@ -453,8 +453,8 @@ class SemanticsRepository:
         address_semantics = semantics.json(entire=False)
         contract_semantics = semantics.contract.json()
 
-        self.database.insert_contract(contract_semantics, update_if_exist=True)
-        self.database.insert_address(address_semantics, update_if_exist=True)
+        self.database.insert_contract(contract=contract_semantics, update_if_exist=True)
+        self.database.insert_address(address=address_semantics, update_if_exist=True)
 
     def get_most_used_signature(self, signature_hash: str) -> Optional[Signature]:
         signatures = list(
