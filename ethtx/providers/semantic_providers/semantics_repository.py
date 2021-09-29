@@ -453,7 +453,9 @@ class SemanticsRepository:
         address_semantics = semantics.json(entire=False)
         contract_semantics = semantics.contract.json()
 
-        self.database.insert_contract(contract=contract_semantics, update_if_exist=True)
+        contract_id = self.database.insert_contract(
+            contract=contract_semantics, update_if_exist=True
+        )
         self.database.insert_address(address=address_semantics, update_if_exist=True)
 
     def get_most_used_signature(self, signature_hash: str) -> Optional[Signature]:

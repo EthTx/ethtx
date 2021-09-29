@@ -69,10 +69,14 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         self, signature: dict, update_if_exist=False
     ) -> Optional[bson.ObjectId]:
         if update_if_exist:
-            self._signatures.replace_one(
+            updated_signature = self._signatures.replace_one(
                 {"_id": signature["_id"]}, signature, upsert=True
             )
-            return None
+            return (
+                None
+                if updated_signature.modified_count
+                else updated_signature.upserted_id
+            )
 
         inserted_signature = self._signatures.insert_one(signature)
         return inserted_signature.inserted_id
@@ -88,10 +92,15 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         contract_with_id = {"_id": contract["code_hash"], **contract}
 
         if update_if_exist:
-            self._contracts.replace_one(
+            updated_contract = self._contracts.replace_one(
                 {"_id": contract_with_id["_id"]}, contract_with_id, upsert=True
             )
-            return None
+
+            return (
+                None
+                if updated_contract.modified_count
+                else updated_contract.upserted_id
+            )
 
         inserted_contract = self._contracts.insert_one(contract_with_id)
         return inserted_contract.inserted_id
@@ -103,10 +112,12 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         }
 
         if update_if_exist:
-            self._addresses.replace_one(
+            updated_address = self._addresses.replace_one(
                 {"_id": address_with_id["_id"]}, address_with_id, upsert=True
             )
-            return None
+            return (
+                None if updated_address.modified_count else updated_address.upserted_id
+            )
 
         inserted_address = self._addresses.insert_one(address_with_id)
         return inserted_address.inserted_id
