@@ -50,7 +50,7 @@ class ABIDecoder(IABIDecoder):
         log.info("ABI decoding for %s / %s.", transaction.metadata.tx_hash, chain_id)
 
         try:
-            with ExecutionTimer(f"ABI decoding for " + transaction.metadata.tx_hash):
+            with ExecutionTimer("ABI decoding for " + transaction.metadata.tx_hash):
                 full_decoded_transaction = self._decode_transaction(
                     block.metadata, transaction, chain_id, proxies
                 )
@@ -216,10 +216,7 @@ class ABIDecoder(IABIDecoder):
             return full_decoded_transaction
 
         used_semantics = self._repository.end_record()
-        log.info(
-            f"Semantics used in decoding {transaction.metadata.tx_hash}: "
-            + ", ".join(used_semantics)
-        )
+        log.info("Semantics used in decoding %s: ", ", ".join(used_semantics))
 
         full_decoded_transaction.status = True
 

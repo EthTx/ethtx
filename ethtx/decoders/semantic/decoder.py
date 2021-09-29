@@ -63,9 +63,7 @@ class SemanticDecoder(ISemanticDecoder):
         chain_id: str,
     ) -> DecodedTransactionMetadata:
         return SemanticMetadataDecoder(repository=self.repository).decode(
-            block_metadata=block_metadata,
-            tx_metadata=tx_metadata,
-            chain_id=chain_id,
+            block_metadata=block_metadata, tx_metadata=tx_metadata, chain_id=chain_id
         )
 
     def decode_event(

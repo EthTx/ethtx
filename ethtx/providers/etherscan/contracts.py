@@ -92,7 +92,7 @@ class EtherscanContract(EtherscanClient):
         def _parse_components(components):
 
             comp_canonical = "("
-            comp_inputs = list()
+            comp_inputs = []
 
             for i, component in enumerate(components):
 

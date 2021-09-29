@@ -99,7 +99,7 @@ class SemanticEventsDecoder(SemanticSubmoduleAbc):
             ):
                 event_transformations = anonymous_events[calculated_event_signature]
             else:
-                event_transformations = dict()
+                event_transformations = {}
 
         # prepare context for transformations
         context = create_transformation_context(
