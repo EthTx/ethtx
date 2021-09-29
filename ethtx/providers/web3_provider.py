@@ -70,9 +70,9 @@ def connect_chain(
                 w3.eth.block_number,
             )
             return w3
-        else:
-            log.info("%s connection to %s failed.", method, hook)
-            raise Web3ConnectionException()
+
+        log.info("%s connection to %s failed.", method, hook)
+        raise Web3ConnectionException()
     except Exception as exc:
         log.warning("Node connection %s: %s failed.", method, hook, exc_info=exc)
         raise
@@ -318,11 +318,11 @@ class Web3Provider(NodeDataProvider):
                 address=Web3.toChecksumAddress(token_address), abi=abi
             )
             name = token.functions.name().call() if name_abi else contract_name
-            if type(name) == bytes:
+            if isinstance(name, bytes):
                 name = name.decode("utf-8").replace("\x00", "")
 
             symbol = token.functions.symbol().call() if symbol_abi else contract_name
-            if type(symbol) == bytes:
+            if isinstance(symbol, bytes):
                 symbol = symbol.decode("utf-8").replace("\x00", "")
 
             decimals = token.functions.decimals().call() if decimals_abi else 18
