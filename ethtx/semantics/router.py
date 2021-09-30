@@ -49,11 +49,11 @@ class Router:
 
         for filename in files:
             filename = filename.replace("/", ".").replace(".py", "")
-            foo = importlib.import_module(
+            imported_module = importlib.import_module(
                 f"{cls.root_module_name}{filename.split(cls.root_module_name)[-1]}"
             )
-            for item in dir(foo):
-                obj = getattr(foo, item)
+            for item in dir(imported_module):
+                obj = getattr(imported_module, item)
                 if isinstance(obj, type) and issubclass(obj, Base) and obj != Base:
                     rv[obj.code_hash] = obj.contract_semantics
 

@@ -11,9 +11,7 @@
 #  limitations under the License.
 
 from functools import lru_cache
-from typing import Optional, List, Any, Dict
-
-from ens import ENS
+from typing import Optional, List
 
 from ethtx.decoders.decoders.semantics import decode_events_and_functions
 from ethtx.models.semantics_model import (
@@ -25,6 +23,7 @@ from ethtx.models.semantics_model import (
     FunctionSemantics,
     EventSemantics,
     Signature,
+    SignatureArg,
 )
 from ethtx.providers import EtherscanProvider, Web3Provider
 from ethtx.providers.semantic_providers.semantics_database import ISemanticsDatabase
@@ -93,7 +92,7 @@ class SemanticsRepository:
 
             if raw_address_semantics["contract"] == ZERO_HASH:
                 contract_semantics = ContractSemantics(
-                    raw_address_semantics["contract"], "EOA", dict(), dict(), dict()
+                    raw_address_semantics["contract"], "EOA", {}, {}, {}
                 )
 
             else:
@@ -101,7 +100,7 @@ class SemanticsRepository:
                 raw_contract_semantics = self.database.get_contract_semantics(
                     raw_address_semantics["contract"]
                 )
-                events = dict()
+                events = {}
 
                 for signature, event in raw_contract_semantics["events"].items():
 
@@ -116,7 +115,7 @@ class SemanticsRepository:
                         parameters_semantics,
                     )
 
-                functions = dict()
+                functions = {}
                 for signature, function in raw_contract_semantics["functions"].items():
 
                     inputs_semantics = []
@@ -130,11 +129,11 @@ class SemanticsRepository:
                         signature, function["name"], inputs_semantics, outputs_semantics
                     )
 
-                transformations = dict()
+                transformations = {}
                 for signature, parameters_transformations in raw_contract_semantics[
                     "transformations"
                 ].items():
-                    transformations[signature] = dict()
+                    transformations[signature] = {}
                     for parameter, transformation in parameters_transformations.items():
                         transformations[signature][parameter] = TransformationSemantics(
                             transformation["transformed_name"],
@@ -166,8 +165,7 @@ class SemanticsRepository:
 
             return address_semantics
 
-        else:
-            return None
+        return None
 
     @lru_cache(maxsize=128)
     def get_semantics(self, chain_id: str, address: str) -> Optional[AddressSemantics]:
@@ -206,7 +204,7 @@ class SemanticsRepository:
                         else:
                             erc20_semantics = None
                     contract_semantics = ContractSemantics(
-                        code_hash, raw_semantics["name"], events, functions, dict()
+                        code_hash, raw_semantics["name"], events, functions, {}
                     )
                     address_semantics = AddressSemantics(
                         chain_id,
@@ -235,7 +233,7 @@ class SemanticsRepository:
                         erc20_semantics = None
 
                     contract_semantics = ContractSemantics(
-                        code_hash, address, dict(), dict(), dict()
+                        code_hash, address, {}, {}, {}
                     )
                     address_semantics = AddressSemantics(
                         chain_id,
@@ -249,9 +247,7 @@ class SemanticsRepository:
 
             else:
                 # externally owned address
-                contract_semantics = ContractSemantics(
-                    ZERO_HASH, "EOA", dict(), dict(), dict()
-                )
+                contract_semantics = ContractSemantics(ZERO_HASH, "EOA", {}, {}, {})
                 ns_name = self._web3provider.ens.name(address)
                 address_semantics = AddressSemantics(
                     chain_id,
@@ -446,11 +442,11 @@ class SemanticsRepository:
     def update_address(self, chain_id, address, contract):
 
         updated_address = {"network": chain_id, "address": address, **contract}
-        self.database.insert_address(address_data=updated_address, update_if_exist=True)
+        self.database.insert_address(address=updated_address, update_if_exist=True)
 
         return updated_address
 
-    def update_semantics(self, semantics):
+    def update_semantics(self, semantics) -> None:
 
         if not semantics:
             return
@@ -458,16 +454,50 @@ class SemanticsRepository:
         address_semantics = semantics.json(entire=False)
         contract_semantics = semantics.contract.json()
 
-        self.database.insert_contract(contract_semantics, update_if_exist=True)
-        self.database.insert_address(address_semantics, update_if_exist=True)
+        contract_id = self.database.insert_contract(
+            contract=contract_semantics, update_if_exist=True
+        )
+        _ = self.database.insert_address(
+            address=address_semantics, update_if_exist=True
+        )
 
-    def get_most_common_signature(self, signature_hash: str) -> Signature:
-        signatures = [
-            sig
-            for sig in self.database.get_signature_semantics(
-                signature_hash=signature_hash
-            )
-        ]
+        if contract_id:
+            self.insert_contract_signatures(semantics.contract)
+
+    def insert_contract_signatures(self, contract_semantics: ContractSemantics):
+        for _, v in contract_semantics.functions.items():
+            if v.signature.startswith("0x"):
+                if v.inputs:
+                    if v.inputs[0].parameter_type == "tuple":
+                        new_signature = Signature(
+                            signature_hash=v.signature,
+                            name=v.name,
+                            tuple=True,
+                            args=[
+                                SignatureArg(
+                                    name=param.parameter_name, type=param.parameter_type
+                                )
+                                for param in v.inputs[0].components
+                            ],
+                        )
+                    else:
+                        new_signature = Signature(
+                            signature_hash=v.signature,
+                            name=v.name,
+                            args=[
+                                SignatureArg(
+                                    name=param.parameter_name, type=param.parameter_type
+                                )
+                                for param in v.inputs
+                            ],
+                        )
+
+                    self.update_or_insert_signature(new_signature)
+
+    def get_most_used_signature(self, signature_hash: str) -> Optional[Signature]:
+        signatures = list(
+            self.database.get_signature_semantics(signature_hash=signature_hash)
+        )
 
         if signatures:
             most_common_signature = max(signatures, key=lambda x: x["count"])
@@ -476,13 +506,14 @@ class SemanticsRepository:
                 name=most_common_signature["name"],
                 args=most_common_signature["args"],
                 count=most_common_signature["count"],
+                tuple=most_common_signature["tuple"],
             )
-            most_common_signature["count"] += 1
-            self.database.insert_signature(most_common_signature, update_if_exist=True)
 
             return signature
 
-    def process_signatures(self, signature: Signature):
+        return None
+
+    def update_or_insert_signature(self, signature: Signature):
         signatures = self.database.get_signature_semantics(
             signature_hash=signature.signature_hash
         )
@@ -494,7 +525,10 @@ class SemanticsRepository:
                     for index, argument in enumerate(sig["args"]):
                         argument["name"] = signature.args[index].name
                         argument["type"] = signature.args[index].type
-                    self.database.insert_signature(signature=sig, update_if_exist=True)
-                    break
+
+                sig["count"] += 1
+                self.database.insert_signature(signature=sig, update_if_exist=True)
+                break
+
         else:
             self.database.insert_signature(signature=signature.json())

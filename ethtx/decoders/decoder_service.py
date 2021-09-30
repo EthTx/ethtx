@@ -26,7 +26,7 @@ class DecoderService:
 
     def get_delegations(self, calls: Union[Call, List[Call]]) -> Dict[str, List[str]]:
 
-        delegations = dict()
+        delegations = {}
 
         if not calls:
             return delegations
@@ -58,7 +58,7 @@ class DecoderService:
         self, delegations: Dict[str, List[str]], chain_id: str
     ) -> Dict[str, Proxy]:
 
-        proxies = dict()
+        proxies = {}
         chain = self.web3provider._get_node_connection(chain_id)
 
         for delegator in delegations:
@@ -128,10 +128,7 @@ class DecoderService:
 
         # decode transaction using ABI
         abi_decoded_tx = self.abi_decoder.decode_transaction(
-            block=block,
-            transaction=transaction,
-            proxies=proxies,
-            chain_id=chain_id,
+            block=block, transaction=transaction, proxies=proxies, chain_id=chain_id
         )
 
         # decode transaction using additional semantics

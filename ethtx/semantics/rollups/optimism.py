@@ -102,7 +102,7 @@ def decode_sequencer_batch(data):
 
         return transaction
 
-    decoded_methods = dict()
+    decoded_methods = {}
 
     data = "0x00000000" + data
 

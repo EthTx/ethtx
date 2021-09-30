@@ -92,7 +92,7 @@ class EtherscanContract(EtherscanClient):
         def _parse_components(components):
 
             comp_canonical = "("
-            comp_inputs = list()
+            comp_inputs = []
 
             for i, component in enumerate(components):
 
@@ -130,8 +130,8 @@ class EtherscanContract(EtherscanClient):
 
             return comp_canonical, comp_inputs
 
-        functions = dict()
-        events = dict()
+        functions = {}
+        events = {}
 
         for item in json_abi:
 

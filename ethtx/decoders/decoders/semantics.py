@@ -58,7 +58,7 @@ def _decode_parameters_list(raw_parameters_list: list) -> List[ParameterSemantic
 def decode_events_and_functions(
     abi: dict,
 ) -> Tuple[Dict[str, EventSemantics], Dict[str, FunctionSemantics]]:
-    events = dict()
+    events = {}
     for signature, raw_event_semantics in abi.get("events", {}).items():
         parameters = _decode_parameters_list(raw_event_semantics.get("parameters"))
         events[signature] = EventSemantics(
@@ -68,7 +68,7 @@ def decode_events_and_functions(
             parameters,
         )
 
-    functions = dict()
+    functions = {}
     for signature, raw_function_semantics in abi.get("functions", {}).items():
         if raw_function_semantics:
             inputs = _decode_parameters_list(raw_function_semantics.get("inputs"))
@@ -86,12 +86,12 @@ def decode_events_and_functions(
 def decode_transformations(
     raw_transformations: dict,
 ) -> Dict[str, Dict[str, TransformationSemantics]]:
-    transformations = dict()
+    transformations = {}
     if raw_transformations:
         for signature, transformation in raw_transformations.items():
-            transformations[signature] = dict()
+            transformations[signature] = {}
             for parameter_name, parameter_transformation in transformation.get(
-                "arguments", dict()
+                "arguments", {}
             ).items():
                 transformations[signature][parameter_name] = TransformationSemantics(
                     parameter_transformation.get("name"),

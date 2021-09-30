@@ -162,7 +162,7 @@ def decode_call(transaction, repository, contract_address, data):
                 repository,
                 argument,
                 f"__input{i}__",
-                function_transformations or dict(),
+                function_transformations or {},
                 None,
                 context,
             )
@@ -184,7 +184,7 @@ def create_transformation_context(
     contract, input_variables, output_variables, transaction, repository
 ):
     # create a context for transformations
-    context = dict()
+    context = {}
     for i, parameter in enumerate(input_variables):
         if parameter.name:
             context[parameter.name] = parameter.value

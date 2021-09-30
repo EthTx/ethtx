@@ -16,6 +16,7 @@ __all__ = [
     "ProcessingException",
     "InvalidTransactionHash",
     "InvalidEtherscanReturnCodeException",
+    "FourByteConnectionException",
 ]
 
 import json
@@ -48,3 +49,10 @@ class InvalidEtherscanReturnCodeException(Exception):
         params_msg = " with params: " + json.dumps(params) if params else ""
         msg = f"Invalid status code for etherscan request: {returned_code} {params_msg}"
         super().__init__(msg)
+
+
+class FourByteConnectionException(Exception):
+    """ 4byte directory connection error. """
+
+    def __init__(self, msg: str):
+        super().__init__(f"Couldn't connect to 4byte.directory: {msg}")

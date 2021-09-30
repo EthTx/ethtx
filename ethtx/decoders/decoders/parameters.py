@@ -388,7 +388,7 @@ def decode_struct(data, arguments_abi):
                 argument_value = decode_static_argument(raw_value, argument_type)
                 slot += 1
         else:
-            argument_name = "arg_%d" % (i + 1)
+            argument_name = f"arg_{i + 1}"
             argument_type = "unknown"
             argument_value = "0x" + raw_value
 
@@ -407,7 +407,7 @@ def decode_graffiti_parameters(input_data):
         try:
             message = bytearray.fromhex(input_data[2:]).decode()
             input_parameters = [Argument(name="message", type="string", value=message)]
-        except Exception as e:
+        except Exception:
             # log.warning(e)
             pass
 
