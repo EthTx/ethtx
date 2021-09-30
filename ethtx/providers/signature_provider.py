@@ -112,7 +112,7 @@ class FourByteProvider(SignatureProvider):
                 requests.exceptions.ConnectionError,
                 requests.exceptions.Timeout,
             ) as e:
-                raise FourByteConnectionException(e)
+                raise FourByteConnectionException(e) from e
         except FourByteConnectionException:
             return {}
 

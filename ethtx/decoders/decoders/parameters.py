@@ -407,7 +407,7 @@ def decode_graffiti_parameters(input_data):
         try:
             message = bytearray.fromhex(input_data[2:]).decode()
             input_parameters = [Argument(name="message", type="string", value=message)]
-        except Exception as e:
+        except Exception:
             # log.warning(e)
             pass
 
