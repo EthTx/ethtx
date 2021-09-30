@@ -11,7 +11,7 @@
 #  limitations under the License.
 
 from functools import lru_cache
-from typing import Optional, List, Dict
+from typing import Optional, List
 
 from ethtx.decoders.decoders.semantics import decode_events_and_functions
 from ethtx.models.semantics_model import (
@@ -446,7 +446,7 @@ class SemanticsRepository:
 
         return updated_address
 
-    def update_semantics(self, semantics):
+    def update_semantics(self, semantics) -> None:
 
         if not semantics:
             return
@@ -457,33 +457,42 @@ class SemanticsRepository:
         contract_id = self.database.insert_contract(
             contract=contract_semantics, update_if_exist=True
         )
+        _ = self.database.insert_address(
+            address=address_semantics, update_if_exist=True
+        )
 
-        self.test(semantics.contract)
-        self.database.insert_address(address=address_semantics, update_if_exist=True)
+        if contract_id:
+            self.insert_contract_signatures(semantics.contract)
 
-    def test(self, contract_semantics: ContractSemantics):
-        a = []
-        for k, v in contract_semantics.functions.items():
-            print(1, k)
-            if v.inputs:
-                print(2, v.__dict__)
-                print(3, v.inputs[0].__dict__)
-                print(
-                    4,
-                    v.inputs[0].components[0].__dict__
-                    if v.inputs[0].components
-                    else [],
-                )
-                print(
-                    Signature(
-                        signature_hash=v.signature,
-                        name=v.name,
-                        args=[
-                            SignatureArg(x.parameter_name, x.parameter_type)
-                            for x in v.inputs
-                        ],
-                    ).json()
-                )
+    def insert_contract_signatures(self, contract_semantics: ContractSemantics):
+        for _, v in contract_semantics.functions.items():
+            if v.signature.startswith("0x"):
+                if v.inputs:
+                    if v.inputs[0].parameter_type == "tuple":
+                        new_signature = Signature(
+                            signature_hash=v.signature,
+                            name=v.name,
+                            tuple=True,
+                            args=[
+                                SignatureArg(
+                                    name=param.parameter_name, type=param.parameter_type
+                                )
+                                for param in v.inputs[0].components
+                            ],
+                        )
+                    else:
+                        new_signature = Signature(
+                            signature_hash=v.signature,
+                            name=v.name,
+                            args=[
+                                SignatureArg(
+                                    name=param.parameter_name, type=param.parameter_type
+                                )
+                                for param in v.inputs
+                            ],
+                        )
+
+                    self.update_or_insert_signature(new_signature)
 
     def get_most_used_signature(self, signature_hash: str) -> Optional[Signature]:
         signatures = list(
@@ -504,10 +513,6 @@ class SemanticsRepository:
 
         return None
 
-    def update_signature_counter(self, signature: Dict):
-        signature["count"] += 1
-        self.database.insert_signature(signature, update_if_exist=True)
-
     def update_or_insert_signature(self, signature: Signature):
         signatures = self.database.get_signature_semantics(
             signature_hash=signature.signature_hash
@@ -521,7 +526,9 @@ class SemanticsRepository:
                         argument["name"] = signature.args[index].name
                         argument["type"] = signature.args[index].type
 
-                    self.database.insert_signature(signature=sig, update_if_exist=True)
-                    break
+                sig["count"] += 1
+                self.database.insert_signature(signature=sig, update_if_exist=True)
+                break
+
         else:
             self.database.insert_signature(signature=signature.json())
