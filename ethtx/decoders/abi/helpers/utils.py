@@ -10,7 +10,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import logging
-from typing import Iterator, Optional
+from typing import Iterator, Optional, List
 
 from ethtx.models.semantics_model import (
     FunctionSemantics,
@@ -30,7 +30,6 @@ def decode_function_abi_with_external_source(
     repository: SemanticsRepository,
     _provider: Optional[SignatureProvider] = FourByteProvider,
 ) -> Iterator[FunctionSemantics]:
-
     function = repository.get_most_used_signature(signature_hash=signature)
     if function:
         log.info(
@@ -40,7 +39,7 @@ def decode_function_abi_with_external_source(
         function_semantics = FunctionSemantics(
             signature,
             function.name,
-            [ParameterSemantics(arg["name"], arg["type"], []) for arg in function.args],
+            _prepare_parameter_semantics(function.args, function.tuple, unknown=False),
             [],
         )
         yield function_semantics
@@ -55,10 +54,9 @@ def decode_function_abi_with_external_source(
             function_semantics = FunctionSemantics(
                 signature,
                 func.get("name"),
-                [
-                    ParameterSemantics(f"arg{i}", arg, [])
-                    for i, arg in enumerate(func.get("args"))
-                ],
+                _prepare_parameter_semantics(
+                    func.get("args"), isinstance(func.get("args"), tuple), unknown=True
+                ),
                 [],
             )
             yield function_semantics
@@ -69,11 +67,10 @@ def decode_function_abi_with_external_source(
                     signature_hash=signature,
                     name=function_semantics.name,
                     args=[
-                        SignatureArg(
-                            name=param.parameter_name, type=param.parameter_type
-                        )
-                        for param in function_semantics.inputs
+                        SignatureArg(name=f"arg{i}", type=arg)
+                        for i, arg in enumerate(func.get("args"))
                     ],
+                    tuple=isinstance(func.get("args"), tuple),
                 )
             )
 
@@ -91,3 +88,32 @@ def decode_event_abi_name_with_external_source(
         return event.get("name", signature)
 
     return signature
+
+
+def _prepare_parameter_semantics(
+    args, is_tuple: bool, unknown: bool
+) -> List[ParameterSemantics]:
+    if not is_tuple:
+        return [
+            ParameterSemantics(
+                arg["name"] if not unknown else f"arg{i}",
+                arg["type"] if not unknown else arg,
+                [],
+            )
+            for i, arg in enumerate(args)
+        ]
+
+    return [
+        ParameterSemantics(
+            "params",
+            "tuple",
+            [
+                ParameterSemantics(
+                    arg["name"] if not unknown else f"arg{i}",
+                    arg["type"] if not unknown else arg,
+                    [],
+                )
+                for i, arg in enumerate(args)
+            ],
+        )
+    ]

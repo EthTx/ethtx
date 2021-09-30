@@ -108,14 +108,21 @@ class Signature(JsonObject):
     name: str
     args: List[SignatureArg]
     count: int
+    tuple: bool
 
     def __init__(
-        self, signature_hash: str, name: str, args: List[SignatureArg], count: int = 1
+        self,
+        signature_hash: str,
+        name: str,
+        args: List[SignatureArg],
+        count: int = 1,
+        tuple: bool = False,
     ):
         self.signature_hash = signature_hash
         self.name = name
         self.args = args
         self.count = count
+        self.tuple = tuple
 
 
 class ERC20Semantics:
