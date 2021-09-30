@@ -11,7 +11,7 @@
 #  limitations under the License.
 import logging
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Iterator, TypedDict
+from typing import Dict, List, Any, Iterator, TypedDict, Union, Tuple
 
 import requests
 
@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 class SignatureReturnType(TypedDict):
     name: str
-    args: List[str]
+    args: Union[List[str], Tuple[str]]
 
 
 class SignatureProvider(ABC):
@@ -119,15 +119,18 @@ class FourByteProvider(SignatureProvider):
     @staticmethod
     def _parse_text_signature_response(data: Dict) -> SignatureReturnType:
         text_sig = data.get("text_signature", "")
+
         name = text_sig.split("(")[0] if text_sig else ""
 
         types = (
             text_sig[text_sig.find("(") + 1 : text_sig.rfind(")")] if text_sig else ""
         )
         if "(" in types:
-            types = types[types.find("(") + 1 : types.rfind(")")]
+            args = tuple(types[types.find("(") + 1 : types.rfind(")")].split(","))
+        else:
+            args = types.split(",")
 
-        return {"name": name, "args": types.split(",")}
+        return {"name": name, "args": args}
 
 
 FourByteProvider = FourByteProvider()
