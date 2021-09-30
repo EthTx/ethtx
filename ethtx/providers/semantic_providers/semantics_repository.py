@@ -23,6 +23,7 @@ from ethtx.models.semantics_model import (
     FunctionSemantics,
     EventSemantics,
     Signature,
+    SignatureArg,
 )
 from ethtx.providers import EtherscanProvider, Web3Provider
 from ethtx.providers.semantic_providers.semantics_database import ISemanticsDatabase
@@ -456,7 +457,33 @@ class SemanticsRepository:
         contract_id = self.database.insert_contract(
             contract=contract_semantics, update_if_exist=True
         )
+
+        self.test(semantics.contract)
         self.database.insert_address(address=address_semantics, update_if_exist=True)
+
+    def test(self, contract_semantics: ContractSemantics):
+        a = []
+        for k, v in contract_semantics.functions.items():
+            print(1, k)
+            if v.inputs:
+                print(2, v.__dict__)
+                print(3, v.inputs[0].__dict__)
+                print(
+                    4,
+                    v.inputs[0].components[0].__dict__
+                    if v.inputs[0].components
+                    else [],
+                )
+                print(
+                    Signature(
+                        signature_hash=v.signature,
+                        name=v.name,
+                        args=[
+                            SignatureArg(x.parameter_name, x.parameter_type)
+                            for x in v.inputs
+                        ],
+                    ).json()
+                )
 
     def get_most_used_signature(self, signature_hash: str) -> Optional[Signature]:
         signatures = list(
@@ -470,6 +497,7 @@ class SemanticsRepository:
                 name=most_common_signature["name"],
                 args=most_common_signature["args"],
                 count=most_common_signature["count"],
+                tuple=most_common_signature["tuple"],
             )
 
             return signature
@@ -492,6 +520,7 @@ class SemanticsRepository:
                     for index, argument in enumerate(sig["args"]):
                         argument["name"] = signature.args[index].name
                         argument["type"] = signature.args[index].type
+
                     self.database.insert_signature(signature=sig, update_if_exist=True)
                     break
         else:
