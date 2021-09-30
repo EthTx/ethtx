@@ -67,7 +67,7 @@ def decode_function_abi_with_external_source(
                     signature_hash=signature,
                     name=function_semantics.name,
                     args=[
-                        SignatureArg(name=f"arg{i}", type=arg)
+                        SignatureArg(name=f"arg_{i}", type=arg)
                         for i, arg in enumerate(func.get("args"))
                     ],
                     tuple=isinstance(func.get("args"), tuple),
@@ -96,7 +96,7 @@ def _prepare_parameter_semantics(
     if not is_tuple:
         return [
             ParameterSemantics(
-                arg["name"] if not unknown else f"arg{i}",
+                arg["name"] if not unknown else f"arg_{i}",
                 arg["type"] if not unknown else arg,
                 [],
             )
@@ -109,7 +109,7 @@ def _prepare_parameter_semantics(
             "tuple",
             [
                 ParameterSemantics(
-                    arg["name"] if not unknown else f"arg{i}",
+                    arg["name"] if not unknown else f"arg_{i}",
                     arg["type"] if not unknown else arg,
                     [],
                 )
