@@ -216,7 +216,11 @@ class ABIDecoder(IABIDecoder):
             return full_decoded_transaction
 
         used_semantics = self._repository.end_record()
-        log.info("Semantics used in decoding %s: ", ", ".join(used_semantics))
+        log.info(
+            "Semantics used in decoding %s: %s ",
+            transaction.metadata.tx_hash,
+            ", ".join(used_semantics),
+        )
 
         full_decoded_transaction.status = True
 
