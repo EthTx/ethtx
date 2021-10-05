@@ -143,9 +143,15 @@ def decode_call(transaction, repository, contract_address, data):
             transaction.chain_id, contract_address, function_signature
         )
         function_name = function_abi.name if function_abi else function_signature
-        stripped_function_abi = FunctionSemantics(signature=function_abi.signature, name=function_abi.name,
-                                                  inputs=function_abi.inputs, outputs=[])
-        function_input, _ = decode_function_parameters(data, "0x", stripped_function_abi)
+        stripped_function_abi = FunctionSemantics(
+            signature=function_abi.signature,
+            name=function_abi.name,
+            inputs=function_abi.inputs,
+            outputs=[],
+        )
+        function_input, _ = decode_function_parameters(
+            data, "0x", stripped_function_abi
+        )
 
         # perform arguments transformations
         context = create_transformation_context(
@@ -156,7 +162,7 @@ def decode_call(transaction, repository, contract_address, data):
                 repository,
                 argument,
                 f"__input{i}__",
-                function_transformations or dict(),
+                function_transformations or {},
                 None,
                 context,
             )
@@ -178,7 +184,7 @@ def create_transformation_context(
     contract, input_variables, output_variables, transaction, repository
 ):
     # create a context for transformations
-    context = dict()
+    context = {}
     for i, parameter in enumerate(input_variables):
         if parameter.name:
             context[parameter.name] = parameter.value

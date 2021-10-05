@@ -11,7 +11,13 @@
 #  limitations under the License.
 
 
-__all__ = ["Web3ConnectionException", "ProcessingException", "InvalidTransactionHash"]
+__all__ = [
+    "Web3ConnectionException",
+    "ProcessingException",
+    "InvalidTransactionHash",
+    "InvalidEtherscanReturnCodeException",
+    "FourByteConnectionException",
+]
 
 import json
 from typing import Dict
@@ -37,9 +43,16 @@ class InvalidTransactionHash(Exception):
     def __init__(self, tx_hash):
         super().__init__("Invalid transaction hash provided: " + tx_hash)
 
-class InvalidEtherscanReturnCodeException(Exception):
 
+class InvalidEtherscanReturnCodeException(Exception):
     def __init__(self, returned_code: int, params: Dict = None):
         params_msg = " with params: " + json.dumps(params) if params else ""
         msg = f"Invalid status code for etherscan request: {returned_code} {params_msg}"
         super().__init__(msg)
+
+
+class FourByteConnectionException(Exception):
+    """ 4byte directory connection error. """
+
+    def __init__(self, msg: str):
+        super().__init__(f"Couldn't connect to 4byte.directory: {msg}")

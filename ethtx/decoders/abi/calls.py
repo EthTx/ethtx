@@ -9,19 +9,20 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
+import logging
 from typing import Optional, Dict
 
-from ethtx.models.decoded_model import DecodedCall
+from ethtx.models.decoded_model import DecodedCall, Proxy
 from ethtx.models.objects_model import Call, TransactionMetadata, BlockMetadata
-from ethtx.utils.measurable import RecursionLimit
-
+from ethtx.semantics.solidity.precompiles import precompiles
 from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS
 from ethtx.semantics.standards.erc721 import ERC721_FUNCTIONS
-from ethtx.semantics.solidity.precompiles import precompiles
-
+from ethtx.utils.measurable import RecursionLimit
 from .abc import ABISubmoduleAbc
+from .helpers.utils import decode_function_abi_with_external_source
 from ..decoders.parameters import decode_function_parameters, decode_graffiti_parameters
+
+log = logging.getLogger(__name__)
 
 RECURSION_LIMIT = 2000
 
@@ -34,8 +35,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
         call: Call,
         block: BlockMetadata,
         transaction: TransactionMetadata,
-        delegations: Optional[Dict[str, set]] = None,
-        token_proxies: Optional[Dict[str, dict]] = None,
+        proxies: Optional[Dict[str, Proxy]] = None,
         chain_id: Optional[str] = None,
     ) -> Optional[DecodedCall]:
         """Decode call with sub_calls."""
@@ -48,15 +48,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
         call_id = ""
 
         decoded_root_call = self.decode_call(
-            call,
-            block,
-            transaction,
-            call_id,
-            indent,
-            status,
-            delegations,
-            token_proxies,
-            chain_id,
+            call, block, transaction, call_id, indent, status, proxies or {}, chain_id
         )
 
         with RecursionLimit(RECURSION_LIMIT):
@@ -67,8 +59,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
                 call.subcalls,
                 indent,
                 status,
-                delegations,
-                token_proxies,
+                proxies,
                 chain_id,
             )
 
@@ -84,8 +75,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
         call_id: str = "",
         indent: int = 0,
         status: bool = True,
-        delegations: Dict[str, set] = None,
-        token_proxies: Dict[str, dict] = None,
+        proxies: Dict[str, Proxy] = None,
         chain_id: str = None,
     ) -> DecodedCall:
         """Decode single call."""
@@ -98,13 +88,10 @@ class ABICallsDecoder(ABISubmoduleAbc):
             function_signature = None
 
         from_name = self._repository.get_address_label(
-            chain_id, call.from_address, token_proxies
-        )
-        to_name = self._repository.get_address_label(
-            chain_id, call.to_address, token_proxies
+            chain_id, call.from_address, proxies
         )
 
-        delegations = delegations or {}
+        to_name = self._repository.get_address_label(chain_id, call.to_address, proxies)
 
         if call.call_type == "selfdestruct":
             function_name = call.call_type
@@ -119,14 +106,24 @@ class ABICallsDecoder(ABISubmoduleAbc):
             function_input, function_output = [], []
 
         elif self._repository.check_is_contract(chain_id, call.to_address):
-
             standard = self._repository.get_standard(chain_id, call.to_address)
 
             function_abi = self._repository.get_function_abi(
                 chain_id, call.to_address, function_signature
             )
 
-            function_signature = call.call_data[:10] if call.call_data else ''
+            function_signature = call.call_data[:10] if call.call_data else ""
+
+            if not function_abi and call.to_address in proxies:
+                # try to find signature in delegate-called contracts
+                for semantic in proxies[call.to_address].semantics:
+                    function_abi = (
+                        semantic.contract.functions[function_signature]
+                        if function_signature in semantic.contract.functions
+                        else None
+                    )
+                    if function_abi:
+                        break
 
             if not function_abi:
                 if standard == "ERC20":
@@ -136,19 +133,32 @@ class ABICallsDecoder(ABISubmoduleAbc):
                     # decode ERC721 calls if ABI for them is not defined
                     function_abi = ERC721_FUNCTIONS.get(function_signature)
 
-            if not function_abi and call.to_address in delegations:
-                # try to find signature in delegate-called contracts
-                for delegate in delegations[call.to_address]:
-                    function_abi = self._repository.get_function_abi(
-                        chain_id, delegate, function_signature
-                    )
-                    if function_abi:
-                        break
-
             function_name = function_abi.name if function_abi else function_signature
+
             function_input, function_output = decode_function_parameters(
                 call.call_data, call.return_value, function_abi, call.status
             )
+
+            if function_name.startswith("0x") and len(function_signature) > 2:
+                functions_abi_provider = decode_function_abi_with_external_source(
+                    signature=function_signature, repository=self._repository
+                )
+                for function_abi_provider in functions_abi_provider:
+                    try:
+                        function_abi = function_abi_provider
+                        function_name = function_abi.name
+                        function_input, function_output = decode_function_parameters(
+                            call.call_data, call.return_value, function_abi, call.status
+                        )
+                    except Exception as e:
+                        log.info(
+                            "Skipping getting function from external source and trying to get next. Error: %s",
+                            e,
+                        )
+                        continue
+                    else:
+                        break
+
             if (
                 not call.status
                 and function_output
@@ -161,8 +171,11 @@ class ABICallsDecoder(ABISubmoduleAbc):
             function_semantics = precompiles[int(call.to_address, 16)]
             function_name = function_semantics.name
             function_input, function_output = decode_function_parameters(
-                call.call_data, call.return_value, function_semantics, call.status,
-                strip_signature=False
+                call.call_data,
+                call.return_value,
+                function_semantics,
+                call.status,
+                strip_signature=False,
             )
         else:
             function_name = "fallback"
@@ -198,8 +211,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
         sub_calls,
         indent,
         status,
-        delegations,
-        token_proxies,
+        proxies,
         chain_id,
     ) -> DecodedCall:
         """Decode nested calls. Call may have sub_calls, if they exist, it will recursively process them."""
@@ -216,8 +228,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
                 sub_call_id,
                 indent + 1,
                 status,
-                delegations,
-                token_proxies,
+                proxies,
                 chain_id,
             )
             call.subcalls.append(decoded)
@@ -230,8 +241,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
                     sub_call.subcalls,
                     indent + 1,
                     status,
-                    delegations,
-                    token_proxies,
+                    proxies,
                     chain_id,
                 )
 

@@ -17,16 +17,21 @@
 </a>
 </p>
 
+## Live version
+Live version of EthTx is available here [https://EthTx.info](https://EthTx.info), with source code released here [https://github.com/ethtx/ethtx](https://github.com/ethtx/ethtx_ce)
+
 ## Installation
 ```shell
 pip install ethtx
 ```
 
 ## Requirements
-The package needs a few external resources, defined in EthTxConfig object:
-1. **Geth node** - required to have access to the raw Ethereum data; it must be a full archive node with the `debug` option ON
-2. **MongoDB database** - required to store smart contracts' ABI and semantics used in the decoding process; it can be a Mongo Atlas or local instance
-3. **Etherscan API key** - required to get the source code and ABI for smart contracts used in transaction
+The package needs a few external resources, defined in `EthTxConfig` object:
+1. **Erigon/Geth node** - required to have access to the raw Ethereum data; it must be a full archive node with the `debug` option ON
+2. **Etherscan API key** - required to get the source code and ABI for smart contracts used in transaction
+3. (Optional) **MongoDB database** - required to store smart contracts' ABI and semantics used in the decoding process.
+If you don't want to setup permanent database, you can enter `mongomock://localhost`,
+then in-memory mongo will be set up that discards all data with every run.
 ## Getting started
 
 ```python
@@ -35,11 +40,14 @@ from ethtx.models.decoded_model import DecodedTransaction
 
 
 ethtx_config = EthTxConfig(
-    mongo_connection_string= ##MongoDB connection string,
-    mongo_database= ##MongoDB database,
-    etherscan_api_key= ##Etherscan API key,
+    mongo_connection_string="mongomock://localhost" ##MongoDB connection string,
+    mongo_database="" ##MongoDB database,
+    etherscan_api_key="" ##Etherscan API key,
     web3nodes={
-        "mainnet": dict(hook=[_Geth_archive_node_URL_], poa=[_POA_chain_indicator_])
+        "mainnet": {
+            "hook": "_Geth_archive_node_URL_",
+            "poa": _POA_chain_indicator_ # represented by bool value
+        }
     },
     default_chain="mainnet",
     etherscan_urls={

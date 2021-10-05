@@ -12,11 +12,12 @@
 
 from typing import List, Dict, Union, Optional
 
-from ethtx.models.decoded_model import DecodedEvent
+from ethtx.models.decoded_model import DecodedEvent, Proxy
 from ethtx.models.objects_model import BlockMetadata, TransactionMetadata, Event
 from ethtx.semantics.standards.erc20 import ERC20_EVENTS
 from ethtx.semantics.standards.erc721 import ERC721_EVENTS
 from .abc import ABISubmoduleAbc
+from .helpers.utils import decode_event_abi_name_with_external_source
 from ..decoders.parameters import decode_event_parameters
 
 
@@ -28,34 +29,28 @@ class ABIEventsDecoder(ABISubmoduleAbc):
         events: Union[Event, List[Event]],
         block: BlockMetadata,
         transaction: TransactionMetadata,
-        delegations: Optional[Dict[str, set]] = None,
-        token_proxies: Optional[Dict[str, dict]] = None,
+        proxies: Optional[Dict[str, Proxy]] = None,
         chain_id: Optional[str] = None,
     ) -> Union[DecodedEvent, List[DecodedEvent]]:
         """Return list of decoded events."""
         if isinstance(events, list):
             return (
                 [
-                    self.decode_event(
-                        event, block, transaction, delegations, token_proxies, chain_id
-                    )
+                    self.decode_event(event, block, transaction, proxies, chain_id)
                     for event in events
                 ]
                 if events
                 else []
             )
 
-        return self.decode_event(
-            events, block, transaction, delegations, token_proxies, chain_id
-        )
+        return self.decode_event(events, block, transaction, proxies, chain_id)
 
     def decode_event(
         self,
         event: Event,
         block: BlockMetadata,
         transaction: TransactionMetadata,
-        delegations: Dict[str, set] = None,
-        token_proxies: Dict[str, dict] = None,
+        proxies: Dict[str, Proxy] = None,
         chain_id: str = None,
     ) -> DecodedEvent:
 
@@ -73,17 +68,6 @@ class ABIEventsDecoder(ABISubmoduleAbc):
 
         if not event_abi:
 
-            if event_signature in ERC20_EVENTS:
-                # try standard ERC20 events
-                if len([parameter for parameter in ERC20_EVENTS[event_signature].parameters if parameter.indexed]) == \
-                   len([topic for topic in event.topics if topic]) - 1:
-                    event_abi = ERC20_EVENTS[event_signature]
-                elif event_signature in ERC721_EVENTS:
-                    # try standard ERC721 events
-                    if len([parameter for parameter in ERC721_EVENTS[event_signature].parameters if parameter.indexed]) == \
-                       len([topic for topic in event.topics if topic]) - 1:
-                        event_abi = ERC721_EVENTS[event_signature]
-
             if not event_abi:
                 # if signature is not known but there is exactly one anonymous event in tha ABI
                 # we can assume that this is this the anonymous one (e.g. Maker's LogNote)
@@ -93,22 +77,59 @@ class ABIEventsDecoder(ABISubmoduleAbc):
                 if event_abi:
                     anonymous = True
 
-            if not event_abi and event.contract in delegations:
+            if not event_abi and event.contract in proxies:
                 # try to find signature in delegate-called contracts
-                for delegate in delegations[event.contract]:
-                    event_abi = self._repository.get_event_abi(
-                        chain_id, delegate, event_signature
+                for semantic in proxies[event.contract].semantics:
+                    event_abi = (
+                        semantic.contract.events[event_signature]
+                        if event_signature in semantic.contract.events
+                        else None
                     )
                     if event_abi:
                         break
 
+            if not event_abi and event_signature in ERC20_EVENTS:
+                # try standard ERC20 events
+                if (
+                    len(
+                        [
+                            parameter
+                            for parameter in ERC20_EVENTS[event_signature].parameters
+                            if parameter.indexed
+                        ]
+                    )
+                    == len([topic for topic in event.topics if topic]) - 1
+                ):
+                    event_abi = ERC20_EVENTS[event_signature]
+                elif event_signature in ERC721_EVENTS:
+                    # try standard ERC721 events
+                    if (
+                        len(
+                            [
+                                parameter
+                                for parameter in ERC721_EVENTS[
+                                    event_signature
+                                ].parameters
+                                if parameter.indexed
+                            ]
+                        )
+                        == len([topic for topic in event.topics if topic]) - 1
+                    ):
+                        event_abi = ERC721_EVENTS[event_signature]
+
         contract_name = self._repository.get_address_label(
-            chain_id, event.contract, token_proxies
+            chain_id, event.contract, proxies
         )
         event_name = event_abi.name if event_abi else event_signature
+
         parameters = decode_event_parameters(
             event.log_data, event.topics, event_abi, anonymous
         )
+
+        if event_name.startswith("0x") and len(event_name) > 2:
+            event_name = decode_event_abi_name_with_external_source(
+                signature=event_signature
+            )
 
         return DecodedEvent(
             chain_id=chain_id,

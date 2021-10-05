@@ -16,6 +16,7 @@ from datetime import datetime
 from typing import List, Any, Optional
 
 from ethtx.models.objects_model import BlockMetadata, TransactionMetadata
+from ethtx.models.semantics_model import AddressSemantics, ERC20Semantics
 from ethtx.utils.pickable import JsonObject
 
 
@@ -279,7 +280,7 @@ class DecodedBalance(JsonObject):
 
 class DecodedTransaction(JsonObject):
     block_metadata: BlockMetadata
-    metadata: TransactionMetadata
+    metadata: DecodedTransactionMetadata
     events: List[DecodedEvent]
     calls: Optional[DecodedCall]
     transfers: List[DecodedTransfer]
@@ -289,7 +290,7 @@ class DecodedTransaction(JsonObject):
     def __init__(
         self,
         block_metadata: BlockMetadata,
-        tx_metadata: TransactionMetadata,
+        tx_metadata: DecodedTransactionMetadata,
         events: List[DecodedEvent],
         calls: Optional[DecodedCall],
         transfers: List[DecodedTransfer],
@@ -302,3 +303,25 @@ class DecodedTransaction(JsonObject):
         self.transfers = transfers
         self.balances = balances
         self.status = False
+
+
+class Proxy:
+    address: str
+    name: str
+    type: str
+    semantics: Optional[List[AddressSemantics]]
+    token: Optional[ERC20Semantics]
+
+    def __init__(
+        self,
+        address: str,
+        name: str,
+        type: str,
+        semantics: Optional[List[AddressSemantics]] = None,
+        token: Optional[ERC20Semantics] = None,
+    ):
+        self.address = address
+        self.name = name
+        self.type = type
+        self.semantics = semantics
+        self.token = token
