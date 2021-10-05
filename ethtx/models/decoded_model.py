@@ -280,7 +280,7 @@ class DecodedBalance(JsonObject):
 
 class DecodedTransaction(JsonObject):
     block_metadata: BlockMetadata
-    metadata: TransactionMetadata
+    metadata: DecodedTransactionMetadata
     events: List[DecodedEvent]
     calls: Optional[DecodedCall]
     transfers: List[DecodedTransfer]
@@ -290,7 +290,7 @@ class DecodedTransaction(JsonObject):
     def __init__(
         self,
         block_metadata: BlockMetadata,
-        tx_metadata: TransactionMetadata,
+        tx_metadata: DecodedTransactionMetadata,
         events: List[DecodedEvent],
         calls: Optional[DecodedCall],
         transfers: List[DecodedTransfer],
