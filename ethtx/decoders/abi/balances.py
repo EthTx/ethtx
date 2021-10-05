@@ -25,8 +25,8 @@ class ABIBalancesDecoder(ABISubmoduleAbc):
     def decode(self, transfers: List[DecodedTransfer]) -> List:
         """Decode balances."""
 
-        balance_holders = dict()
-        balance_tokens = dict()
+        balance_holders = {}
+        balance_tokens = {}
 
         for transfer in transfers:
             if transfer.from_address.address != ZERO_ADDRESS:

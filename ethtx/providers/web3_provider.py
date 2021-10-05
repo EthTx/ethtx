@@ -15,6 +15,7 @@ import os
 from functools import lru_cache
 from typing import List, Dict, Optional
 
+from ens import ENS
 from web3 import Web3
 from web3.datastructures import AttributeDict
 from web3.middleware import geth_poa_middleware
@@ -69,16 +70,19 @@ def connect_chain(
                 w3.eth.block_number,
             )
             return w3
-        else:
-            log.info("%s connection to %s failed.", method, hook)
-            raise Web3ConnectionException()
+
+        log.info("%s connection to %s failed.", method, hook)
+        raise Web3ConnectionException()
     except Exception as exc:
         log.warning("Node connection %s: %s failed.", method, hook, exc_info=exc)
         raise
 
 
-class NodeDataProvider:
+def connect_ens(web3: Web3) -> ENS:
+    return ENS.fromWeb3(web3)
 
+
+class NodeDataProvider:
     default_chain: str
 
     def __init__(self, default_chain=None):
@@ -102,11 +106,35 @@ class NodeDataProvider:
     def get_calls(self, tx_hash: str, chain_id: Optional[str] = None) -> Call:
         ...
 
+    def get_code_hash(
+            self, contract_address: str, chain_id: Optional[str] = None
+    ) -> str:
+        ...
+
+    def get_erc20_token(
+            self,
+            token_address: str,
+            contract_name: str,
+            functions,
+            chain_id: Optional[str] = None,
+    ):
+        ...
+
+    def guess_erc20_token(self, contract_address: str, chain_id: Optional[str] = None):
+        ...
+
+    def guess_erc20_proxy(self, contract_address: str, chain_id: Optional[str] = None):
+        ...
+
+    def guess_erc721_proxy(self, contract_address: str, chain_id: Optional[str] = None):
+        ...
+
 
 class Web3Provider(NodeDataProvider):
     chain: Web3
+    ens: ENS
 
-    def __init__(self, nodes: Dict[str, str], default_chain=None):
+    def __init__(self, nodes: Dict[str, dict], default_chain=None):
         super().__init__(default_chain)
         self.nodes = nodes
 
@@ -123,9 +151,12 @@ class Web3Provider(NodeDataProvider):
                 "unknown chain_id, it must be defined in the EthTxConfig object"
             )
 
-        return connect_chain(
+        web3 = connect_chain(
             http_hook=self.nodes[chain_id]["hook"], poa=self.nodes[chain_id]["poa"]
         )
+        self.ens = connect_ens(web3)
+
+        return web3
 
     # get the raw block data from the node
     @lru_cache(maxsize=512)
@@ -310,11 +341,11 @@ class Web3Provider(NodeDataProvider):
                 address=Web3.toChecksumAddress(token_address), abi=abi
             )
             name = token.functions.name().call() if name_abi else contract_name
-            if type(name) == bytes:
+            if isinstance(name, bytes):
                 name = name.decode("utf-8").replace("\x00", "")
 
             symbol = token.functions.symbol().call() if symbol_abi else contract_name
-            if type(symbol) == bytes:
+            if isinstance(symbol, bytes):
                 symbol = symbol.decode("utf-8").replace("\x00", "")
 
             decimals = token.functions.decimals().call() if decimals_abi else 18
@@ -446,6 +477,17 @@ class Web3Provider(NodeDataProvider):
 
         return None
 
+    @lru_cache(maxsize=512)
+    def get_full_transaction(self, tx_hash: str, chain_id: Optional[str] = None):
+
+        w3transaction = self.get_transaction(tx_hash, chain_id)
+        w3receipt = self.get_receipt(tx_hash, chain_id)
+        w3calltree = self.get_calls(tx_hash, chain_id)
+
+        return Transaction.from_raw(
+            w3transaction=w3transaction, w3receipt=w3receipt, w3calltree=w3calltree
+        )
+
     @staticmethod
     def _create_call_from_debug_trace_tx(
         tx_hash: str, chain_id: str, input_rpc: AttributeDict
@@ -497,32 +539,3 @@ class Web3Provider(NodeDataProvider):
 
         return main_parent
 
-    @lru_cache(maxsize=512)
-    def get_full_block(self, block_number: int, chain_id: Optional[str] = None):
-
-        w3block = self.get_block(block_number, chain_id)
-        w3transactions = [
-            (
-                self.get_transaction(tx_hash.hex(), chain_id),
-                self.get_receipt(tx_hash.hex(), chain_id),
-                self.get_calls(tx_hash.hex(), chain_id),
-            )
-            for tx_hash in w3block.transactions
-        ]
-
-        return Block.from_raw(
-            chain_id=chain_id or self.default_chain,
-            w3block=w3block,
-            w3transactions=w3transactions,
-        )
-
-    @lru_cache(maxsize=512)
-    def get_full_transaction(self, tx_hash: str, chain_id: Optional[str] = None):
-
-        w3transaction = self.get_transaction(tx_hash, chain_id)
-        w3receipt = self.get_receipt(tx_hash, chain_id)
-        w3calltree = self.get_calls(tx_hash, chain_id)
-
-        return Transaction.from_raw(
-            w3transaction=w3transaction, w3receipt=w3receipt, w3calltree=w3calltree
-        )

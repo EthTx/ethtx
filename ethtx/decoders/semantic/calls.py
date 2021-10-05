@@ -12,9 +12,9 @@
 
 from typing import Dict
 
-from ethtx.models.decoded_model import DecodedCall, DecodedTransactionMetadata
-from ethtx.semantics.standards.erc20 import ERC20_TRANSFORMATIONS
-from ethtx.semantics.standards.erc721 import ERC721_TRANSFORMATIONS
+from ethtx.models.decoded_model import DecodedCall, DecodedTransactionMetadata, Proxy
+from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS, ERC20_TRANSFORMATIONS
+from ethtx.semantics.standards.erc721 import ERC721_FUNCTIONS, ERC721_TRANSFORMATIONS
 from ethtx.utils.measurable import RecursionLimit
 from .abc import SemanticSubmoduleAbc
 from .helpers.utils import (
@@ -33,7 +33,7 @@ class SemanticCallsDecoder(SemanticSubmoduleAbc):
         self,
         call: DecodedCall,
         tx_metadata: DecodedTransactionMetadata,
-        token_proxies: Dict[str, Dict],
+        proxies: Dict[str, Proxy],
     ) -> DecodedCall:
 
         standard = self.repository.get_standard(call.chain_id, call.to_address.address)
@@ -41,6 +41,43 @@ class SemanticCallsDecoder(SemanticSubmoduleAbc):
         function_transformations = self.repository.get_transformations(
             call.chain_id, call.to_address.address, call.function_signature
         )
+
+        if function_transformations:
+            call.function_name = (
+                function_transformations.get("name") or call.function_name
+            )
+        else:
+            function_transformations = {}
+
+        # prepare context for transformations
+        context = create_transformation_context(
+            call.to_address.address,
+            call.arguments,
+            call.outputs,
+            tx_metadata,
+            self.repository,
+        )
+        standard = self.repository.get_standard(call.chain_id, call.to_address.address)
+
+        # perform parameters transformations
+        for i, parameter in enumerate(call.arguments):
+            semantically_decode_parameter(
+                self.repository,
+                parameter,
+                f"__input{i}__",
+                function_transformations,
+                proxies,
+                context,
+            )
+        for i, parameter in enumerate(call.outputs):
+            semantically_decode_parameter(
+                self.repository,
+                parameter,
+                f"__output{i}__",
+                function_transformations,
+                proxies,
+                context,
+            )
 
         if standard == "ERC20":
             # decode ERC20 calls if transformations for them are not defined
@@ -51,6 +88,25 @@ class SemanticCallsDecoder(SemanticSubmoduleAbc):
                 function_transformations = ERC20_TRANSFORMATIONS.get(
                     call.function_signature
                 )
+                if function_transformations:
+                    for i, parameter in enumerate(call.arguments):
+                        semantically_decode_parameter(
+                            self.repository,
+                            parameter,
+                            f"__input{i}__",
+                            function_transformations,
+                            proxies,
+                            context,
+                        )
+                    for i, parameter in enumerate(call.outputs):
+                        semantically_decode_parameter(
+                            self.repository,
+                            parameter,
+                            f"__output{i}__",
+                            function_transformations,
+                            proxies,
+                            context,
+                        )
         elif standard == "ERC721":
             # decode ERC721 calls if transformations for them are not defined
             if call.function_signature in ERC721_TRANSFORMATIONS and (
@@ -60,42 +116,25 @@ class SemanticCallsDecoder(SemanticSubmoduleAbc):
                 function_transformations = ERC721_TRANSFORMATIONS.get(
                     call.function_signature
                 )
-
-        if function_transformations:
-            call.function_name = (
-                function_transformations.get("name") or call.function_name
-            )
-        else:
-            function_transformations = dict()
-
-        # prepare context for transformations
-        context = create_transformation_context(
-            call.to_address.address,
-            call.arguments,
-            call.outputs,
-            tx_metadata,
-            self.repository,
-        )
-
-        # perform parameters transformations
-        for i, parameter in enumerate(call.arguments):
-            semantically_decode_parameter(
-                self.repository,
-                parameter,
-                f"__input{i}__",
-                function_transformations,
-                token_proxies,
-                context,
-            )
-        for i, parameter in enumerate(call.outputs):
-            semantically_decode_parameter(
-                self.repository,
-                parameter,
-                f"__output{i}__",
-                function_transformations,
-                token_proxies,
-                context,
-            )
+                if function_transformations:
+                    for i, parameter in enumerate(call.arguments):
+                        semantically_decode_parameter(
+                            self.repository,
+                            parameter,
+                            f"__input{i}__",
+                            function_transformations,
+                            proxies,
+                            context,
+                        )
+                    for i, parameter in enumerate(call.outputs):
+                        semantically_decode_parameter(
+                            self.repository,
+                            parameter,
+                            f"__output{i}__",
+                            function_transformations,
+                            proxies,
+                            context,
+                        )
 
         call.from_address.badge = get_badge(
             call.from_address.address, tx_metadata.sender, tx_metadata.receiver
@@ -115,6 +154,6 @@ class SemanticCallsDecoder(SemanticSubmoduleAbc):
         with RecursionLimit(RECURSION_LIMIT):
             if call.subcalls:
                 for sub_call in call.subcalls:
-                    self.decode(sub_call, tx_metadata, token_proxies)
+                    self.decode(sub_call, tx_metadata, proxies)
 
         return call

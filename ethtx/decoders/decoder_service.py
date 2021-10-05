@@ -12,7 +12,8 @@
 
 from typing import Dict, List, Union
 
-from ..models.decoded_model import DecodedTransaction
+from ethtx.semantics.standards.eip1969 import is_eip1969_proxy, is_eip1969_beacon_proxy
+from ..models.decoded_model import DecodedTransaction, Proxy
 from ..models.objects_model import Block, Call
 
 
@@ -23,10 +24,7 @@ class DecoderService:
         self.web3provider = web3provider
         self.default_chain = default_chain
 
-    def get_delegations(
-            self,
-            calls: Union[Call, List[Call]]
-    ) -> Dict[str, set]:
+    def get_delegations(self, calls: Union[Call, List[Call]]) -> Dict[str, List[str]]:
 
         delegations = {}
 
@@ -37,8 +35,9 @@ class DecoderService:
             for call in calls:
                 if call.call_type == "delegatecall":
                     if call.from_address not in delegations:
-                        delegations[call.from_address] = set()
-                    delegations[call.from_address].add(call.to_address)
+                        delegations[call.from_address] = []
+                    if call.to_address not in delegations[call.from_address]:
+                        delegations[call.from_address].append(call.to_address)
         else:
             calls_queue = [calls]
 
@@ -49,45 +48,60 @@ class DecoderService:
 
                 if call.call_type == "delegatecall":
                     if call.from_address not in delegations:
-                        delegations[call.from_address] = set()
-                    delegations[call.from_address].add(call.to_address)
+                        delegations[call.from_address] = []
+                    if call.to_address not in delegations[call.from_address]:
+                        delegations[call.from_address].append(call.to_address)
 
         return delegations
 
-    def get_token_proxies(self, delegations: Dict[str, set]) -> Dict[str, Dict]:
-        token_proxies = {}
+    def get_proxies(
+        self, delegations: Dict[str, List[str]], chain_id: str
+    ) -> Dict[str, Proxy]:
+
+        proxies = {}
+        chain = self.web3provider._get_node_connection(chain_id)
 
         for delegator in delegations:
-            delegator_semantic = self.semantic_decoder.repository.get_token_data(
+
+            delegator_semantics = self.semantic_decoder.repository.get_semantics(
                 self.default_chain, delegator
             )
-            if (
-                delegator_semantic[0] == delegator
-                and delegator_semantic[1] == "Unknown"
-            ):
-                for delegate in delegations[delegator]:
-                    delegate_semantic = self.semantic_decoder.repository.get_token_data(
-                        self.default_chain, delegate
-                    )
-                    if (
-                        delegate_semantic[0] != delegate
-                        and delegate_semantic[1] != "Unknown"
-                    ):
-                        token_proxies[delegator] = delegate_semantic
+
+            if is_eip1969_proxy(chain, delegator, delegations[delegator][0]):
+                proxy_type = "EIP1969Proxy"
+                fallback_name = "EIP1969_Proxy"
+
+            elif is_eip1969_beacon_proxy(chain, delegator, delegations[delegator][0]):
+                proxy_type = "EIP1969Beacon"
+                fallback_name = "EIP1969_BeaconProxy"
+
+            else:
+                proxy_type = "GenericProxy"
+                fallback_name = "Proxy"
+
+            delegates_semantics = [
+                self.semantic_decoder.repository.get_semantics(chain_id, delegate)
+                for delegate in delegations[delegator]
+            ]
+
+            token_semantics = delegator_semantics.erc20
+            if not token_semantics:
+                for delegate_semantics in delegates_semantics:
+                    if delegate_semantics.erc20:
+                        token_semantics = delegate_semantics.erc20
                         break
 
-                if potential_proxy := self.web3provider.guess_erc20_proxy(delegator):
-                    token_proxies[delegator] = (potential_proxy['name'], potential_proxy['symbol'], potential_proxy['decimals'], 'ERC20')
-                    break
+            proxies[delegator] = Proxy(
+                address=delegator,
+                name=delegator_semantics.name
+                if delegator_semantics and delegator_semantics.name != delegator
+                else fallback_name,
+                type=proxy_type,
+                semantics=[semantics for semantics in delegates_semantics if semantics],
+                token=token_semantics,
+            )
 
-                if potential_proxy := self.web3provider.guess_erc721_proxy(delegator):
-                    token_proxies[delegator] = (potential_proxy['name'], potential_proxy['symbol'], 1, 'ERC721')
-                    break
-
-            elif all(delegator_semantic):
-                token_proxies[delegator] = delegator_semantic
-
-        return token_proxies
+        return proxies
 
     def decode_transaction(self, chain_id: str, tx_hash: str) -> DecodedTransaction:
 
@@ -102,28 +116,26 @@ class DecoderService:
         )
         # read a raw block from a node
         block = Block.from_raw(
-            w3block=self.web3provider.get_block(transaction.metadata.block_number, chain_id),
+            w3block=self.web3provider.get_block(
+                transaction.metadata.block_number, chain_id
+            ),
             chain_id=chain_id,
         )
 
         # prepare lists of delegations to properly decode delegate-calling contracts
         delegations = self.get_delegations(transaction.root_call)
-        token_proxies = self.get_token_proxies(delegations)
+        proxies = self.get_proxies(delegations, chain_id)
 
         # decode transaction using ABI
         abi_decoded_tx = self.abi_decoder.decode_transaction(
-            block=block,
-            transaction=transaction,
-            delegations=delegations,
-            token_proxies=token_proxies,
-            chain_id=chain_id,
+            block=block, transaction=transaction, proxies=proxies, chain_id=chain_id
         )
 
         # decode transaction using additional semantics
         semantically_decoded_tx = self.semantic_decoder.decode_transaction(
             block=block.metadata,
             transaction=abi_decoded_tx,
-            token_proxies=token_proxies,
+            proxies=proxies,
             chain_id=chain_id,
         )
 

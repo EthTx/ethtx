@@ -88,7 +88,13 @@ class W3Transaction:
         block_number = self.blockNumber
         tx_index = self.transactionIndex
         from_address = self.from_address.lower()
-        to_address = self.to.lower() if self.to else w3receipt.contractAddress.lower() if w3receipt.contractAddress else None
+        to_address = (
+            self.to.lower()
+            if self.to
+            else w3receipt.contractAddress.lower()
+            if w3receipt.contractAddress
+            else None
+        )
         tx_value = self.value
         gas_limit = self.gas
         gas_price = self.gasPrice
@@ -148,7 +154,7 @@ class W3Log:
         log_data = self.data
         topics = []
 
-        for i in range(len(self.topics)):
+        for i, _ in enumerate(self.topics):
             topics.append(self.topics[i].hex())
 
         return Event(
