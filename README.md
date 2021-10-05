@@ -108,7 +108,7 @@ abi_decoded_call: DecodedCall = ethtx.decoders.abi_decoder.decode_call(raw_call,
 from ethtx.models.decoded_model import DecodedTransactionMetadata
 
 # get proxies used in the transaction
-proxies = ethtx.decoders.get_proxies(transaction.root_call)
+proxies = ethtx.decoders.get_proxies(transaction.root_call, chain_id)
 
 # semantically decode transaction components
 decoded_metadata: DecodedTransactionMetadata = ethtx.decoders.semantic_decoder.decode_metadata(block.metadata, transaction.metadata, chain_id)

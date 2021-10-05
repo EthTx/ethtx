@@ -18,6 +18,7 @@ from pymongo import MongoClient
 from .decoders.abi.decoder import ABIDecoder
 from .decoders.decoder_service import DecoderService
 from .decoders.semantic.decoder import SemanticDecoder
+from .models.decoded_model import Proxy, DecodedTransaction
 from .models.objects_model import Call
 from .providers import EtherscanProvider, Web3Provider
 from .providers.semantic_providers.semantics_database import (
@@ -59,16 +60,18 @@ class EthTxDecoders:
 
     def __init__(self, decoder_service: DecoderService):
         self._decoder_service = decoder_service
-        self.abi_decoder = decoder_service.abi_decoder
-        self.semantic_decoder = decoder_service.semantic_decoder
+        self.abi_decoder: ABIDecoder = decoder_service.abi_decoder
+        self.semantic_decoder: SemanticDecoder = decoder_service.semantic_decoder
 
-    def decode_transaction(self, tx_hash: str, chain_id: str = None):
+    def decode_transaction(
+        self, tx_hash: str, chain_id: str = None
+    ) -> DecodedTransaction:
         assert_tx_hash(tx_hash)
         return self._decoder_service.decode_transaction(chain_id, tx_hash)
 
-    def get_proxies(self, call_tree: Call):
+    def get_proxies(self, call_tree: Call, chain_id: str) -> Dict[str, Proxy]:
         delegations = self._decoder_service.get_delegations(call_tree)
-        return self._decoder_service.get_proxies(delegations)
+        return self._decoder_service.get_proxies(delegations, chain_id)
 
 
 class EthTxProviders:
