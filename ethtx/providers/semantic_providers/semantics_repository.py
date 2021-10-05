@@ -518,8 +518,10 @@ class SemanticsRepository:
             signature_hash=signature.signature_hash
         )
         for sig in signatures:
-            if signature.signature_hash == sig["name"] and len(signature.args) == len(
-                sig["args"]
+            if (
+                signature.name == sig["name"]
+                and signature.signature_hash == sig["signature_hash"]
+                and len(signature.args) == len(sig["args"])
             ):
                 if any(arg for arg in list(sig["args"][0].values()) if "arg" in arg):
                     for index, argument in enumerate(sig["args"]):
