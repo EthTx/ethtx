@@ -155,8 +155,6 @@ class ABIDecoder(IABIDecoder):
             balances=[],
         )
 
-        self._repository.record()
-
         try:
             full_decoded_transaction.events = self.decode_events(
                 transaction.events, block, transaction.metadata, proxies, chain_id
@@ -208,12 +206,6 @@ class ABIDecoder(IABIDecoder):
             )
             raise e
 
-        used_semantics = self._repository.end_record()
-        log.info(
-            "Semantics used in decoding %s: %s ",
-            transaction.metadata.tx_hash,
-            ", ".join(used_semantics),
-        )
 
         full_decoded_transaction.status = True
 

@@ -9,20 +9,31 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
+import logging
 from typing import Dict, List, Union
 
-from ethtx.semantics.standards.eip1969 import is_eip1969_proxy, is_eip1969_beacon_proxy
+from .abi.decoder import ABIDecoder
+from .semantic.decoder import SemanticDecoder
 from ..models.decoded_model import DecodedTransaction, Proxy
 from ..models.objects_model import Block, Call
+from ..providers.web3_provider import NodeDataProvider
+from ..semantics.standards.eip1969 import is_eip1969_proxy, is_eip1969_beacon_proxy
+
+log = logging.getLogger(__name__)
 
 
 class DecoderService:
-    def __init__(self, abi_decoder, semantic_decoder, web3provider, default_chain):
-        self.abi_decoder = abi_decoder
-        self.semantic_decoder = semantic_decoder
-        self.web3provider = web3provider
-        self.default_chain = default_chain
+    def __init__(
+        self,
+        abi_decoder: ABIDecoder,
+        semantic_decoder: SemanticDecoder,
+        web3provider: NodeDataProvider,
+        default_chain: str,
+    ):
+        self.abi_decoder: ABIDecoder = abi_decoder
+        self.semantic_decoder: SemanticDecoder = semantic_decoder
+        self.web3provider: NodeDataProvider = web3provider
+        self.default_chain: str = default_chain
 
     def get_delegations(self, calls: Union[Call, List[Call]]) -> Dict[str, List[str]]:
 
@@ -110,6 +121,7 @@ class DecoderService:
 
         chain_id = chain_id or self.default_chain
 
+        self.semantic_decoder.repository.record()
         # read a raw transaction from a node
         transaction = self.web3provider.get_full_transaction(
             tx_hash=tx_hash, chain_id=chain_id
@@ -137,6 +149,11 @@ class DecoderService:
             transaction=abi_decoded_tx,
             proxies=proxies,
             chain_id=chain_id,
+        )
+
+        used_semantics = self.semantic_decoder.repository.end_record()
+        log.info(
+            "Semantics used in decoding %s: %s", tx_hash, ", ".join(used_semantics)
         )
 
         return semantically_decoded_tx

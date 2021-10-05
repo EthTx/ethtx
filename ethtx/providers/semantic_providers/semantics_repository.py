@@ -264,6 +264,9 @@ class SemanticsRepository:
         # amend semantics with locally stored updates
         amend_contract_semantics(address_semantics.contract)
 
+        if self._records is not None:
+            self._records.append(address)
+
         return address_semantics
 
     def _decode_standard_semantics(self, address, name, events, functions):
