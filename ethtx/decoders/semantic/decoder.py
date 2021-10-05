@@ -25,7 +25,7 @@ from ethtx.models.decoded_model import (
     DecodedTransfer,
     DecodedBalance,
     DecodedCall,
-    Proxy
+    Proxy,
 )
 from ethtx.models.objects_model import BlockMetadata, TransactionMetadata
 
@@ -38,7 +38,9 @@ class SemanticDecoder(ISemanticDecoder):
         proxies: Dict[str, Proxy],
         chain_id: str,
     ) -> DecodedTransaction:
-        transaction.metadata = self.decode_metadata(block, transaction.metadata, chain_id)
+        transaction.metadata = self.decode_metadata(
+            block, transaction.metadata, chain_id
+        )
         transaction.events = self.decode_events(
             transaction.events, transaction.metadata, proxies
         )
@@ -58,12 +60,10 @@ class SemanticDecoder(ISemanticDecoder):
         self,
         block_metadata: BlockMetadata,
         tx_metadata: TransactionMetadata,
-        chain_id: str
+        chain_id: str,
     ) -> DecodedTransactionMetadata:
         return SemanticMetadataDecoder(repository=self.repository).decode(
-            block_metadata=block_metadata,
-            tx_metadata=tx_metadata,
-            chain_id=chain_id,
+            block_metadata=block_metadata, tx_metadata=tx_metadata, chain_id=chain_id
         )
 
     def decode_event(

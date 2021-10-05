@@ -14,7 +14,14 @@ from abc import ABC, abstractmethod
 from typing import Optional, Any, List, Dict
 
 from ethtx.models.decoded_model import DecodedCall, DecodedTransfer, Proxy
-from ethtx.models.objects_model import Block, Transaction, Call, Event, TransactionMetadata, BlockMetadata
+from ethtx.models.objects_model import (
+    Block,
+    Transaction,
+    Call,
+    Event,
+    TransactionMetadata,
+    BlockMetadata,
+)
 from ethtx.providers.semantic_providers.semantics_repository import SemanticsRepository
 
 
@@ -42,10 +49,7 @@ class IABIDecoder(ABC, ABIBasic):
 
     @abstractmethod
     def decode_transaction(
-        self,
-        block: Block,
-        transaction: Transaction,
-        proxies: Dict[str, Proxy],
+        self, block: Block, transaction: Transaction, proxies: Dict[str, Proxy]
     ):
         ...
 
@@ -55,7 +59,7 @@ class IABIDecoder(ABC, ABIBasic):
         call: Call,
         block: BlockMetadata,
         transaction: TransactionMetadata,
-        proxies: Dict[str, Proxy]
+        proxies: Dict[str, Proxy],
     ) -> ABISubmoduleAbc.decode:
         ...
 
@@ -71,16 +75,12 @@ class IABIDecoder(ABC, ABIBasic):
 
     @abstractmethod
     def decode_transfers(
-        self,
-        call: DecodedCall,
-        events: [Event],
-        proxies: Dict[str, Proxy]
+        self, call: DecodedCall, events: [Event], proxies: Dict[str, Proxy]
     ) -> ABISubmoduleAbc.decode:
         ...
 
     @abstractmethod
     def decode_balances(
-        self,
-        transfers: List[DecodedTransfer]
+        self, transfers: List[DecodedTransfer]
     ) -> ABISubmoduleAbc.decode:
         ...

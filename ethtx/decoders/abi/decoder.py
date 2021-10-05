@@ -18,7 +18,7 @@ from ethtx.models.decoded_model import (
     DecodedCall,
     DecodedEvent,
     DecodedTransfer,
-    Proxy
+    Proxy,
 )
 from ethtx.models.objects_model import (
     Block,
@@ -50,10 +50,7 @@ class ABIDecoder(IABIDecoder):
         log.info("ABI decoding for %s / %s.", transaction.metadata.tx_hash, chain_id)
 
         try:
-            with ExecutionTimer(f"ABI decoding for " + transaction.metadata.tx_hash):
-                log.info(
-                    "ABI decoding for %s / %s.", transaction.metadata.tx_hash, chain_id
-                )
+            with ExecutionTimer("ABI decoding for " + transaction.metadata.tx_hash):
                 full_decoded_transaction = self._decode_transaction(
                     block.metadata, transaction, chain_id, proxies
                 )
@@ -82,7 +79,7 @@ class ABIDecoder(IABIDecoder):
             block=block,
             transaction=transaction,
             proxies=proxies,
-            chain_id=chain_id or self._default_chain
+            chain_id=chain_id or self._default_chain,
         )
 
     def decode_call(
@@ -94,12 +91,7 @@ class ABIDecoder(IABIDecoder):
     ) -> Optional[DecodedCall]:
         return ABICallsDecoder(
             repository=self._repository, chain_id=self._default_chain
-        ).decode(
-            call=root_call,
-            block=block,
-            transaction=transaction,
-            proxies=proxies,
-        )
+        ).decode(call=root_call, block=block, transaction=transaction, proxies=proxies)
 
     def decode_events(
         self,
@@ -116,7 +108,7 @@ class ABIDecoder(IABIDecoder):
             block=block,
             transaction=transaction,
             proxies=proxies or {},
-            chain_id=chain_id or self._default_chain
+            chain_id=chain_id or self._default_chain,
         )
 
     def decode_event(
@@ -134,7 +126,7 @@ class ABIDecoder(IABIDecoder):
             block=block,
             transaction=transaction,
             proxies=proxies or {},
-            chain_id=chain_id or self._default_chain
+            chain_id=chain_id or self._default_chain,
         )
 
     def decode_transfers(
@@ -146,11 +138,7 @@ class ABIDecoder(IABIDecoder):
     ):
         return ABITransfersDecoder(
             repository=self._repository, chain_id=chain_id or self._default_chain
-        ).decode(
-            call=call,
-            events=events,
-            proxies=proxies or {},
-        )
+        ).decode(call=call, events=events, proxies=proxies or {})
 
     def decode_balances(self, transfers: List[DecodedTransfer]):
         return ABIBalancesDecoder(
@@ -178,11 +166,7 @@ class ABIDecoder(IABIDecoder):
 
         try:
             full_decoded_transaction.events = self.decode_events(
-                transaction.events,
-                block,
-                transaction.metadata,
-                proxies,
-                chain_id
+                transaction.events, block, transaction.metadata, proxies, chain_id
             )
         except Exception:
             log.exception(
@@ -194,11 +178,7 @@ class ABIDecoder(IABIDecoder):
 
         try:
             full_decoded_transaction.calls = self.decode_calls(
-                transaction.root_call,
-                block,
-                transaction.metadata,
-                proxies,
-                chain_id
+                transaction.root_call, block, transaction.metadata, proxies, chain_id
             )
         except Exception:
             log.exception(
@@ -213,7 +193,7 @@ class ABIDecoder(IABIDecoder):
                 full_decoded_transaction.calls,
                 full_decoded_transaction.events,
                 proxies,
-                chain_id
+                chain_id,
             )
         except Exception:
             log.exception(
@@ -237,8 +217,9 @@ class ABIDecoder(IABIDecoder):
 
         used_semantics = self._repository.end_record()
         log.info(
-            f"Semantics used in decoding {transaction.metadata.tx_hash}: "
-            + ", ".join(used_semantics)
+            "Semantics used in decoding %s: %s ",
+            transaction.metadata.tx_hash,
+            ", ".join(used_semantics),
         )
 
         full_decoded_transaction.status = True

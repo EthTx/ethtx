@@ -47,7 +47,7 @@ class SemanticCallsDecoder(SemanticSubmoduleAbc):
                 function_transformations.get("name") or call.function_name
             )
         else:
-            function_transformations = dict()
+            function_transformations = {}
 
         # prepare context for transformations
         context = create_transformation_context(

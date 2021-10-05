@@ -13,68 +13,32 @@
 import json
 import logging
 from functools import lru_cache
-from typing import Dict, Optional
+from typing import Dict, Tuple, Union, Any, Optional
 
-import requests
 from web3 import Web3
 
-from ethtx.exceptions import ProcessingException, InvalidEtherscanReturnCodeException
+from ethtx.exceptions import InvalidEtherscanReturnCodeException
+from .client import EtherscanClient
 
 log = logging.getLogger(__name__)
 
 
-class EtherscanProvider:
-    api_key: str
-    endpoints: Dict[str, str]
-    default_chain: Optional[str]
-
+class EtherscanContract(EtherscanClient):
     def __init__(
-        self, api_key, nodes: Dict[str, str], default_chain_id: Optional[str] = None
+        self,
+        api_key: str,
+        nodes: Dict[str, str],
+        default_chain_id: Optional[str] = None,
     ):
-        self.api_key = api_key
-        self.endpoints = nodes
-        self.default_chain = default_chain_id
-
-    def _get_chain_id(self, chain_id):
-        _id = chain_id or self.default_chain
-
-        if _id is None:
-            raise ProcessingException(
-                "chain_id must be provided as argument or constructor default"
-            )
-        return _id
-
-    @lru_cache(maxsize=1024)
-    def _get_contract_abi(self, chain_id, contract_name) -> Dict:
-        # Etherscan connection parameters
-        params = dict(
-            module="contract",
-            action="getsourcecode",
-            address=contract_name,
-            apikey=self.api_key,
+        EtherscanClient.__init__(
+            self, api_key=api_key, nodes=nodes, default_chain_id=default_chain_id
         )
+        self.contract_dict = self.url_dict.copy()
+        self.contract_dict[self.MODULE] = "contract"
 
-        chain_id = self._get_chain_id(chain_id)
-        headers = {"User-Agent": "API"}
-
-        # TODO: etherscan sometimes returns HTTP 502 with no apparent reason, so it's a quick fix
-        # that should help, but number of tries should be taken from config in final solution I think
-        for _ in range(3):
-            resp = requests.get(
-                url=self.endpoints[chain_id], params=params, headers=headers
-            )
-
-            if resp.status_code == 200:
-                break
-
-
-        if resp.status_code != 200:
-            raise InvalidEtherscanReturnCodeException(resp.status_code, params)
-
-        return resp.json()
-
-    def get_contract_abi(self, chain_id, contract_name):
-
+    def get_contract_abi(
+        self, chain_id, contract_name
+    ) -> Tuple[Dict[str, Union[dict, Any]], bool]:
         decoded = False
         raw_abi = []
 
@@ -101,15 +65,34 @@ class EtherscanProvider:
 
         return dict(name=contract_name, abi=abi), decoded
 
+    @lru_cache(maxsize=1024)
+    def _get_contract_abi(self, chain_id, contract_name) -> Dict:
+        url_dict = self.contract_dict.copy()
+        url_dict[self.ACTION] = "getsourcecode"
+        url_dict[self.ADDRESS] = contract_name
+        url = self.build_url(chain_id=self._get_chain_id(chain_id), url_dict=url_dict)
+
+        # TODO: etherscan sometimes returns HTTP 502 with no apparent reason, so it's a quick fix
+        # that should help, but number of tries should be taken from config in final solution I think
+        for _ in range(3):
+            resp = self.http.get(url)
+
+            if resp.status_code == 200:
+                break
+
+        if resp.status_code != 200:
+            raise InvalidEtherscanReturnCodeException(resp.status_code, url_dict)
+
+        return resp.json()
+
     # helper function decoding contract ABI
     @staticmethod
     def _parse_abi(json_abi) -> Dict:
-
         # helper function to recursively parse components
         def _parse_components(components):
 
             comp_canonical = "("
-            comp_inputs = list()
+            comp_inputs = []
 
             for i, component in enumerate(components):
 
@@ -147,8 +130,8 @@ class EtherscanProvider:
 
             return comp_canonical, comp_inputs
 
-        functions = dict()
-        events = dict()
+        functions = {}
+        events = {}
 
         for item in json_abi:
 

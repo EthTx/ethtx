@@ -15,6 +15,7 @@ import os
 from functools import lru_cache
 from typing import List, Dict, Optional
 
+from ens import ENS
 from web3 import Web3
 from web3.datastructures import AttributeDict
 from web3.middleware import geth_poa_middleware
@@ -69,16 +70,19 @@ def connect_chain(
                 w3.eth.block_number,
             )
             return w3
-        else:
-            log.info("%s connection to %s failed.", method, hook)
-            raise Web3ConnectionException()
+
+        log.info("%s connection to %s failed.", method, hook)
+        raise Web3ConnectionException()
     except Exception as exc:
         log.warning("Node connection %s: %s failed.", method, hook, exc_info=exc)
         raise
 
 
-class NodeDataProvider:
+def connect_ens(web3: Web3) -> ENS:
+    return ENS.fromWeb3(web3)
 
+
+class NodeDataProvider:
     default_chain: str
 
     def __init__(self, default_chain=None):
@@ -105,8 +109,9 @@ class NodeDataProvider:
 
 class Web3Provider(NodeDataProvider):
     chain: Web3
+    ens: ENS
 
-    def __init__(self, nodes: Dict[str, str], default_chain=None):
+    def __init__(self, nodes: Dict[str, dict], default_chain=None):
         super().__init__(default_chain)
         self.nodes = nodes
 
@@ -123,9 +128,12 @@ class Web3Provider(NodeDataProvider):
                 "unknown chain_id, it must be defined in the EthTxConfig object"
             )
 
-        return connect_chain(
+        web3 = connect_chain(
             http_hook=self.nodes[chain_id]["hook"], poa=self.nodes[chain_id]["poa"]
         )
+        self.ens = connect_ens(web3)
+
+        return web3
 
     # get the raw block data from the node
     @lru_cache(maxsize=512)
@@ -310,11 +318,11 @@ class Web3Provider(NodeDataProvider):
                 address=Web3.toChecksumAddress(token_address), abi=abi
             )
             name = token.functions.name().call() if name_abi else contract_name
-            if type(name) == bytes:
+            if isinstance(name, bytes):
                 name = name.decode("utf-8").replace("\x00", "")
 
             symbol = token.functions.symbol().call() if symbol_abi else contract_name
-            if type(symbol) == bytes:
+            if isinstance(symbol, bytes):
                 symbol = symbol.decode("utf-8").replace("\x00", "")
 
             decimals = token.functions.decimals().call() if decimals_abi else 18

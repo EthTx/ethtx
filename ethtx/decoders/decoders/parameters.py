@@ -121,7 +121,9 @@ def decode_event_parameters(data, topics, abi, anonymous):
     return event_parameters
 
 
-def decode_function_parameters(input_data, output, abi, status=True, strip_signature=True):
+def decode_function_parameters(
+    input_data, output, abi, status=True, strip_signature=True
+):
 
     if strip_signature and len(input_data) >= 10:
         stripped_input_data = input_data[10:]
@@ -129,8 +131,12 @@ def decode_function_parameters(input_data, output, abi, status=True, strip_signa
         stripped_input_data = input_data[2:]
 
     if abi:
-        if len(abi.inputs) == 1 and abi.inputs[0].parameter_type == 'raw':
-            input_parameters = [Argument(name=abi.inputs[0].parameter_name, type='bytes', value=input_data)]
+        if len(abi.inputs) == 1 and abi.inputs[0].parameter_type == "raw":
+            input_parameters = [
+                Argument(
+                    name=abi.inputs[0].parameter_name, type="bytes", value=input_data
+                )
+            ]
         else:
             input_parameters, _ = decode_struct(stripped_input_data, abi.inputs)
             for i, parameter in enumerate(input_parameters):
@@ -151,9 +157,15 @@ def decode_function_parameters(input_data, output, abi, status=True, strip_signa
             if abi.outputs and status and output == "0x":
                 log.warning("Warning: missing output data...")
                 output_parameters = []
-            elif output != '0x':
-                if len(abi.outputs) == 1 and abi.outputs[0].parameter_type == 'raw':
-                    output_parameters = [Argument(name=abi.outputs[0].parameter_name, type='bytes', value=output)]
+            elif output != "0x":
+                if len(abi.outputs) == 1 and abi.outputs[0].parameter_type == "raw":
+                    output_parameters = [
+                        Argument(
+                            name=abi.outputs[0].parameter_name,
+                            type="bytes",
+                            value=output,
+                        )
+                    ]
                 else:
                     output_parameters, _ = decode_struct(output[2:], abi.outputs)
                     for i, parameter in enumerate(output_parameters):
@@ -278,11 +290,11 @@ def decode_dynamic_array(data, array_type):
 
     for i in range(count):
         if array_type in ("bytes", "string"):
-            offset = int(sub_data[64 * i: 64 * (i + 1)], 16) * 2
+            offset = int(sub_data[64 * i : 64 * (i + 1)], 16) * 2
             decoded = decode_dynamic_argument(sub_data[offset:], array_type)
         else:
             offset = 64 * i
-            decoded = decode_static_argument(sub_data[offset: offset+64], array_type)
+            decoded = decode_static_argument(sub_data[offset : offset + 64], array_type)
 
         decoded_argument.append(decoded)
 
@@ -296,9 +308,7 @@ def decode_dynamic_argument(argument_bytes, argument_type):
         value = argument_bytes[64 : 64 + length]
 
         if argument_type == "string":
-            decoded_value = (
-                bytes.fromhex(value).decode("utf-8").replace("\x00", "")
-            )
+            decoded_value = bytes.fromhex(value).decode("utf-8").replace("\x00", "")
         else:
             decoded_value = "0x" + value
     else:
@@ -309,7 +319,6 @@ def decode_dynamic_argument(argument_bytes, argument_type):
 
 # helper function to decode ABI 2.0 structs
 def decode_struct(data, arguments_abi):
-
     def decode_array(raw_value, argument_type, slot):
 
         array_type = argument_type.rsplit("[", 1)[0]
@@ -321,15 +330,13 @@ def decode_struct(data, arguments_abi):
             array_size = int(argument_type[:-1].split("[")[-1])
             array_values = []
             for _ in range(array_size):
-                if array_type[-1] == ']':
+                if array_type[-1] == "]":
                     array_subvalues, slot = decode_array(raw_value, array_type, slot)
                     array_values.append(array_subvalues)
                 else:
-                    array_values.append(
-                        decode_static_argument(raw_value, array_type)
-                    )
+                    array_values.append(decode_static_argument(raw_value, array_type))
                     slot += 1
-                raw_value = data[slot * 64: (slot + 1) * 64]
+                raw_value = data[slot * 64 : (slot + 1) * 64]
 
         return array_values, slot
 
@@ -381,7 +388,7 @@ def decode_struct(data, arguments_abi):
                 argument_value = decode_static_argument(raw_value, argument_type)
                 slot += 1
         else:
-            argument_name = "arg_%d" % (i + 1)
+            argument_name = f"arg_{i + 1}"
             argument_type = "unknown"
             argument_value = "0x" + raw_value
 
@@ -400,7 +407,7 @@ def decode_graffiti_parameters(input_data):
         try:
             message = bytearray.fromhex(input_data[2:]).decode()
             input_parameters = [Argument(name="message", type="string", value=message)]
-        except Exception as e:
+        except Exception:
             # log.warning(e)
             pass
 
