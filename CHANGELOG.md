@@ -22,7 +22,7 @@ All notable changes to this project will be documented in this file.
 - Resolving ENS domains [#50](https://github.com/EthTx/ethtx/pull/50)
 - New providers: ENS, Signature [#50](https://github.com/EthTx/ethtx/pull/50)
 - Added missing functions for NodeProvider interface
-- Added more types #50
+- Added more types [#50](https://github.com/EthTx/ethtx/pull/50)
 
 
 ## 0.2.5 - 2021-09-16
