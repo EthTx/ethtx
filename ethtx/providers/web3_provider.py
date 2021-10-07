@@ -22,13 +22,7 @@ from web3.middleware import geth_poa_middleware
 from web3.types import BlockData, TxData, TxReceipt, HexStr
 
 from ..exceptions import Web3ConnectionException, ProcessingException
-from ..models.objects_model import (
-    Block,
-    Transaction,
-    BlockMetadata,
-    TransactionMetadata,
-    Call,
-)
+from ..models.objects_model import Transaction, BlockMetadata, TransactionMetadata, Call
 from ..models.w3_model import W3Block, W3Transaction, W3Receipt, W3CallTree, W3Log
 from ..semantics.standards import erc20
 
@@ -78,8 +72,14 @@ def connect_chain(
         raise
 
 
-def connect_ens(web3: Web3) -> ENS:
-    return ENS.fromWeb3(web3)
+def connect_ens(w3: Web3, poa: bool) -> ENS:
+    ens = ENS.fromWeb3(w3)
+
+    # ENS.fromWeb3 not copying middleware #1657
+    if poa:
+        ens.web3.middleware_onion.inject(geth_poa_middleware, layer=0)
+
+    return ens
 
 
 class NodeDataProvider:
@@ -107,16 +107,16 @@ class NodeDataProvider:
         ...
 
     def get_code_hash(
-            self, contract_address: str, chain_id: Optional[str] = None
+        self, contract_address: str, chain_id: Optional[str] = None
     ) -> str:
         ...
 
     def get_erc20_token(
-            self,
-            token_address: str,
-            contract_name: str,
-            functions,
-            chain_id: Optional[str] = None,
+        self,
+        token_address: str,
+        contract_name: str,
+        functions,
+        chain_id: Optional[str] = None,
     ):
         ...
 
@@ -151,12 +151,12 @@ class Web3Provider(NodeDataProvider):
                 "unknown chain_id, it must be defined in the EthTxConfig object"
             )
 
-        web3 = connect_chain(
-            http_hook=self.nodes[chain_id]["hook"], poa=self.nodes[chain_id]["poa"]
-        )
-        self.ens = connect_ens(web3)
+        hook, poa = self.nodes[chain_id]["hook"], self.nodes[chain_id]["poa"]
 
-        return web3
+        w3 = connect_chain(http_hook=hook, poa=poa)
+        self.ens = connect_ens(w3=w3, poa=poa)
+
+        return w3
 
     # get the raw block data from the node
     @lru_cache(maxsize=512)
@@ -538,4 +538,3 @@ class Web3Provider(NodeDataProvider):
             tmp_call_tree = new_call_tree
 
         return main_parent
-
