@@ -460,9 +460,7 @@ class SemanticsRepository:
         contract_id = self.database.insert_contract(
             contract=contract_semantics, update_if_exist=True
         )
-        _ = self.database.insert_address(
-            address=address_semantics, update_if_exist=True
-        )
+        self.database.insert_address(address=address_semantics, update_if_exist=True)
 
         if contract_id:
             self.insert_contract_signatures(semantics.contract)
