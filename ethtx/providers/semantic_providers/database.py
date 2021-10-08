@@ -30,7 +30,7 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         self._contracts = None
         self._signatures = None
 
-        self._init_db()
+        self._init_collections()
 
     def get_collection_count(self):
         return len(self._db.list_collection_names())
@@ -99,7 +99,7 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         inserted_address = self._addresses.insert_one(address_with_id)
         return inserted_address.inserted_id
 
-    def _init_db(self) -> None:
+    def _init_collections(self) -> None:
         if MongoCollections.ADDRESSES not in self._db.list_collection_names():
             self._addresses = self._db[MongoCollections.ADDRESSES]
 
