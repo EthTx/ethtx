@@ -32,7 +32,7 @@ def decode_function_abi_with_external_source(
 ) -> Iterator[FunctionSemantics]:
     function = repository.get_most_used_signature(signature_hash=signature)
     if function:
-        log.info(
+        log.debug(
             "Successfully guessed function from SemanticsRepository - %s.",
             function.json(),
         )

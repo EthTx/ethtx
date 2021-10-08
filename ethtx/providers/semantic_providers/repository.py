@@ -472,30 +472,27 @@ class SemanticsRepository:
             if v.signature.startswith("0x"):
                 if v.inputs:
                     if v.inputs[0].parameter_type == "tuple":
-                        new_signature = Signature(
-                            signature_hash=v.signature,
-                            name=v.name,
-                            tuple=True,
-                            args=[
-                                SignatureArg(
-                                    name=param.parameter_name, type=param.parameter_type
-                                )
-                                for param in v.inputs[0].components
-                            ],
-                        )
+                        args = [
+                            SignatureArg(
+                                name=param.parameter_name, type=param.parameter_type
+                            )
+                            for param in v.inputs[0].components
+                        ]
                     else:
-                        new_signature = Signature(
-                            signature_hash=v.signature,
-                            name=v.name,
-                            args=[
-                                SignatureArg(
-                                    name=param.parameter_name, type=param.parameter_type
-                                )
-                                for param in v.inputs
-                            ],
-                        )
+                        args = [
+                            SignatureArg(
+                                name=param.parameter_name, type=param.parameter_type
+                            )
+                            for param in v.inputs
+                        ]
+                else:
+                    args = []
 
-                    self.update_or_insert_signature(new_signature)
+                new_signature = Signature(
+                    signature_hash=v.signature, name=v.name, args=args
+                )
+
+                self.update_or_insert_signature(new_signature)
 
     def get_most_used_signature(self, signature_hash: str) -> Optional[Signature]:
         signatures = list(
@@ -526,7 +523,9 @@ class SemanticsRepository:
                 and signature.signature_hash == sig["signature_hash"]
                 and len(signature.args) == len(sig["args"])
             ):
-                if any(arg for arg in list(sig["args"][0].values()) if "arg" in arg):
+                if signature.args and any(
+                    arg for arg in list(sig["args"][0].values()) if "arg" in arg
+                ):
                     for index, argument in enumerate(sig["args"]):
                         argument["name"] = signature.args[index].name
                         argument["type"] = signature.args[index].type
