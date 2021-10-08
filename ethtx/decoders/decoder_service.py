@@ -153,7 +153,9 @@ class DecoderService:
 
         used_semantics = self.semantic_decoder.repository.end_record()
         log.info(
-            "Semantics used in decoding %s: %s", tx_hash, ", ".join(used_semantics)
+            "Semantics used in decoding %s: %s",
+            tx_hash,
+            ", ".join(used_semantics) if isinstance(used_semantics, list) else "",
         )
 
         return semantically_decoded_tx
