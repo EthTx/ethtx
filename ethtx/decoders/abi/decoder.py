@@ -206,7 +206,6 @@ class ABIDecoder(IABIDecoder):
             )
             raise e
 
-
         full_decoded_transaction.status = True
 
         return full_decoded_transaction

@@ -26,7 +26,7 @@ from ethtx.models.semantics_model import (
     SignatureArg,
 )
 from ethtx.providers import EtherscanProvider, Web3Provider
-from ethtx.providers.semantic_providers.semantics_database import ISemanticsDatabase
+from ethtx.providers.semantic_providers.database import ISemanticsDatabase
 from ethtx.semantics.protocols_router import amend_contract_semantics
 from ethtx.semantics.solidity.precompiles import precompiles
 from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS, ERC20_EVENTS

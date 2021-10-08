@@ -10,53 +10,25 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from abc import ABC
-from typing import Dict, Optional, Any, List
+from typing import Dict, Optional
 
 import bson
 from pymongo.cursor import Cursor
 from pymongo.database import Database as MongoDatabase
 
-
-class ISemanticsDatabase(ABC):
-    """Semantics Database. Represents raw interface required to be
-    implemented by a database that provides persistent
-    data about semantics"""
-
-    def get_address_semantics(self, chain_id: str, address: str) -> Optional[Dict]:
-        ...
-
-    def get_contract_semantics(self, code_hash: str) -> Optional[Dict]:
-        ...
-
-    def get_signature_semantics(self, signature_hash: str) -> Optional[List[Dict]]:
-        ...
-
-    def insert_contract(self, contract: dict, update_if_exist: bool = False) -> Any:
-        ...
-
-    def insert_address(self, address: dict, update_if_exist: bool = False) -> Any:
-        ...
-
-    def insert_signature(self, signature, update_if_exist: bool = False) -> Any:
-        ...
-
-
-class MongoCollections:
-    ADDRESSES = "addresses"
-    CONTRACTS = "contracts"
-    SIGNATURES = "signatures"
+from .base import ISemanticsDatabase
+from .const import MongoCollections
 
 
 class MongoSemanticsDatabase(ISemanticsDatabase):
-    def get_collection_count(self):
-        return len(self._db.list_collection_names())
-
     def __init__(self, db: MongoDatabase):
         self._db = db
-        self._addresses = self._db["addresses"]
-        self._contracts = self._db["contracts"]
-        self._signatures = self._db["signatures"]
+        self._addresses = self._db[MongoCollections.ADDRESSES]
+        self._contracts = self._db[MongoCollections.CONTRACTS]
+        self._signatures = self._db[MongoCollections.SIGNATURES]
+
+    def get_collection_count(self):
+        return len(self._db.list_collection_names())
 
     def get_address_semantics(self, chain_id, address) -> Optional[Dict]:
         _id = f"{chain_id}-{address}"

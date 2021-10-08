@@ -21,11 +21,11 @@ from .decoders.semantic.decoder import SemanticDecoder
 from .models.decoded_model import Proxy, DecodedTransaction
 from .models.objects_model import Call
 from .providers import EtherscanProvider, Web3Provider
-from .providers.semantic_providers.semantics_database import (
+from .providers.semantic_providers.database import (
     MongoSemanticsDatabase,
     ISemanticsDatabase,
 )
-from .providers.semantic_providers.semantics_repository import SemanticsRepository
+from .providers.semantic_providers.repository import SemanticsRepository
 from .utils.validators import assert_tx_hash
 
 
