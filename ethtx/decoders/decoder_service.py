@@ -75,7 +75,7 @@ class DecoderService:
         for delegator in delegations:
 
             delegator_semantics = self.semantic_decoder.repository.get_semantics(
-                self.default_chain, delegator
+                chain_id, delegator
             )
 
             if is_eip1969_proxy(chain, delegator, delegations[delegator][0]):
