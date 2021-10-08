@@ -21,11 +21,16 @@ from .const import MongoCollections
 
 
 class MongoSemanticsDatabase(ISemanticsDatabase):
+    _db: MongoDatabase
+
     def __init__(self, db: MongoDatabase):
         self._db = db
-        self._addresses = self._db[MongoCollections.ADDRESSES]
-        self._contracts = self._db[MongoCollections.CONTRACTS]
-        self._signatures = self._db[MongoCollections.SIGNATURES]
+
+        self._addresses = None
+        self._contracts = None
+        self._signatures = None
+
+        self._init_db()
 
     def get_collection_count(self):
         return len(self._db.list_collection_names())
@@ -93,3 +98,18 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
 
         inserted_address = self._addresses.insert_one(address_with_id)
         return inserted_address.inserted_id
+
+    def _init_db(self) -> None:
+        if MongoCollections.ADDRESSES not in self._db.list_collection_names():
+            self._addresses = self._db[MongoCollections.ADDRESSES]
+
+        if MongoCollections.CONTRACTS not in self._db.list_collection_names():
+            self._contracts = self._db[MongoCollections.CONTRACTS]
+
+        if MongoCollections.SIGNATURES not in self._db.list_collection_names():
+            self._signatures = self._db[MongoCollections.SIGNATURES]
+            self._signatures.create_index(
+                [("signature_hash", "TEXT"), ("name", "TEXT")],
+                background=True,
+                unique=False,
+            )
