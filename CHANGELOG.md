@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.2.7 - 2021-10-08
+### Fixed
+- Fixed `ENS.fromWeb3` with poa. **ENS** did not copy middleware from injected **Web3**,
+  therefore the transaction could not be decoded correctly for chains: `Goerli` and `Rinkeby` [#56](https://github.com/EthTx/ethtx/pull/56)
+- Fix bug where `get_proxies` was using only default chain, instead of provided one  [#57](https://github.com/EthTx/ethtx/pull/57)
+
+
 ## 0.2.6 - 2021-10-06
 ### Changed
 - Refactored Etherscan provider [#50](https://github.com/EthTx/ethtx/pull/50)
