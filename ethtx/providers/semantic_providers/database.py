@@ -100,16 +100,16 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         return inserted_address.inserted_id
 
     def _init_collections(self) -> None:
-        if MongoCollections.ADDRESSES not in self._db.list_collection_names():
-            self._addresses = self._db[MongoCollections.ADDRESSES]
+        collections = self._db.list_collection_names()
 
-        if MongoCollections.CONTRACTS not in self._db.list_collection_names():
-            self._contracts = self._db[MongoCollections.CONTRACTS]
+        for mongo_collection in MongoCollections:
 
-        if MongoCollections.SIGNATURES not in self._db.list_collection_names():
-            self._signatures = self._db[MongoCollections.SIGNATURES]
-            self._signatures.create_index(
-                [("signature_hash", "TEXT"), ("name", "TEXT")],
-                background=True,
-                unique=False,
-            )
+            if mongo_collection not in collections:
+                setattr(self, f"_{mongo_collection}", self._db[mongo_collection])
+
+                if mongo_collection == "signatures":
+                    self._signatures.create_index(
+                        [("signature_hash", "TEXT"), ("name", "TEXT")],
+                        background=True,
+                        unique=True,
+                    )
