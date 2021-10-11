@@ -18,9 +18,8 @@ from ethtx.models.semantics_model import (
     Signature,
     SignatureArg,
 )
-from ethtx.providers import FourByteProvider
-from ethtx.providers.semantic_providers.repository import SemanticsRepository
-from ethtx.providers.signature_provider import SignatureProvider
+from ethtx.providers.semantic_providers import SemanticsRepository
+from ethtx.providers.signature_provider import SignatureProvider, FourByteProvider
 
 log = logging.getLogger(__name__)
 

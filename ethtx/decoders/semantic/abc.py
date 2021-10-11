@@ -22,7 +22,7 @@ from ethtx.models.decoded_model import (
     Proxy,
 )
 from ethtx.models.objects_model import BlockMetadata, TransactionMetadata
-from ethtx.providers.semantic_providers.repository import SemanticsRepository
+from ethtx.providers.semantic_providers import SemanticsRepository
 
 
 class SemanticSubmoduleAbc(ABC):
