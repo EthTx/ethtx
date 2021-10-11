@@ -477,30 +477,32 @@ class SemanticsRepository:
 
     def insert_contract_signatures(self, contract_semantics: ContractSemantics) -> None:
         for _, v in contract_semantics.functions.items():
-            if v.signature.startswith("0x"):
-                if v.inputs:
-                    if v.inputs[0].parameter_type == "tuple":
-                        args = [
-                            SignatureArg(
-                                name=param.parameter_name, type=param.parameter_type
-                            )
-                            for param in v.inputs[0].components
-                        ]
-                    else:
-                        args = [
-                            SignatureArg(
-                                name=param.parameter_name, type=param.parameter_type
-                            )
-                            for param in v.inputs
-                        ]
-                else:
-                    args = []
 
-                new_signature = Signature(
-                    signature_hash=v.signature, name=v.name, args=args
+            if not v.signature.startswith("0x"):
+                continue
+
+            if v.inputs and v.inputs[0].parameter_type == "tuple":
+                args = [
+                    SignatureArg(name=param.parameter_name, type=param.parameter_type)
+                    for param in v.inputs[0].components
+                ]
+            else:
+                args = (
+                    [
+                        SignatureArg(
+                            name=param.parameter_name, type=param.parameter_type
+                        )
+                        for param in v.inputs
+                    ]
+                    if v.inputs
+                    else []
                 )
 
-                self.update_or_insert_signature(new_signature)
+            new_signature = Signature(
+                signature_hash=v.signature, name=v.name, args=args
+            )
+
+            self.update_or_insert_signature(new_signature)
 
     def get_most_used_signature(self, signature_hash: str) -> Optional[Signature]:
         signatures = list(
