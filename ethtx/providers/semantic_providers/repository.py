@@ -314,7 +314,9 @@ class SemanticsRepository:
         return event_semantics
 
     @lru_cache(maxsize=128)
-    def get_transformations(self, chain_id, address, signature) -> Optional[str]:
+    def get_transformations(
+        self, chain_id, address, signature
+    ) -> Optional[Dict[str, TransformationSemantics]]:
 
         if not address:
             return None
