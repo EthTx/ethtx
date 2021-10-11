@@ -32,7 +32,7 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
 
         self._init_collections()
 
-    def get_collection_count(self):
+    def get_collection_count(self) -> int:
         return len(self._db.list_collection_names())
 
     def get_address_semantics(self, chain_id, address) -> Optional[Dict]:
