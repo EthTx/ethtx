@@ -2,7 +2,7 @@ import pytest
 from mongoengine import connect
 from pymongo import MongoClient
 
-from ethtx.providers.semantic_providers.database import MongoSemanticsDatabase
+from ethtx.providers import MongoSemanticsDatabase
 
 
 @pytest.fixture
