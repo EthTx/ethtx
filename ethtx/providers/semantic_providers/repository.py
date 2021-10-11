@@ -11,7 +11,7 @@
 #  limitations under the License.
 
 from functools import lru_cache
-from typing import Optional, List, Dict, Tuple, Union, Any
+from typing import Optional, List, Dict, Tuple
 
 from ethtx.decoders.decoders.semantics import decode_events_and_functions
 from ethtx.models.semantics_model import (
@@ -425,12 +425,7 @@ class SemanticsRepository:
 
     def get_token_data(
         self, chain_id, address, proxies=None
-    ) -> Tuple[
-        Optional[Union[str, Any]],
-        Optional[Union[str, Any]],
-        Optional[Union[int, Any]],
-        Optional[str],
-    ]:
+    ) -> Tuple[Optional[str], Optional[str], Optional[int], Optional[str]]:
 
         if not address:
             return None, None, None, None
