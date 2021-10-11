@@ -155,7 +155,7 @@ class DecoderService:
         log.info(
             "Semantics used in decoding %s: %s",
             tx_hash,
-            ", ".join(used_semantics) if isinstance(used_semantics, list) else "",
+            ", ".join(used_semantics) if used_semantics else "",
         )
 
         return semantically_decoded_tx
