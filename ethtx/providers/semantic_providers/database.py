@@ -116,4 +116,3 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
                     )
                 except OperationFailure as e:
                     log.warning(e)
-
