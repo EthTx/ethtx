@@ -105,7 +105,7 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
 
     def _init_collections(self) -> None:
         for mongo_collection in MongoCollections:
-            setattr(self, f"_{mongo_collection}", self._db[mongo_collection])
+            self.__setattr__(f"_{mongo_collection}", self._db[mongo_collection])
 
             if mongo_collection == "signatures":
                 try:
@@ -116,3 +116,4 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
                     )
                 except OperationFailure as e:
                     log.warning(e)
+
