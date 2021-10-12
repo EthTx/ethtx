@@ -4,11 +4,10 @@ All notable changes to this project will be documented in this file.
 ## 0.2.8 - 2021-10-12
 ### Changed
 - Refactored semantic providers [#59](https://github.com/EthTx/ethtx/pull/59)
-- `Signatures` collection in **pymongo** is now indexed [#59](https://github.com/EthTx/ethtx/pull/59)
+- `Signatures` collection in **mongo** is now indexed [#60](https://github.com/EthTx/ethtx/pull/60)
 
 ### Fixed
 - Fixed unknown args for empty guessed functions (empty arguments have been removed) [#59](https://github.com/EthTx/ethtx/pull/59)
-- Wrong `Signatures` collection indexing. [#60](https://github.com/EthTx/ethtx/pull/60)
 
 ### Added 
 - Added more types [#59](https://github.com/EthTx/ethtx/pull/59)
