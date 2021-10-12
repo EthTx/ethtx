@@ -11,7 +11,7 @@
 #  limitations under the License.
 
 from functools import lru_cache
-from typing import Optional, List
+from typing import Optional, List, Dict, Tuple
 
 from ethtx.decoders.decoders.semantics import decode_events_and_functions
 from ethtx.models.semantics_model import (
@@ -26,7 +26,7 @@ from ethtx.models.semantics_model import (
     SignatureArg,
 )
 from ethtx.providers import EtherscanProvider, Web3Provider
-from ethtx.providers.semantic_providers.semantics_database import ISemanticsDatabase
+from ethtx.providers.semantic_providers.database import ISemanticsDatabase
 from ethtx.semantics.protocols_router import amend_contract_semantics
 from ethtx.semantics.solidity.precompiles import precompiles
 from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS, ERC20_EVENTS
@@ -45,7 +45,7 @@ class SemanticsRepository:
         self._web3provider = web3provider
         self._records: Optional[List] = None
 
-    def record(self):
+    def record(self) -> None:
         """Records is an array used to hold semantics used in tx decing process.
         This recording is used just for logging"""
         self._records = []
@@ -55,7 +55,9 @@ class SemanticsRepository:
         self._records = None
         return tmp_records
 
-    def _read_stored_semantics(self, address: str, chain_id: str):
+    def _read_stored_semantics(
+        self, address: str, chain_id: str
+    ) -> Optional[AddressSemantics]:
         def decode_parameter(_parameter):
             components_semantics = []
             if "component" in _parameter:
@@ -269,7 +271,9 @@ class SemanticsRepository:
 
         return address_semantics
 
-    def _decode_standard_semantics(self, address, name, events, functions):
+    def _decode_standard_semantics(
+        self, address, name, events, functions
+    ) -> Tuple[Optional[str], Optional[ERC20Semantics]]:
         standard = None
         standard_semantics = None
 
@@ -297,7 +301,7 @@ class SemanticsRepository:
         return standard, standard_semantics
 
     @lru_cache(maxsize=128)
-    def get_event_abi(self, chain_id, address, signature):
+    def get_event_abi(self, chain_id, address, signature) -> Optional[EventSemantics]:
 
         if not address:
             return None
@@ -310,7 +314,9 @@ class SemanticsRepository:
         return event_semantics
 
     @lru_cache(maxsize=128)
-    def get_transformations(self, chain_id, address, signature):
+    def get_transformations(
+        self, chain_id, address, signature
+    ) -> Optional[Dict[str, TransformationSemantics]]:
 
         if not address:
             return None
@@ -324,7 +330,7 @@ class SemanticsRepository:
         return transformations
 
     @lru_cache(maxsize=128)
-    def get_anonymous_event_abi(self, chain_id, address):
+    def get_anonymous_event_abi(self, chain_id, address) -> Optional[EventSemantics]:
 
         if not address:
             return None
@@ -344,7 +350,9 @@ class SemanticsRepository:
         return event_semantics
 
     @lru_cache(maxsize=128)
-    def get_function_abi(self, chain_id, address, signature):
+    def get_function_abi(
+        self, chain_id, address, signature
+    ) -> Optional[FunctionSemantics]:
 
         if not address:
             return None
@@ -357,7 +365,7 @@ class SemanticsRepository:
         return function_semantics
 
     @lru_cache(maxsize=128)
-    def get_constructor_abi(self, chain_id, address):
+    def get_constructor_abi(self, chain_id, address) -> Optional[FunctionSemantics]:
 
         if not address:
             return None
@@ -373,7 +381,7 @@ class SemanticsRepository:
 
         return constructor_semantics
 
-    def get_address_label(self, chain_id, address, proxies=None):
+    def get_address_label(self, chain_id, address, proxies=None) -> str:
 
         if not address:
             return ""
@@ -394,7 +402,7 @@ class SemanticsRepository:
         return contract_label
 
     @lru_cache(maxsize=128)
-    def check_is_contract(self, chain_id, address):
+    def check_is_contract(self, chain_id, address) -> bool:
 
         if not address:
             return False
@@ -405,7 +413,7 @@ class SemanticsRepository:
         return is_contract
 
     @lru_cache(maxsize=128)
-    def get_standard(self, chain_id, address):
+    def get_standard(self, chain_id, address) -> Optional[str]:
 
         if not address:
             return None
@@ -415,7 +423,9 @@ class SemanticsRepository:
 
         return standard
 
-    def get_token_data(self, chain_id, address, proxies=None):
+    def get_token_data(
+        self, chain_id, address, proxies=None
+    ) -> Tuple[Optional[str], Optional[str], Optional[int], Optional[str]]:
 
         if not address:
             return None, None, None, None
@@ -442,7 +452,7 @@ class SemanticsRepository:
 
         return token_name, token_symbol, token_decimals, "ERC20"
 
-    def update_address(self, chain_id, address, contract):
+    def update_address(self, chain_id, address, contract) -> Dict:
 
         updated_address = {"network": chain_id, "address": address, **contract}
         self.database.insert_address(address=updated_address, update_if_exist=True)
@@ -460,42 +470,39 @@ class SemanticsRepository:
         contract_id = self.database.insert_contract(
             contract=contract_semantics, update_if_exist=True
         )
-        _ = self.database.insert_address(
-            address=address_semantics, update_if_exist=True
-        )
+        self.database.insert_address(address=address_semantics, update_if_exist=True)
 
         if contract_id:
             self.insert_contract_signatures(semantics.contract)
 
-    def insert_contract_signatures(self, contract_semantics: ContractSemantics):
+    def insert_contract_signatures(self, contract_semantics: ContractSemantics) -> None:
         for _, v in contract_semantics.functions.items():
-            if v.signature.startswith("0x"):
-                if v.inputs:
-                    if v.inputs[0].parameter_type == "tuple":
-                        new_signature = Signature(
-                            signature_hash=v.signature,
-                            name=v.name,
-                            tuple=True,
-                            args=[
-                                SignatureArg(
-                                    name=param.parameter_name, type=param.parameter_type
-                                )
-                                for param in v.inputs[0].components
-                            ],
-                        )
-                    else:
-                        new_signature = Signature(
-                            signature_hash=v.signature,
-                            name=v.name,
-                            args=[
-                                SignatureArg(
-                                    name=param.parameter_name, type=param.parameter_type
-                                )
-                                for param in v.inputs
-                            ],
-                        )
 
-                    self.update_or_insert_signature(new_signature)
+            if not v.signature.startswith("0x"):
+                continue
+
+            if v.inputs and v.inputs[0].parameter_type == "tuple":
+                args = [
+                    SignatureArg(name=param.parameter_name, type=param.parameter_type)
+                    for param in v.inputs[0].components
+                ]
+            else:
+                args = (
+                    [
+                        SignatureArg(
+                            name=param.parameter_name, type=param.parameter_type
+                        )
+                        for param in v.inputs
+                    ]
+                    if v.inputs
+                    else []
+                )
+
+            new_signature = Signature(
+                signature_hash=v.signature, name=v.name, args=args
+            )
+
+            self.update_or_insert_signature(new_signature)
 
     def get_most_used_signature(self, signature_hash: str) -> Optional[Signature]:
         signatures = list(
@@ -516,7 +523,7 @@ class SemanticsRepository:
 
         return None
 
-    def update_or_insert_signature(self, signature: Signature):
+    def update_or_insert_signature(self, signature: Signature) -> None:
         signatures = self.database.get_signature_semantics(
             signature_hash=signature.signature_hash
         )
@@ -526,7 +533,9 @@ class SemanticsRepository:
                 and signature.signature_hash == sig["signature_hash"]
                 and len(signature.args) == len(sig["args"])
             ):
-                if any(arg for arg in list(sig["args"][0].values()) if "arg" in arg):
+                if signature.args and any(
+                    arg for arg in list(sig["args"][0].values()) if "arg" in arg
+                ):
                     for index, argument in enumerate(sig["args"]):
                         argument["name"] = signature.args[index].name
                         argument["type"] = signature.args[index].type

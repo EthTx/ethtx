@@ -10,53 +10,34 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from abc import ABC
-from typing import Dict, Optional, Any, List
+import logging
+from typing import Dict, Optional
 
 import bson
 from pymongo.cursor import Cursor
 from pymongo.database import Database as MongoDatabase
+from pymongo.errors import OperationFailure
 
+from .base import ISemanticsDatabase
+from .const import MongoCollections
 
-class ISemanticsDatabase(ABC):
-    """Semantics Database. Represents raw interface required to be
-    implemented by a database that provides persistent
-    data about semantics"""
-
-    def get_address_semantics(self, chain_id: str, address: str) -> Optional[Dict]:
-        ...
-
-    def get_contract_semantics(self, code_hash: str) -> Optional[Dict]:
-        ...
-
-    def get_signature_semantics(self, signature_hash: str) -> Optional[List[Dict]]:
-        ...
-
-    def insert_contract(self, contract: dict, update_if_exist: bool = False) -> Any:
-        ...
-
-    def insert_address(self, address: dict, update_if_exist: bool = False) -> Any:
-        ...
-
-    def insert_signature(self, signature, update_if_exist: bool = False) -> Any:
-        ...
-
-
-class MongoCollections:
-    ADDRESSES = "addresses"
-    CONTRACTS = "contracts"
-    SIGNATURES = "signatures"
+log = logging.getLogger(__name__)
 
 
 class MongoSemanticsDatabase(ISemanticsDatabase):
-    def get_collection_count(self):
-        return len(self._db.list_collection_names())
+    _db: MongoDatabase
 
     def __init__(self, db: MongoDatabase):
         self._db = db
-        self._addresses = self._db["addresses"]
-        self._contracts = self._db["contracts"]
-        self._signatures = self._db["signatures"]
+
+        self._addresses = None
+        self._contracts = None
+        self._signatures = None
+
+        self._init_collections()
+
+    def get_collection_count(self) -> int:
+        return len(self._db.list_collection_names())
 
     def get_address_semantics(self, chain_id, address) -> Optional[Dict]:
         _id = f"{chain_id}-{address}"
@@ -121,3 +102,17 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
 
         inserted_address = self._addresses.insert_one(address_with_id)
         return inserted_address.inserted_id
+
+    def _init_collections(self) -> None:
+        for mongo_collection in MongoCollections:
+            self.__setattr__(f"_{mongo_collection}", self._db[mongo_collection])
+
+            if mongo_collection == "signatures":
+                try:
+                    self._signatures.create_index(
+                        [("signature_hash", "TEXT"), ("name", "TEXT")],
+                        background=True,
+                        unique=True,
+                    )
+                except OperationFailure as e:
+                    log.warning(e)

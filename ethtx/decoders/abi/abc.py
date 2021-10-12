@@ -22,7 +22,7 @@ from ethtx.models.objects_model import (
     TransactionMetadata,
     BlockMetadata,
 )
-from ethtx.providers.semantic_providers.semantics_repository import SemanticsRepository
+from ethtx.providers.semantic_providers import SemanticsRepository
 
 
 class ABIBasic:

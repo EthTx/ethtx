@@ -13,17 +13,15 @@
 from typing import List
 
 from ethtx.models.decoded_model import DecodedTransfer, DecodedTransactionMetadata
-from .helpers.utils import get_badge
 from .abc import SemanticSubmoduleAbc
+from .helpers.utils import get_badge
 
 
 class SemanticTransfersDecoder(SemanticSubmoduleAbc):
     def decode(
         self, transfers: List[DecodedTransfer], tx_metadata: DecodedTransactionMetadata
     ) -> List[DecodedTransfer]:
-
         for transfer in transfers:
-
             # decode proper from and to addresses badges
             transfer.from_address.badge = get_badge(
                 transfer.from_address.address,

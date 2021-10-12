@@ -13,8 +13,8 @@
 from typing import Dict
 
 from ethtx.models.decoded_model import DecodedCall, DecodedTransactionMetadata, Proxy
-from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS, ERC20_TRANSFORMATIONS
-from ethtx.semantics.standards.erc721 import ERC721_FUNCTIONS, ERC721_TRANSFORMATIONS
+from ethtx.semantics.standards.erc20 import ERC20_TRANSFORMATIONS
+from ethtx.semantics.standards.erc721 import ERC721_TRANSFORMATIONS
 from ethtx.utils.measurable import RecursionLimit
 from .abc import SemanticSubmoduleAbc
 from .helpers.utils import (

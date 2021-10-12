@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 
 
 def decode_event_parameters(data, topics, abi, anonymous):
-
     # making copy to avoid modifying of the original list
     amended_topics = topics.copy()
 
@@ -124,7 +123,6 @@ def decode_event_parameters(data, topics, abi, anonymous):
 def decode_function_parameters(
     input_data, output, abi, status=True, strip_signature=True
 ):
-
     if strip_signature and len(input_data) >= 10:
         stripped_input_data = input_data[10:]
     else:

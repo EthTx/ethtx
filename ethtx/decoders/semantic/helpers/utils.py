@@ -20,8 +20,8 @@ import requests
 
 from ethtx.decoders.decoders.parameters import decode_function_parameters
 from ethtx.models.decoded_model import AddressInfo
-from ethtx.semantics.utilities.functions import add_utils_to_context
 from ethtx.models.semantics_model import FunctionSemantics
+from ethtx.semantics.utilities.functions import add_utils_to_context
 
 log = logging.getLogger(__name__)
 
@@ -47,7 +47,6 @@ def get_eth_price() -> Optional[float]:
 
 
 def get_badge(address, sender, receiver):
-
     sender_address = sender.address if isinstance(sender, AddressInfo) else sender
     receiver_address = (
         receiver.address if isinstance(receiver, AddressInfo) else receiver
