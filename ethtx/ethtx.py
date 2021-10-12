@@ -115,7 +115,7 @@ class EthTx:
         mongo_client: MongoClient = connect(
             db=config.mongo_database, host=config.mongo_connection_string
         )
-        repository = MongoSemanticsDatabase(db=mongo_client.db)
+        repository = MongoSemanticsDatabase(db=mongo_client.get_database())
 
         web3provider = Web3Provider(
             nodes=config.web3nodes, default_chain=config.default_chain
