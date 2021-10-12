@@ -10,14 +10,18 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import logging
 from typing import Dict, Optional
 
 import bson
 from pymongo.cursor import Cursor
 from pymongo.database import Database as MongoDatabase
+from pymongo.errors import OperationFailure
 
 from .base import ISemanticsDatabase
 from .const import MongoCollections
+
+log = logging.getLogger(__name__)
 
 
 class MongoSemanticsDatabase(ISemanticsDatabase):
@@ -100,16 +104,15 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         return inserted_address.inserted_id
 
     def _init_collections(self) -> None:
-        collections = self._db.list_collection_names()
-
         for mongo_collection in MongoCollections:
+            setattr(self, f"_{mongo_collection}", self._db[mongo_collection])
 
-            if mongo_collection not in collections:
-                setattr(self, f"_{mongo_collection}", self._db[mongo_collection])
-
-                if mongo_collection == "signatures":
+            if mongo_collection == "signatures":
+                try:
                     self._signatures.create_index(
                         [("signature_hash", "TEXT"), ("name", "TEXT")],
                         background=True,
                         unique=True,
                     )
+                except OperationFailure as e:
+                    log.warning(e)
