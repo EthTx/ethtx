@@ -14,10 +14,8 @@ import logging
 from typing import Dict, Optional
 
 import bson
-from pymongo import TEXT
 from pymongo.cursor import Cursor
 from pymongo.database import Database as MongoDatabase
-from pymongo.errors import OperationFailure
 
 from .base import ISemanticsDatabase
 from .const import MongoCollections
@@ -107,13 +105,3 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
     def _init_collections(self) -> None:
         for mongo_collection in MongoCollections:
             self.__setattr__(f"_{mongo_collection}", self._db[mongo_collection])
-
-            if mongo_collection == "signatures":
-                try:
-                    self._signatures.create_index(
-                        [("signature_hash", TEXT), ("name", TEXT)],
-                        background=True,
-                        unique=False,
-                    )
-                except OperationFailure as e:
-                    log.warning(e)
