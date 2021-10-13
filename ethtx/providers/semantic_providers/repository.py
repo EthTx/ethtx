@@ -151,9 +151,10 @@ class SemanticsRepository:
                     transformations,
                 )
 
-            name = address
-            if not raw_address_semantics["is_contract"]:
-                name = self._web3provider.ens.name(address)
+            name = raw_address_semantics.get("name", address)
+            if name == address and not raw_address_semantics["is_contract"]:
+                ns_name = self._web3provider.ens.name(address)
+                name = ns_name if ns_name else name
 
             address_semantics = AddressSemantics(
                 chain_id,
