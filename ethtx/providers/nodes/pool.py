@@ -27,6 +27,10 @@ class NodeConnectionPool:
         else:
             self.__dict__[chain.lower()] = [value]
 
+    @property
+    def connections(self) -> Dict:
+        return self.__dict__
+
     def _set_connections(self, nodes) -> None:
         for chain, node_params in nodes.items():
             nodes: List[str] = list(node_params.keys())[0].split(",")
