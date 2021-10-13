@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.2.9 - 2021-10-13
+### Changed
+Removed indexes -incompatibility with macOS [#63](https://github.com/EthTx/ethtx/pull/63)
+
+### Fixed
+- **ENS** name fix. The contract name was decoded incorrectly, 
+because `None` (unresolved) address value was overwriting the correct one [#63](https://github.com/EthTx/ethtx/pull/63)
+
+
 ## 0.2.8 - 2021-10-12
 ### Changed
 - Refactored semantic providers [#59](https://github.com/EthTx/ethtx/pull/59)
