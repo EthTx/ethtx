@@ -22,6 +22,9 @@ class NodeConnectionPool:
         return super().__getattribute__(chain.lower())
 
     def __setattr__(self, chain: str, value: NodeBase) -> None:
+        if not isinstance(value, NodeBase):
+            raise ValueError("Value is not instance of NodeBase")
+
         if chain in self.__dict__:
             self.__dict__[chain.lower()].append(value)
         else:
