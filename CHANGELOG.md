@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## 0.3.1 - 2021-10-14
 ### Fixed
-- Fix tuple components processing
+- Fix tuple components processing [#66](https://github.com/EthTx/ethtx/pull/66)
 
 
 ## 0.3.0 - 2021-10-14
