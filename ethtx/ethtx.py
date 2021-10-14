@@ -33,14 +33,12 @@ class EthTxConfig:
     mongo_connection_string: str
     etherscan_api_key: str
     web3nodes: Dict[str, dict]
-    mongo_database: str
     etherscan_urls: Dict[str, str]
     default_chain: str
 
     def __init__(
         self,
         mongo_connection_string: str,
-        mongo_database: str,
         web3nodes: Dict[str, dict],
         etherscan_api_key: str,
         etherscan_urls: Dict[str, str],
@@ -49,7 +47,6 @@ class EthTxConfig:
         self.mongo_connection_string = mongo_connection_string
         self.etherscan_api_key = etherscan_api_key
         self.web3nodes = web3nodes
-        self.mongo_database = mongo_database
         self.default_chain = default_chain
         self.etherscan_urls = etherscan_urls
 
@@ -112,9 +109,7 @@ class EthTx:
 
     @staticmethod
     def initialize(config: EthTxConfig):
-        mongo_client: MongoClient = connect(
-            db=config.mongo_database, host=config.mongo_connection_string
-        )
+        mongo_client: MongoClient = connect(host=config.mongo_connection_string)
         repository = MongoSemanticsDatabase(db=mongo_client.get_database())
 
         web3provider = Web3Provider(
