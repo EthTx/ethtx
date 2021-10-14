@@ -21,7 +21,7 @@ from web3.datastructures import AttributeDict
 from web3.middleware import geth_poa_middleware
 from web3.types import BlockData, TxData, TxReceipt, HexStr
 
-from .nodes import get_connection
+from .node import get_connection
 from ..exceptions import Web3ConnectionException, ProcessingException
 from ..models.objects_model import Transaction, BlockMetadata, TransactionMetadata, Call
 from ..models.w3_model import W3Block, W3Transaction, W3Receipt, W3CallTree, W3Log
