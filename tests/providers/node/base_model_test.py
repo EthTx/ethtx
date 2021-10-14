@@ -6,12 +6,9 @@ NODE = "test"
 POA = False
 
 
-@pytest.fixture()
-def node_base_data():
-    return NodeBase(NODE, POA)
+def test_node_base_model():
+    node_base_data = NodeBase(NODE, POA)
 
-
-def test_node_base_model(node_base_data):
     assert node_base_data.node == NODE
     assert node_base_data.poa == POA
 
