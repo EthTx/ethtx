@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## 0.3.0 - 2021-10-14
 ### Fixed
-- Fixed bug where mongo was using database called db, insted of one specified in connection string
+- Fixed bug where mongo was using database called 'db', instead of one specified in connection string
 
 
 ## 0.2.9 - 2021-10-13
