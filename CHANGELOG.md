@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.3.0 - 2021-10-14
+### Fixed
+- Fixed bug where mongo was using database called 'db', instead of one specified in connection string [#62](https://github.com/EthTx/ethtx/pull/62)
+
+
 ## 0.2.9 - 2021-10-13
 ### Changed
 Removed indexes -incompatibility with macOS [#63](https://github.com/EthTx/ethtx/pull/63)
