@@ -12,12 +12,12 @@
 
 
 class NodeBase:
-    hook: str
+    node: str
     poa: bool
 
-    def __init__(self, hook: str, poa: bool):
-        self.hook = hook
+    def __init__(self, node: str, poa: bool):
+        self.node = node
         self.poa = poa
 
     def __repr__(self) -> str:
-        return f"<Hook: {self.hook}, poa: {self.poa}>"
+        return f"<Node: {self.node}, poa: {self.poa}>"

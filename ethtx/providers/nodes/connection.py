@@ -10,6 +10,16 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from typing import Dict, Generator
 
-class RoutingSession:
-    ...
+from .base import NodeBase
+from .pool import NodeConnectionPool
+
+
+def get_connection(
+    nodes: Dict[str, dict], chain: str
+) -> Generator[NodeBase, None, None]:
+    pool = NodeConnectionPool(nodes=nodes)
+
+    for connection in pool.connections[chain]:
+        yield connection

@@ -11,7 +11,7 @@
 #  limitations under the License.
 from typing import Dict, List
 
-from ethtx.providers.nodes.base import NodeBase
+from .base import NodeBase
 
 
 class NodeConnectionPool:
@@ -33,7 +33,7 @@ class NodeConnectionPool:
 
     def _set_connections(self, nodes) -> None:
         for chain, node_params in nodes.items():
-            nodes: List[str] = list(node_params.keys())[0].split(",")
-            poa: bool = list(node_params.values())[0]
+            nodes: List[str] = list(node_params.values())[0].split(",")
+            poa: bool = list(node_params.values())[1]
             for node in nodes:
-                self.__setattr__(chain, NodeBase(hook=node, poa=poa))
+                self.__setattr__(chain, NodeBase(node=node, poa=poa))
