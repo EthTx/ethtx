@@ -44,7 +44,6 @@ def string_from_bytes(raw_value):
 
 
 def add_utils_to_context(context):
-
     # register additional functions available for transformations
     context["token_decimals"] = partial(
         token_decimals, context["__transaction__"], context["__repository__"]

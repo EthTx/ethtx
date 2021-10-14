@@ -1,6 +1,6 @@
 from mongomock import Database
 
-from ethtx.providers.semantic_providers.semantics_database import MongoCollections
+from ethtx.providers.semantic_providers.const import MongoCollections
 
 
 class TestMongoSemanticsDatabase:

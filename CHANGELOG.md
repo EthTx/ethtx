@@ -1,6 +1,35 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.2.9 - 2021-10-13
+### Changed
+Removed indexes -incompatibility with macOS [#63](https://github.com/EthTx/ethtx/pull/63)
+
+### Fixed
+- **ENS** name fix. The contract name was decoded incorrectly, 
+because `None` (unresolved) address value was overwriting the correct one [#63](https://github.com/EthTx/ethtx/pull/63)
+
+
+## 0.2.8 - 2021-10-12
+### Changed
+- Refactored semantic providers [#59](https://github.com/EthTx/ethtx/pull/59)
+- `Signatures` collection in **mongo** is now indexed [#60](https://github.com/EthTx/ethtx/pull/60)
+
+### Fixed
+- Fixed unknown args for empty guessed functions (empty arguments have been removed) [#59](https://github.com/EthTx/ethtx/pull/59)
+
+### Added 
+- Added more types [#59](https://github.com/EthTx/ethtx/pull/59)
+- Added missing `__init__` files for semantics [#59](https://github.com/EthTx/ethtx/pull/59)
+
+
+## 0.2.7 - 2021-10-08
+### Fixed
+- Fixed `ENS.fromWeb3` with poa. **ENS** did not copy middleware from injected **Web3**,
+  therefore the transaction could not be decoded correctly for chains: `Goerli` and `Rinkeby` [#56](https://github.com/EthTx/ethtx/pull/56)
+- Fix bug where `get_proxies` was using only default chain, instead of provided one  [#57](https://github.com/EthTx/ethtx/pull/57)
+
+
 ## 0.2.6 - 2021-10-06
 ### Changed
 - Refactored Etherscan provider [#50](https://github.com/EthTx/ethtx/pull/50)

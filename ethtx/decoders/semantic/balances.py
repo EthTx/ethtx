@@ -13,8 +13,8 @@
 from typing import List
 
 from ethtx.models.decoded_model import DecodedBalance, DecodedTransactionMetadata
-from .helpers.utils import get_badge
 from .abc import SemanticSubmoduleAbc
+from .helpers.utils import get_badge
 
 
 class SemanticBalancesDecoder(SemanticSubmoduleAbc):

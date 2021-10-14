@@ -149,7 +149,7 @@ class ContractSemantics(JsonObject):
         name: str,
         events: Dict[str, EventSemantics],
         functions: Dict[str, FunctionSemantics],
-        transformations: [Dict[str, TransformationSemantics]],
+        transformations: [Dict[str, Dict[str, TransformationSemantics]]],
     ):
         self.code_hash = code_hash
         self.name = name

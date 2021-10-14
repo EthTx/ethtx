@@ -18,9 +18,8 @@ from ethtx.models.semantics_model import (
     Signature,
     SignatureArg,
 )
-from ethtx.providers import FourByteProvider
-from ethtx.providers.semantic_providers.semantics_repository import SemanticsRepository
-from ethtx.providers.signature_provider import SignatureProvider
+from ethtx.providers.semantic_providers import SemanticsRepository
+from ethtx.providers.signature_provider import SignatureProvider, FourByteProvider
 
 log = logging.getLogger(__name__)
 
@@ -32,7 +31,7 @@ def decode_function_abi_with_external_source(
 ) -> Iterator[FunctionSemantics]:
     function = repository.get_most_used_signature(signature_hash=signature)
     if function:
-        log.info(
+        log.debug(
             "Successfully guessed function from SemanticsRepository - %s.",
             function.json(),
         )

@@ -13,7 +13,6 @@
 
 from ethtx.models.semantics_model import FunctionSemantics, ParameterSemantics
 
-
 precompiles = {
     1: FunctionSemantics(
         "",
