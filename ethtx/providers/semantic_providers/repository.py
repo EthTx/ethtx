@@ -60,7 +60,7 @@ class SemanticsRepository:
     ) -> Optional[AddressSemantics]:
         def decode_parameter(_parameter):
             components_semantics = []
-            if "component" in _parameter:
+            if "components" in _parameter:
                 for component in _parameter["components"]:
                     components_semantics.append(decode_parameter(component))
 
