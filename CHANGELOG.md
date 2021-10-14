@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.3.1 - 2021-10-14
+### Fixed
+- Fix tuple components processing [#66](https://github.com/EthTx/ethtx/pull/66)
+
+
 ## 0.3.0 - 2021-10-14
 ### Fixed
 - Fixed bug where mongo was using database called 'db', instead of one specified in connection string [#62](https://github.com/EthTx/ethtx/pull/62)
