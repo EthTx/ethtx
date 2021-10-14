@@ -22,7 +22,7 @@ from web3.middleware import geth_poa_middleware
 from web3.types import BlockData, TxData, TxReceipt, HexStr
 
 from .node import get_connection
-from ..exceptions import Web3ConnectionException, ProcessingException
+from ..exceptions import NodeConnectionException, ProcessingException
 from ..models.objects_model import Transaction, BlockMetadata, TransactionMetadata, Call
 from ..models.w3_model import W3Block, W3Transaction, W3Receipt, W3CallTree, W3Log
 from ..semantics.standards import erc20
@@ -148,7 +148,7 @@ class Web3Provider(NodeDataProvider):
             else:
                 log.warning("Connection failed to: %s", connection)
 
-        raise Web3ConnectionException
+        raise NodeConnectionException
 
     # get the raw block data from the node
     @lru_cache(maxsize=512)
