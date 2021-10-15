@@ -1,12 +1,12 @@
 import pytest
 
-from ethtx.providers.node.base import NodeBase
+from ethtx.providers.node.connection_base import NodeConnection
 from ethtx.providers.node.pool import NodeConnectionPool
 
 MAINNET_CHAIN = {"mainnet": {"hook": "a", "poa": True}}
 GOERLI_CHAIN = {"goerli": {"hook": "a, b, c", "poa": False}}
 
-GOERLI_NODE = NodeBase("B", False)
+GOERLI_NODE = NodeConnection("goerli", "B", False)
 
 
 class TestNodeConnectionPool:
@@ -14,34 +14,23 @@ class TestNodeConnectionPool:
     def setup_class(cls):
         cls.pool = NodeConnectionPool(nodes=MAINNET_CHAIN)
 
-    def test_one_connections(self):
-        data = NodeBase(node="a", poa=True)
-        assert self.pool.connections
-        assert len(self.pool) == 1
-        assert self.pool.connections["mainnet"][0].__dict__ == dict(data)
-        assert "mainnet" in self.pool.connections
+    def test_number_of_connections(self):
+        assert len(self.pool) == 1, "Number of connections should equal 1."
 
-    def test_ok_getattr(self):
-        assert self.pool.mainnet
+    def test_add_connection(self):
+        self.pool.add_connection(connection=GOERLI_NODE)
 
-    def test_wrong_getattr(self):
-        with pytest.raises(AttributeError):
-            _ = self.pool.goerli
+        assert (
+            GOERLI_NODE in self.pool.connections
+        ), f"{GOERLI_NODE} should be in pool of connections."
 
-    def test_setattr(self):
-        self.pool.goerli = GOERLI_NODE
-        assert self.pool.goerli
+    def test_get_connection(self):
+        connection = self.pool.get_connection("goerli")
 
-    def test_wrong_setattr(self):
-        with pytest.raises(ValueError) as e:
-            self.pool.wrong = 1, 1, 1
+        assert (
+            connection[0] == GOERLI_NODE
+        ), f"{GOERLI_NODE} should be in pool of connections."
 
-        assert str(e.value) == "Value is not instance of NodeBase"
-
-    def test_multiple_connections(self):
-        assert self.pool.connections
-        assert len(self.pool) == 2
-        assert "mainnet" in self.pool.connections
-        assert "goerli" in self.pool.connections
-        assert self.pool.mainnet
-        assert self.pool.goerli
+    def test_add_wrong_type_connection(self):
+        with pytest.raises(ValueError):
+            self.pool.add_connection((1, 1, 1))

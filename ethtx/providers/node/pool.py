@@ -11,35 +11,36 @@
 #  limitations under the License.
 from typing import Dict, List
 
-from .base import NodeBase
+from .connection_base import NodeConnection
 
 
 class NodeConnectionPool:
     def __init__(self, nodes: Dict[str, dict]):
+        self._connections: List[NodeConnection] = []
+
         self._set_connections(nodes)
 
-    def __getattribute__(self, chain: str) -> List[NodeBase]:
-        return super().__getattribute__(chain.lower())
-
-    def __setattr__(self, chain: str, value: NodeBase) -> None:
-        if not isinstance(value, NodeBase):
-            raise ValueError("Value is not instance of NodeBase")
-
-        if chain in self.__dict__:
-            self.__dict__[chain.lower()].append(value)
-        else:
-            self.__dict__[chain.lower()] = [value]
-
     def __len__(self) -> int:
-        return len(self.__dict__)
+        return len(self._connections)
 
     @property
-    def connections(self) -> Dict:
-        return self.__dict__
+    def connections(self) -> List[NodeConnection]:
+        return self._connections
+
+    def add_connection(self, connection: NodeConnection) -> None:
+        if not isinstance(connection, NodeConnection):
+            raise ValueError("Value is not instance of NodeBase")
+
+        self._connections.append(connection)
+
+    def get_connection(self, chain: str) -> List[NodeConnection]:
+        return [
+            connection for connection in self._connections if connection.chain == chain
+        ]
 
     def _set_connections(self, nodes) -> None:
         for chain, node_params in nodes.items():
             nodes: List[str] = list(node_params.values())[0].split(",")
             poa: bool = list(node_params.values())[1]
-            for node in nodes:
-                self.__setattr__(chain, NodeBase(node=node, poa=poa))
+            for url in nodes:
+                self.add_connection(NodeConnection(chain=chain, url=url, poa=poa))

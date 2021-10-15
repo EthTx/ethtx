@@ -9,17 +9,17 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
-from typing import Dict, Generator
-
-from .base import NodeBase
-from .pool import NodeConnectionPool
+from dataclasses import dataclass
 
 
-def get_connection(
-    nodes: Dict[str, dict], chain: str
-) -> Generator[NodeBase, None, None]:
-    pool = NodeConnectionPool(nodes=nodes)
+@dataclass
+class NodeConnection:
+    chain: str
+    url: str
+    poa: bool
 
-    for connection in pool.connections[chain]:
-        yield connection
+    def __repr__(self) -> str:
+        return f"<Chain: {self.chain}, Node: {self.url}, Poa: {self.poa}>"
+
+    def __iter__(self):
+        return iter(self.__dict__.items())

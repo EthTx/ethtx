@@ -21,7 +21,7 @@ from web3.datastructures import AttributeDict
 from web3.middleware import geth_poa_middleware
 from web3.types import BlockData, TxData, TxReceipt, HexStr
 
-from .node import get_connection
+from .node import NodeConnectionPool
 from ..exceptions import NodeConnectionException, ProcessingException
 from ..models.objects_model import Transaction, BlockMetadata, TransactionMetadata, Call
 from ..models.w3_model import W3Block, W3Transaction, W3Receipt, W3CallTree, W3Log
@@ -134,8 +134,10 @@ class Web3Provider(NodeDataProvider):
                 "unknown chain_id, it must be defined in the EthTxConfig object"
             )
 
-        for connection in get_connection(nodes=self.nodes, chain=chain_id):
-            w3 = connect_chain(http_hook=connection.node, poa=connection.poa)
+        for connection in NodeConnectionPool(nodes=self.nodes).get_connection(
+            chain=chain_id
+        ):
+            w3 = connect_chain(http_hook=connection.url, poa=connection.poa)
             self.ens = connect_ens(w3=w3, poa=connection.poa)
 
             if w3.isConnected():
