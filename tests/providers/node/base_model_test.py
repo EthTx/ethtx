@@ -14,3 +14,5 @@ def test_node_base_model():
 
     assert repr(node_base_data) == f"<Node: {NODE}, poa: {POA}>"
     assert str(node_base_data) == f"<Node: {NODE}, poa: {POA}>"
+
+    assert dict(node_base_data) == {"node": NODE, "poa": POA}

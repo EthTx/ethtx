@@ -18,7 +18,7 @@ class TestNodeConnectionPool:
         data = NodeBase(node="a", poa=True)
         assert self.pool.connections
         assert len(self.pool) == 1
-        assert self.pool.connections["mainnet"][0].__dict__ == data.__dict__
+        assert self.pool.connections["mainnet"][0].__dict__ == dict(data)
         assert "mainnet" in self.pool.connections
 
     def test_ok_getattr(self):

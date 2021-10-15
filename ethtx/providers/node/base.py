@@ -16,8 +16,12 @@ class NodeBase:
     poa: bool
 
     def __init__(self, node: str, poa: bool):
+        super().__init__()
         self.node = node
         self.poa = poa
 
     def __repr__(self) -> str:
         return f"<Node: {self.node}, poa: {self.poa}>"
+
+    def __iter__(self):
+        return iter(self.__dict__.items())
