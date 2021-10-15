@@ -17,7 +17,7 @@ class TestNodeConnectionPool:
     def test_one_connections(self):
         data = NodeBase(node="a", poa=True)
         assert self.pool.connections
-        assert len(self.pool.connections) == 1
+        assert len(self.pool) == 1
         assert self.pool.connections["mainnet"][0].__dict__ == data.__dict__
         assert "mainnet" in self.pool.connections
 
@@ -40,7 +40,7 @@ class TestNodeConnectionPool:
 
     def test_multiple_connections(self):
         assert self.pool.connections
-        assert len(self.pool.connections) == 2
+        assert len(self.pool) == 2
         assert "mainnet" in self.pool.connections
         assert "goerli" in self.pool.connections
         assert self.pool.mainnet

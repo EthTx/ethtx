@@ -30,6 +30,9 @@ class NodeConnectionPool:
         else:
             self.__dict__[chain.lower()] = [value]
 
+    def __len__(self) -> int:
+        return len(self.__dict__)
+
     @property
     def connections(self) -> Dict:
         return self.__dict__
