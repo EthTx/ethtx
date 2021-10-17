@@ -50,7 +50,7 @@ class Web3ENSProvider(ENSProviderBase):
         if address:
             log.info("ENS resolved name: %s to address: %s", name, address)
 
-        return address if address else ns
+        return address if address else name
 
     @staticmethod
     def _set_provider(provider: Web3) -> ENS:
