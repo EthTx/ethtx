@@ -110,7 +110,6 @@ class FourByteProvider(SignatureProvider):
 
         try:
             try:
-
                 response = requests.get(self.url(endpoint), params=filters, timeout=5)
                 return response.json()
 
