@@ -20,7 +20,7 @@ from .decoders.decoder_service import DecoderService
 from .decoders.semantic.decoder import SemanticDecoder
 from .models.decoded_model import Proxy, DecodedTransaction
 from .models.objects_model import Call
-from .providers import EtherscanProvider, Web3Provider
+from .providers import EtherscanProvider, Web3Provider, ENSProvider
 from .providers.semantic_providers import (
     ISemanticsDatabase,
     SemanticsRepository,
@@ -74,12 +74,17 @@ class EthTxDecoders:
 class EthTxProviders:
     web3provider: Web3Provider
     etherscan_provider: EtherscanProvider
+    ens_provider: ENSProvider
 
     def __init__(
-        self, web3provider: Web3Provider, etherscan_provider: EtherscanProvider
+        self,
+        web3provider: Web3Provider,
+        etherscan_provider: EtherscanProvider,
+        ens_provider: ENSProvider,
     ):
         self.web3provider = web3provider
         self.etherscan_provider = etherscan_provider
+        self.ens_provider = ens_provider
 
 
 class EthTx:
@@ -89,6 +94,7 @@ class EthTx:
         database: ISemanticsDatabase,
         web3provider: Web3Provider,
         etherscan_provider: EtherscanProvider,
+        ens_provider: ENSProvider,
     ):
         self._default_chain = default_chain
         self._semantics_repository = SemanticsRepository(
@@ -104,7 +110,9 @@ class EthTx:
         )
         self._decoders = EthTxDecoders(decoder_service=decoder_service)
         self._providers = EthTxProviders(
-            web3provider=web3provider, etherscan_provider=etherscan_provider
+            web3provider=web3provider,
+            etherscan_provider=etherscan_provider,
+            ens_provider=ens_provider,
         )
 
     @staticmethod
@@ -121,7 +129,15 @@ class EthTx:
             default_chain_id=config.default_chain,
         )
 
-        return EthTx(config.default_chain, repository, web3provider, etherscan_provider)
+        ens_provider = ENSProvider
+
+        return EthTx(
+            config.default_chain,
+            repository,
+            web3provider,
+            etherscan_provider,
+            ens_provider,
+        )
 
     @property
     def decoders(self) -> EthTxDecoders:

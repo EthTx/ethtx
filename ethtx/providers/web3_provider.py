@@ -72,12 +72,10 @@ def connect_chain(
         raise
 
 
-def connect_ens(w3: Web3, poa: bool) -> ENS:
+def connect_ens(w3: Web3) -> ENS:
     ens = ENS.fromWeb3(w3)
 
-    # ENS.fromWeb3 not copying middleware #1657
-    if poa:
-        ens.web3.middleware_onion.inject(geth_poa_middleware, layer=0)
+    ens.web3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
     return ens
 
@@ -132,7 +130,6 @@ class NodeDataProvider:
 
 class Web3Provider(NodeDataProvider):
     chain: Web3
-    ens: ENS
 
     def __init__(self, nodes: Dict[str, dict], default_chain=None):
         super().__init__(default_chain)
@@ -154,7 +151,6 @@ class Web3Provider(NodeDataProvider):
         hook, poa = self.nodes[chain_id]["hook"], self.nodes[chain_id]["poa"]
 
         w3 = connect_chain(http_hook=hook, poa=poa)
-        self.ens = connect_ens(w3=w3, poa=poa)
 
         return w3
 

@@ -9,36 +9,57 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import logging
 from abc import ABC, abstractmethod
 from typing import Callable, Any
 
 from ens import ENS
-from eth_typing import ChecksumAddress
 from web3 import Web3
+from web3.middleware import geth_poa_middleware
+
+log = logging.getLogger(__name__)
 
 
-class ENSProviderABC(ABC):
+class ENSProviderBase(ABC):
     @abstractmethod
-    def __init__(self, provider: Callable):
+    def name(self, provider: Callable, address: Any):
         ...
 
     @abstractmethod
-    def name(self, address: Any):
-        ...
-
-    @abstractmethod
-    def address(self, name: Any):
+    def address(self, provider: Callable, name: Any):
         ...
 
 
-class Web3ENSProvider(ENSProviderABC):
+class Web3ENSProvider(ENSProviderBase):
     ns: ENS
 
-    def __init__(self, provider: Web3):
-        self.ns = ENS.fromWeb3(provider)
+    def name(self, provider: Web3, address: str) -> str:
+        ns = self._set_provider(provider)
+        address = Web3.toChecksumAddress(address)
+        name = ns.name(address=address)
 
-    def name(self, address: ChecksumAddress) -> str:
-        return self.ns.name(address=address)
+        if name:
+            log.info("ENS resolved an address: %s to name: %s", address, name)
 
-    def address(self, name: str) -> str:
-        return self.ns.address(name=name)
+        return name if name else address
+
+    def address(self, provider: Web3, name: str) -> str:
+        ns = self._set_provider(provider)
+        address = ns.address(name=name)
+
+        if address:
+            log.info("ENS resolved name: %s to address: %s", name, address)
+
+        return address if address else ns
+
+    @staticmethod
+    def _set_provider(provider: Web3) -> ENS:
+        ns = ENS.fromWeb3(provider)
+
+        # ENS.fromWeb3 not copying middleware #1657
+        ns.web3.middleware_onion.inject(geth_poa_middleware, layer=0)
+
+        return ns
+
+
+ENSProvider = Web3ENSProvider()

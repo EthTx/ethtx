@@ -25,7 +25,7 @@ from ethtx.models.semantics_model import (
     Signature,
     SignatureArg,
 )
-from ethtx.providers import EtherscanProvider, Web3Provider
+from ethtx.providers import EtherscanProvider, Web3Provider, ENSProvider
 from ethtx.providers.semantic_providers.database import ISemanticsDatabase
 from ethtx.semantics.protocols_router import amend_contract_semantics
 from ethtx.semantics.solidity.precompiles import precompiles
@@ -153,8 +153,10 @@ class SemanticsRepository:
 
             name = raw_address_semantics.get("name", address)
             if name == address and not raw_address_semantics["is_contract"]:
-                ns_name = self._web3provider.ens.name(address)
-                name = ns_name if ns_name else name
+                name = ENSProvider.name(
+                    provider=self._web3provider._get_node_connection(chain_id),
+                    address=address,
+                )
 
             address_semantics = AddressSemantics(
                 chain_id,
@@ -251,15 +253,12 @@ class SemanticsRepository:
             else:
                 # externally owned address
                 contract_semantics = ContractSemantics(ZERO_HASH, "EOA", {}, {}, {})
-                ns_name = self._web3provider.ens.name(address)
+                name = ENSProvider.name(
+                    provider=self._web3provider._get_node_connection(chain_id),
+                    address=address,
+                )
                 address_semantics = AddressSemantics(
-                    chain_id,
-                    address,
-                    ns_name if ns_name else address,
-                    False,
-                    contract_semantics,
-                    None,
-                    None,
+                    chain_id, address, name, False, contract_semantics, None, None
                 )
 
             self.update_semantics(address_semantics)

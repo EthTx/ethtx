@@ -61,6 +61,12 @@ def decode_function_abi_with_external_source(
             yield function_semantics
     finally:
         if "function_semantics" in locals():
+            log.info(
+                "Function (signature: %s, name: %s) guessed from 4byte.",
+                signature,
+                function_semantics.name,
+            )
+
             repository.update_or_insert_signature(
                 signature=Signature(
                     signature_hash=signature,
@@ -84,7 +90,14 @@ def decode_event_abi_name_with_external_source(
         if not event:
             return signature
 
-        return event.get("name", signature)
+        event_name = event.get("name")
+        if event_name:
+            log.info(
+                "Event (signature: %s, name: %s) guessed from 4byte.",
+                signature,
+                event_name,
+            )
+            return event_name
 
     return signature
 

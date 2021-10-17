@@ -127,6 +127,10 @@ class FourByteProvider(SignatureProvider):
                     response.status_code, response.content
                 ) from value_error
 
+            except Exception as e:
+                log.critical("Unexpected error from 4byte.directory: %s", e)
+                return {}
+
         except FourByteException:
             return {}
 
