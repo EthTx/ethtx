@@ -15,7 +15,6 @@ import os
 from functools import lru_cache
 from typing import List, Dict, Optional
 
-from ens import ENS
 from web3 import Web3
 from web3.datastructures import AttributeDict
 from web3.middleware import geth_poa_middleware
@@ -70,14 +69,6 @@ def connect_chain(
     except Exception as exc:
         log.warning("Node connection %s: %s failed.", method, hook, exc_info=exc)
         raise
-
-
-def connect_ens(w3: Web3) -> ENS:
-    ens = ENS.fromWeb3(w3)
-
-    ens.web3.middleware_onion.inject(geth_poa_middleware, layer=0)
-
-    return ens
 
 
 class NodeDataProvider:
