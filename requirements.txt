@@ -1,8 +1,11 @@
-pymongo==3.11.4
+pymongo~=3.12.0
 mongoengine==0.23.1
 ethereum==2.3.2
-requests==2.25.1
-web3==5.20.1
+requests~=2.26.0
+web3~=5.24.0
 jsonpickle==2.0.0
-hexbytes==0.2.1
+hexbytes~=0.2.2
 mongomock==3.23.0
+
+pytest~=6.2.5
+setuptools~=57.4.0

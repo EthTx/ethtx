@@ -101,7 +101,6 @@ setup(
     url=URL,
     license="Apache-2.0 License",
     packages=find_packages(exclude=["tests"]),
-    tests_require=load_requirements("requirements_test.txt"),
     install_requires=load_requirements("requirements.txt"),
     include_package_data=True,
     test_suite="tests",
