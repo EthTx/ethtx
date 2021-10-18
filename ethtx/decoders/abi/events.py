@@ -126,7 +126,7 @@ class ABIEventsDecoder(ABISubmoduleAbc):
             event.log_data, event.topics, event_abi, anonymous
         )
 
-        if event_name.startswith("0x") and len(event_name) > 2:
+        if event_name and event_name.startswith("0x") and len(event_name) > 2:
             event_name = decode_event_abi_name_with_external_source(
                 signature=event_signature
             )
