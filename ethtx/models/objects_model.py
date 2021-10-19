@@ -12,13 +12,13 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List, Optional
 
+from pydantic import BaseModel
 
-@dataclass
-class BlockMetadata:
+
+class BlockMetadata(BaseModel):
     block_number: int
     block_hash: str
     timestamp: datetime
@@ -36,8 +36,7 @@ class BlockMetadata:
         return w3block.to_object()
 
 
-@dataclass
-class TransactionMetadata:
+class TransactionMetadata(BaseModel):
     tx_hash: str
     block_number: int
     gas_price: int
@@ -50,34 +49,31 @@ class TransactionMetadata:
     success: bool
 
     # for future use
-    gas_refund: int = None
-    return_value: str = None
-    exception_error: str = None
-    exception_error_type: str = None
-    revert_reason: str = None
+    gas_refund: Optional[int]
+    return_value: Optional[str]
+    exception_error: Optional[str]
+    exception_error_type: Optional[str]
+    revert_reason: Optional[str]
 
     @staticmethod
     def from_raw(w3transaction, w3receipt) -> TransactionMetadata:
         return w3transaction.to_object(w3receipt)
 
 
-@dataclass
-class Event:
+class Event(BaseModel):
     contract: str
     topics: List[str]
     log_data: Optional[str]
     log_index: int
 
-    # for future use
-    call_id: str = None
+    call_id: Optional[str]
 
     @staticmethod
     def from_raw(w3log) -> Event:
         return w3log.to_object()
 
 
-@dataclass
-class Call:
+class Call(BaseModel):
     call_type: str
     call_gas: int
     from_address: str
@@ -88,24 +84,23 @@ class Call:
     gas_used: int
     status: bool
     error: str
-    subcalls: Optional[List[Call]] = field(default_factory=list)
+    subcalls: Optional[List[Call]] = []
 
     # for future use
-    call_id: str = None
-    created_address: str = None
-    gas_refund: int = None
-    exception_error: str = None
-    exception_error_type: str = None
-    revert_reason: str = None
-    success: bool = None
+    call_id: Optional[str]
+    created_address: Optional[str]
+    gas_refund: Optional[int]
+    exception_error: Optional[str]
+    exception_error_type: Optional[str]
+    revert_reason: Optional[str]
+    success: Optional[bool]
 
     @staticmethod
     def from_raw(w3calltree) -> Call:
         return w3calltree.to_object()
 
 
-@dataclass
-class Block:
+class Block(BaseModel):
     chain_id: str
     metadata: BlockMetadata
     transactions: List[Transaction]
@@ -124,8 +119,7 @@ class Block:
         return Block(chain_id=chain_id, metadata=data, transactions=transactions)
 
 
-@dataclass
-class Transaction:
+class Transaction(BaseModel):
     metadata: TransactionMetadata
     root_call: Call
     events: List[Event]
