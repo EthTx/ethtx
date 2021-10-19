@@ -117,12 +117,12 @@ class W3Receipt(BaseModel):
     chain_id: str
     blockHash: HexBytesType
     blockNumber: int
-    contractAddress: str
+    contractAddress: Optional[str]
     cumulativeGasUsed: int
     from_address: str
     gasUsed: int
     logsBloom: HexBytesType
-    root: str
+    root: Optional[str]
     status: int
     to_address: str
     transactionHash: HexBytesType

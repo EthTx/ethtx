@@ -506,10 +506,12 @@ class Web3Provider(NodeDataProvider):
         tmp_call_tree = []
 
         w3input, main_parent_calls = prep_raw_dict(obj)
-        main_parent = W3CallTree(tx_hash, chain_id, **w3input)
+        main_parent = W3CallTree(tx_hash=tx_hash, chain_id=chain_id, **w3input)
         for main_parent_call in main_parent_calls:
             w3input, main_parent_calls = prep_raw_dict(main_parent_call)
-            main_parent_child = W3CallTree(tx_hash, chain_id, **w3input)
+            main_parent_child = W3CallTree(
+                tx_hash=tx_hash, chain_id=chain_id, **w3input
+            )
             main_parent.calls.append(main_parent_child)
             if len(main_parent_calls) > 0:
                 tmp_call_tree.append(
@@ -527,7 +529,9 @@ class Web3Provider(NodeDataProvider):
                 if child_calls is not None:
                     for child_call in child_calls:
                         w3input, child_child_call = prep_raw_dict(child_call)
-                        child = W3CallTree(tx_hash, chain_id, **w3input)
+                        child = W3CallTree(
+                            tx_hash=tx_hash, chain_id=chain_id, **w3input
+                        )
                         parent_call.calls.append(child)
 
                         if len(child_call) > 0:
