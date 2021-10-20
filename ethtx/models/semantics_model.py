@@ -10,7 +10,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from typing import List, Dict, Optional, Union
+from typing import List, Dict, Optional
 
 from ethtx.models.base_model import BaseModel
 
@@ -81,22 +81,3 @@ class AddressSemantics(BaseModel):
 
     class Config:
         allow_mutation = True
-
-    # def json_str(self, entire: Optional[bool] = True) -> str:
-    #     """Return object as encoded json."""
-    #     if entire:
-    #         return jsonpickle.encode(self, unpicklable=False)
-    #
-    #     new_obj = deepcopy(self)
-    #     new_obj.contract = new_obj.contract.code_hash
-    #
-    #     return jsonpickle.encode(new_obj, unpicklable=False)
-    #
-    # def json(self, entire: Optional[bool] = True) -> Dict:
-    #     """Return object as decoded dict."""
-    #     if entire:
-    #         return jsonpickle.decode(self.json_str(entire))
-    #
-    #     new_obj = deepcopy(self)
-    #     new_obj.contract = new_obj.contract.code_hash
-    #     return jsonpickle.decode(self.json_str(entire))
