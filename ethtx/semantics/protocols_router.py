@@ -19,7 +19,8 @@ from ..semantics.router import Router
 log = logging.getLogger(__name__)
 
 
-@lru_cache(maxsize=128)
+# TODO: lur_cache doesnt work with unhasable types (pydatnic.BaseModel)
+# @lru_cache(maxsize=128)
 def amend_contract_semantics(semantics: ContractSemantics, router_=Router()):
     if semantics.code_hash in router_:
         try:

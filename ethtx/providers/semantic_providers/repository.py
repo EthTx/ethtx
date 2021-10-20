@@ -65,11 +65,11 @@ class SemanticsRepository:
                     components_semantics.append(decode_parameter(component))
 
             decoded_parameter = ParameterSemantics(
-                _parameter["parameter_name"],
-                _parameter["parameter_type"],
-                components_semantics,
-                _parameter["indexed"],
-                _parameter["dynamic"],
+                parameter_name=_parameter["parameter_name"],
+                parameter_type=_parameter["parameter_type"],
+                components=components_semantics,
+                indexed=_parameter["indexed"],
+                dynamic=_parameter["dynamic"],
             )
 
             return decoded_parameter
@@ -85,16 +85,16 @@ class SemanticsRepository:
 
             if raw_address_semantics.get("erc20"):
                 erc20_semantics = ERC20Semantics(
-                    raw_address_semantics["erc20"]["name"],
-                    raw_address_semantics["erc20"]["symbol"],
-                    raw_address_semantics["erc20"]["decimals"],
+                    name=raw_address_semantics["erc20"]["name"],
+                    symbol=raw_address_semantics["erc20"]["symbol"],
+                    decimals=raw_address_semantics["erc20"]["decimals"],
                 )
             else:
                 erc20_semantics = None
 
             if raw_address_semantics["contract"] == ZERO_HASH:
                 contract_semantics = ContractSemantics(
-                    raw_address_semantics["contract"], "EOA", {}, {}, {}
+                    code_hash=raw_address_semantics["contract"], name="EOA"
                 )
 
             else:
@@ -111,10 +111,10 @@ class SemanticsRepository:
                         parameters_semantics.append(decode_parameter(parameter))
 
                     events[signature] = EventSemantics(
-                        signature,
-                        event["anonymous"],
-                        event["name"],
-                        parameters_semantics,
+                        signature=signature,
+                        anonymous=event["anonymous"],
+                        name=event["name"],
+                        parameters=parameters_semantics,
                     )
 
                 functions = {}
@@ -128,7 +128,10 @@ class SemanticsRepository:
                         outputs_semantics.append(decode_parameter(parameter))
 
                     functions[signature] = FunctionSemantics(
-                        signature, function["name"], inputs_semantics, outputs_semantics
+                        signature=signature,
+                        name=function["name"],
+                        inputs=inputs_semantics,
+                        outputs=outputs_semantics,
                     )
 
                 transformations = {}
@@ -138,17 +141,17 @@ class SemanticsRepository:
                     transformations[signature] = {}
                     for parameter, transformation in parameters_transformations.items():
                         transformations[signature][parameter] = TransformationSemantics(
-                            transformation["transformed_name"],
-                            transformation["transformed_type"],
-                            transformation["transformation"],
+                            transformed_name=transformation["transformed_name"],
+                            transformed_type=transformation["transformed_type"],
+                            transformation=transformation["transformation"],
                         )
 
                 contract_semantics = ContractSemantics(
-                    raw_contract_semantics["code_hash"],
-                    raw_contract_semantics["name"],
-                    events,
-                    functions,
-                    transformations,
+                    code_hash=raw_contract_semantics["code_hash"],
+                    name=raw_contract_semantics["name"],
+                    events=events,
+                    functions=functions,
+                    transformations=transformations,
                 )
 
             name = raw_address_semantics.get("name", address)
@@ -157,13 +160,13 @@ class SemanticsRepository:
                 name = ns_name if ns_name else name
 
             address_semantics = AddressSemantics(
-                chain_id,
-                address,
-                name,
-                raw_address_semantics["is_contract"],
-                contract_semantics,
-                raw_address_semantics["standard"],
-                erc20_semantics,
+                chain_id=chain_id,
+                address=address,
+                name=name,
+                is_contract=raw_address_semantics["is_contract"],
+                contract=contract_semantics,
+                standard=raw_address_semantics["standard"],
+                erc20=erc20_semantics,
             )
 
             return address_semantics
@@ -207,16 +210,20 @@ class SemanticsRepository:
                         else:
                             erc20_semantics = None
                     contract_semantics = ContractSemantics(
-                        code_hash, raw_semantics["name"], events, functions, {}
+                        code_hash=code_hash,
+                        name=raw_semantics["name"],
+                        events=events,
+                        functions=functions,
+                        transformations={},
                     )
                     address_semantics = AddressSemantics(
-                        chain_id,
-                        address,
-                        raw_semantics["name"],
-                        True,
-                        contract_semantics,
-                        standard,
-                        erc20_semantics,
+                        chain_id=chain_id,
+                        address=address,
+                        name=raw_semantics["name"],
+                        is_contract=True,
+                        contract=contract_semantics,
+                        standard=standard,
+                        erc20=erc20_semantics,
                     )
 
                 else:
@@ -227,39 +234,37 @@ class SemanticsRepository:
                     if potential_erc20_semantics:
                         standard = "ERC20"
                         erc20_semantics = ERC20Semantics(
-                            potential_erc20_semantics["name"],
-                            potential_erc20_semantics["symbol"],
-                            potential_erc20_semantics["decimals"],
+                            name=potential_erc20_semantics["name"],
+                            symbol=potential_erc20_semantics["symbol"],
+                            decimals=potential_erc20_semantics["decimals"],
                         )
                     else:
                         standard = None
                         erc20_semantics = None
 
                     contract_semantics = ContractSemantics(
-                        code_hash, address, {}, {}, {}
+                        code_hash=code_hash, name=address
                     )
                     address_semantics = AddressSemantics(
-                        chain_id,
-                        address,
-                        address,
-                        True,
-                        contract_semantics,
-                        standard,
-                        erc20_semantics,
+                        chain_id=chain_id,
+                        address=address,
+                        name=address,
+                        is_contract=True,
+                        contract=contract_semantics,
+                        standard=standard,
+                        erc20=erc20_semantics,
                     )
 
             else:
                 # externally owned address
-                contract_semantics = ContractSemantics(ZERO_HASH, "EOA", {}, {}, {})
+                contract_semantics = ContractSemantics(code_hash=ZERO_HASH, name="EOA")
                 ns_name = self._web3provider.ens.name(address)
                 address_semantics = AddressSemantics(
-                    chain_id,
-                    address,
-                    ns_name if ns_name else address,
-                    False,
-                    contract_semantics,
-                    None,
-                    None,
+                    chain_id=chain_id,
+                    address=address,
+                    name=ns_name if ns_name else address,
+                    is_contract=False,
+                    contract=contract_semantics,
                 )
 
             self.update_semantics(address_semantics)
@@ -289,10 +294,12 @@ class SemanticsRepository:
                 provider = self._web3provider
                 token_data = provider.get_erc20_token(address, name, functions)
                 standard_semantics = ERC20Semantics(
-                    token_data["name"], token_data["symbol"], token_data["decimals"]
+                    name=token_data["name"],
+                    symbol=token_data["symbol"],
+                    decimals=token_data["decimals"],
                 )
             except Exception:
-                standard_semantics = ERC20Semantics(name, name, 18)
+                standard_semantics = ERC20Semantics(name=name, symbol=name, decimals=18)
         elif all(erc721_event in events for erc721_event in ERC721_EVENTS) and all(
             erc721_function in functions for erc721_function in ERC721_FUNCTIONS
         ):
@@ -377,7 +384,12 @@ class SemanticsRepository:
         )
         if constructor_semantics:
             constructor_semantics.outputs.append(
-                ParameterSemantics("__create_output__", "ignore", [], False, True)
+                ParameterSemantics(
+                    parameter_name="__create_output__",
+                    parameter_type="ignore",
+                    indexed=False,
+                    dynamic=True,
+                )
             )
 
         return constructor_semantics
@@ -465,13 +477,17 @@ class SemanticsRepository:
         if not semantics:
             return
 
-        address_semantics = semantics.json(entire=False)
-        contract_semantics = semantics.contract.json()
-
         contract_id = self.database.insert_contract(
-            contract=contract_semantics, update_if_exist=True
+            contract=semantics.contract.dict(), update_if_exist=True
         )
-        self.database.insert_address(address=address_semantics, update_if_exist=True)
+
+        updated_address_semantics = semantics.copy()
+        updated_address_semantics.contract = (
+            updated_address_semantics.contract.code_hash
+        )
+        self.database.insert_address(
+            address=updated_address_semantics.dict(), update_if_exist=True
+        )
 
         if contract_id:
             self.insert_contract_signatures(semantics.contract)

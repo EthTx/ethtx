@@ -36,10 +36,11 @@ def decode_function_abi_with_external_source(
             function.json(),
         )
         function_semantics = FunctionSemantics(
-            signature,
-            function.name,
-            _prepare_parameter_semantics(function.args, function.tuple, unknown=False),
-            [],
+            signature=signature,
+            name=function.name,
+            inputs=_prepare_parameter_semantics(
+                function.args, function.tuple, unknown=False
+            ),
         )
         yield function_semantics
         return
@@ -51,12 +52,11 @@ def decode_function_abi_with_external_source(
                 yield
 
             function_semantics = FunctionSemantics(
-                signature,
-                func.get("name"),
-                _prepare_parameter_semantics(
+                signature=signature,
+                name=func.get("name"),
+                inputs=_prepare_parameter_semantics(
                     func.get("args"), isinstance(func.get("args"), tuple), unknown=True
                 ),
-                [],
             )
             yield function_semantics
     finally:
@@ -95,22 +95,20 @@ def _prepare_parameter_semantics(
     if not is_tuple:
         return [
             ParameterSemantics(
-                arg["name"] if not unknown else f"arg_{i}",
-                arg["type"] if not unknown else arg,
-                [],
+                parameter_name=arg.name if not unknown else f"arg_{i}",
+                parameter_type=arg.type if not unknown else arg,
             )
             for i, arg in enumerate(args)
         ]
 
     return [
         ParameterSemantics(
-            "params",
-            "tuple",
-            [
+            parameter_name="params",
+            parameter_type="tuple",
+            components=[
                 ParameterSemantics(
-                    arg["name"] if not unknown else f"arg_{i}",
-                    arg["type"] if not unknown else arg,
-                    [],
+                    parameter_name=arg.name if not unknown else f"arg_{i}",
+                    parameter_type=arg.type if not unknown else arg,
                 )
                 for i, arg in enumerate(args)
             ],
