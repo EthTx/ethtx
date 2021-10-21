@@ -13,9 +13,7 @@ hexbytes = "*"
 ethereum = "*"
 pre-commit = "*"
 mongoengine = "*"
-jsonpickle = "*"
 pydantic = "*"
-blockhash = "*"
 
 [dev-packages]
 black = "==19.3b0"
