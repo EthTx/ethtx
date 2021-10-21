@@ -70,7 +70,8 @@ class ABIBalancesDecoder(ABISubmoduleAbc):
                 holder_name = balance_holders[holder_address]
                 balances.append(
                     DecodedBalance(
-                        holder=AddressInfo(holder_address, holder_name), tokens=tokens
+                        holder=AddressInfo(address=holder_address, name=holder_name),
+                        tokens=tokens,
                     )
                 )
 

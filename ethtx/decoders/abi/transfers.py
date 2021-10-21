@@ -77,8 +77,10 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                     value = event.parameters[2].value / 10 ** token_decimals
                     transfers.append(
                         DecodedTransfer(
-                            from_address=AddressInfo(from_address, from_name),
-                            to_address=AddressInfo(to_address, to_name),
+                            from_address=AddressInfo(
+                                address=from_address, name=from_name
+                            ),
+                            to_address=AddressInfo(address=to_address, name=to_name),
                             token_standard=standard,
                             token_address=event.contract.address,
                             token_symbol=token_symbol,
@@ -96,8 +98,10 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                     token_address = f"{event.contract.address}?a={event.parameters[2].value}#inventory"
                     transfers.append(
                         DecodedTransfer(
-                            from_address=AddressInfo(from_address, from_name),
-                            to_address=AddressInfo(to_address, to_name),
+                            from_address=AddressInfo(
+                                address=from_address, name=from_name
+                            ),
+                            to_address=AddressInfo(address=to_address, name=to_name),
                             token_standard=standard,
                             token_address=token_address,
                             token_symbol=token_symbol,

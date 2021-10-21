@@ -15,32 +15,19 @@ from __future__ import annotations
 from datetime import datetime
 from typing import List, Any, Optional
 
+from ethtx.models.base_model import BaseModel
 from ethtx.models.objects_model import BlockMetadata
 from ethtx.models.semantics_model import AddressSemantics, ERC20Semantics
 from ethtx.utils.pickable import JsonObject
 
 
-class AddressInfo(JsonObject):
+class AddressInfo(BaseModel):
     address: str
     name: str
     badge: Optional[str]
 
-    def __init__(self, address: str, name: str, badge: Optional[str] = ""):
-        self.address = address
-        self.name = name
-        self.badge = badge
 
-    def __eq__(self, other):
-        if isinstance(other, AddressInfo):
-            return (
-                self.address == other.address
-                and self.name == other.name
-                and self.badge == other.badge
-            )
-        return False
-
-
-class DecodedTransactionMetadata(JsonObject):
+class DecodedTransactionMetadata(BaseModel):
     chain_id: str
     tx_hash: str
     block_number: int
@@ -55,38 +42,6 @@ class DecodedTransactionMetadata(JsonObject):
     gas_limit: int
     gas_used: int
     success: bool
-
-    def __init__(
-        self,
-        chain_id: str,
-        tx_hash: str,
-        block_number: int,
-        block_hash: str,
-        timestamp: datetime,
-        gas_price: int,
-        sender: AddressInfo,
-        receiver: AddressInfo,
-        tx_index: int,
-        tx_value: int,
-        eth_price: float,
-        gas_limit: int,
-        gas_used: int,
-        success: bool,
-    ):
-        self.chain_id = chain_id
-        self.tx_hash = tx_hash
-        self.block_number = block_number
-        self.block_hash = block_hash
-        self.timestamp = timestamp
-        self.gas_price = gas_price
-        self.sender = sender
-        self.receiver = receiver
-        self.tx_index = tx_index
-        self.tx_value = tx_value
-        self.eth_price = eth_price
-        self.gas_limit = gas_limit
-        self.gas_used = gas_used
-        self.success = success
 
 
 class Argument(JsonObject):
@@ -136,7 +91,7 @@ class DecodedEvent(JsonObject):
         self.chain_id = chain_id
         self.tx_hash = tx_hash
         self.timestamp = timestamp
-        self.contract = AddressInfo(contract_address, contract_name)
+        self.contract = AddressInfo(address=contract_address, name=contract_name)
         self.contract_name = contract_name
         self.index = index
         self.call_id = call_id
@@ -206,8 +161,8 @@ class DecodedCall(JsonObject):
         self.timestamp = timestamp
         self.call_id = call_id
         self.call_type = call_type
-        self.from_address = AddressInfo(from_address, from_name)
-        self.to_address = AddressInfo(to_address, to_name)
+        self.from_address = AddressInfo(address=from_address, name=from_name)
+        self.to_address = AddressInfo(address=to_address, name=to_name)
         self.to_name = to_name
         self.value = value
         self.function_signature = function_signature
