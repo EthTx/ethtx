@@ -57,7 +57,7 @@ def decode_event_parameters(data, topics, abi, anonymous):
                         raw_parameter, parameter_type
                     )
                 topic_parameters[i] = Argument(
-                    parameter_name, parameter_type, parameter_value
+                    name=parameter_name, type=parameter_type, value=parameter_value
                 )
             else:
                 log.warning("Topics length mismatch.")
@@ -85,7 +85,7 @@ def decode_event_parameters(data, topics, abi, anonymous):
             )
 
             topic_parameters[i] = Argument(
-                parameter_name, parameter_type, parameter_value
+                name=parameter_name, type=parameter_type, value=parameter_value
             )
 
         no_parameters = len(data) // 64
@@ -95,7 +95,7 @@ def decode_event_parameters(data, topics, abi, anonymous):
             parameter_value = data[64 * i : 64 * (i + 1)]
 
             data_parameters[i] = Argument(
-                parameter_name, parameter_type, parameter_value
+                name=parameter_name, type=parameter_type, value=parameter_value
             )
 
     # store parameters in original ABI order

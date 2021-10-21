@@ -44,24 +44,10 @@ class DecodedTransactionMetadata(BaseModel):
     success: bool
 
 
-class Argument(JsonObject):
+class Argument(BaseModel):
     name: str
     type: str
     value: Any
-
-    def __init__(self, name: str, type: str, value: Any):
-        self.name = name
-        self.type = type
-        self.value = value
-
-    def __eq__(self, other):
-        if isinstance(other, Argument):
-            return (
-                self.name == other.name
-                and self.type == other.type
-                and self.value == other.value
-            )
-        return False
 
 
 class DecodedEvent(JsonObject):
