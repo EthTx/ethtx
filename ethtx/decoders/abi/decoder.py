@@ -148,7 +148,7 @@ class ABIDecoder(IABIDecoder):
 
         full_decoded_transaction = DecodedTransaction(
             block_metadata=block,
-            tx_metadata=transaction.metadata,
+            metadata=transaction.metadata,
             events=[],
             calls=None,
             transfers=[],

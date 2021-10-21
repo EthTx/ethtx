@@ -28,17 +28,17 @@ class AddressInfo(BaseModel):
 
 
 class DecodedTransactionMetadata(BaseModel):
-    chain_id: str
+    chain_id: Optional[str]
     tx_hash: str
     block_number: int
-    block_hash: str
-    timestamp: datetime
+    block_hash: Optional[str]
+    timestamp: Optional[datetime]
     gas_price: int
-    sender: AddressInfo
-    receiver: AddressInfo
+    sender: Optional[AddressInfo]
+    receiver: Optional[AddressInfo]
     tx_index: int
     tx_value: int
-    eth_price: float
+    eth_price: Optional[float]
     gas_limit: int
     gas_used: int
     success: bool
@@ -185,7 +185,7 @@ class DecodedCall(JsonObject):
         return False
 
 
-class DecodedTransfer(JsonObject):
+class DecodedTransfer(BaseModel):
     from_address: AddressInfo
     to_address: AddressInfo
     token_address: Optional[str]
@@ -193,76 +193,25 @@ class DecodedTransfer(JsonObject):
     token_standard: Optional[str]
     value: float
 
-    def __init__(
-        self,
-        from_address: AddressInfo,
-        to_address: AddressInfo,
-        token_standard: Optional[str],
-        token_address: Optional[str],
-        token_symbol: str,
-        value: float,
-    ):
-        self.from_address = from_address
-        self.to_address = to_address
-        self.token_address = token_address
-        self.token_symbol = token_symbol
-        self.token_standard = token_standard
-        self.value = value
 
-
-class DecodedBalance(JsonObject):
+class DecodedBalance(BaseModel):
     holder: AddressInfo
     tokens: List[dict]
 
-    def __init__(self, holder: AddressInfo, tokens: List[dict]):
-        self.holder = holder
-        self.tokens = tokens
 
-
-class DecodedTransaction(JsonObject):
+class DecodedTransaction(BaseModel):
     block_metadata: BlockMetadata
     metadata: DecodedTransactionMetadata
     events: List[DecodedEvent]
     calls: Optional[DecodedCall]
     transfers: List[DecodedTransfer]
     balances: List[DecodedBalance]
-    status: bool
-
-    def __init__(
-        self,
-        block_metadata: BlockMetadata,
-        tx_metadata: DecodedTransactionMetadata,
-        events: List[DecodedEvent],
-        calls: Optional[DecodedCall],
-        transfers: List[DecodedTransfer],
-        balances: List[DecodedBalance],
-    ):
-        self.block_metadata = block_metadata
-        self.metadata = tx_metadata
-        self.events = events
-        self.calls = calls
-        self.transfers = transfers
-        self.balances = balances
-        self.status = False
+    status: bool = False
 
 
-class Proxy:
+class Proxy(BaseModel):
     address: str
     name: str
     type: str
     semantics: Optional[List[AddressSemantics]]
     token: Optional[ERC20Semantics]
-
-    def __init__(
-        self,
-        address: str,
-        name: str,
-        type: str,
-        semantics: Optional[List[AddressSemantics]] = None,
-        token: Optional[ERC20Semantics] = None,
-    ):
-        self.address = address
-        self.name = name
-        self.type = type
-        self.semantics = semantics
-        self.token = token
