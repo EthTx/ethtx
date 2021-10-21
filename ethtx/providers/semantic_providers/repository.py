@@ -562,4 +562,4 @@ class SemanticsRepository:
                 break
 
         else:
-            self.database.insert_signature(signature=signature.json())
+            self.database.insert_signature(signature=signature.dict())
