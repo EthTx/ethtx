@@ -10,7 +10,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import logging
-from typing import Iterator, Optional, List
+from typing import Iterator, Optional, List, Tuple
 
 from ethtx.models.semantics_model import (
     FunctionSemantics,
@@ -28,21 +28,23 @@ def decode_function_abi_with_external_source(
     signature: str,
     repository: SemanticsRepository,
     _provider: Optional[SignatureProvider] = FourByteProvider,
-) -> Iterator[FunctionSemantics]:
-    function = repository.get_most_used_signature(signature_hash=signature)
-    if function:
+) -> Iterator[Tuple[bool, FunctionSemantics]]:
+
+    signature_obj = repository.get_most_used_signature(signature_hash=signature)
+    if signature_obj:
         log.debug(
             "Successfully guessed function from SemanticsRepository - %s.",
-            function.json(),
+            signature_obj.json(),
         )
         function_semantics = FunctionSemantics(
             signature=signature,
-            name=function.name,
+            name=signature_obj.name,
             inputs=_prepare_parameter_semantics(
-                function.args, function.tuple, unknown=False
+                signature_obj.args, signature_obj.tuple, unknown=False
             ),
         )
-        yield function_semantics
+
+        yield signature_obj.guessed, function_semantics
         return
 
     functions = _provider.get_function(signature=signature)
@@ -58,7 +60,8 @@ def decode_function_abi_with_external_source(
                     func.get("args"), isinstance(func.get("args"), tuple), unknown=True
                 ),
             )
-            yield function_semantics
+            yield True, function_semantics
+
     finally:
         if "function_semantics" in locals():
             repository.update_or_insert_signature(
@@ -76,17 +79,17 @@ def decode_function_abi_with_external_source(
 
 def decode_event_abi_name_with_external_source(
     signature: str, _provider: Optional[SignatureProvider] = FourByteProvider
-) -> str:
+) -> Tuple[bool, str]:
     events = _provider.get_event(signature=signature)
 
     for event in events:
 
         if not event:
-            return signature
+            return False, signature
 
-        return event.get("name", signature)
+        return True, event.get("name", signature)
 
-    return signature
+    return False, signature
 
 
 def _prepare_parameter_semantics(

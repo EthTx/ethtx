@@ -54,6 +54,7 @@ class Signature(BaseModel):
     args: List[SignatureArg]
     count: int = 1
     tuple: bool = False
+    guessed: bool = False
 
 
 class ERC20Semantics(BaseModel):

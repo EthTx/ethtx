@@ -80,6 +80,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
     ) -> DecodedCall:
         """Decode single call."""
 
+        guessed = False
         chain_id = chain_id or self._default_chain
 
         if call.call_data:
@@ -143,13 +144,14 @@ class ABICallsDecoder(ABISubmoduleAbc):
                 functions_abi_provider = decode_function_abi_with_external_source(
                     signature=function_signature, repository=self._repository
                 )
-                for function_abi_provider in functions_abi_provider:
+                for is_guessed, function_abi_provider in functions_abi_provider:
                     try:
                         function_abi = function_abi_provider
                         function_name = function_abi.name
                         function_input, function_output = decode_function_parameters(
                             call.call_data, call.return_value, function_abi, call.status
                         )
+                        guessed = is_guessed
                     except Exception as e:
                         log.info(
                             "Skipping getting function from external source and trying to get next. Error: %s",
@@ -199,6 +201,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
             error=call.error,
             status=status,
             indent=indent,
+            guessed=guessed,
         )
 
     def _decode_nested_calls(

@@ -59,6 +59,7 @@ class DecodedEvent(BaseModel):
     event_signature: str
     event_name: str
     parameters: List[Argument]
+    guessed: bool = False
 
 
 class DecodedCall(BaseModel):
@@ -79,6 +80,7 @@ class DecodedCall(BaseModel):
     status: bool
     indent: int
     subcalls: List[DecodedCall] = []
+    guessed: bool = False
 
 
 class DecodedTransfer(BaseModel):

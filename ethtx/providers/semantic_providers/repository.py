@@ -534,6 +534,7 @@ class SemanticsRepository:
                 args=most_common_signature["args"],
                 count=most_common_signature["count"],
                 tuple=most_common_signature["tuple"],
+                guessed=most_common_signature["guessed"],
             )
 
             return signature
@@ -558,6 +559,7 @@ class SemanticsRepository:
                         argument["type"] = signature.args[index].type
 
                 sig["count"] += 1
+                sig["guessed"] = False
                 self.database.insert_signature(signature=sig, update_if_exist=True)
                 break
 

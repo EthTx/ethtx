@@ -59,7 +59,7 @@ class ABIEventsDecoder(ABISubmoduleAbc):
         else:
             event_signature = None
 
-        anonymous = False
+        anonymous, guessed = False, False
         chain_id = chain_id or self._default_chain
 
         event_abi = self._repository.get_event_abi(
@@ -127,9 +127,10 @@ class ABIEventsDecoder(ABISubmoduleAbc):
         )
 
         if event_name.startswith("0x") and len(event_name) > 2:
-            event_name = decode_event_abi_name_with_external_source(
+            is_guessed, event_name = decode_event_abi_name_with_external_source(
                 signature=event_signature
             )
+            guessed = is_guessed
 
         return DecodedEvent(
             chain_id=chain_id,
@@ -141,4 +142,5 @@ class ABIEventsDecoder(ABISubmoduleAbc):
             event_signature=event_signature,
             event_name=event_name,
             parameters=parameters,
+            guessed=guessed,
         )
