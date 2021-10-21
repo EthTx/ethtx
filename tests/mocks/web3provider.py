@@ -97,7 +97,7 @@ class MockWeb3Provider:
             "transactionHash": "test",  # HexBytes
             "transactionIndex": 123,  # int
         }
-        return W3Receipt(tx_hash, chain_id, **values)
+        return W3Receipt(tx_hash=tx_hash, chain_id=chain_id, **values)
 
     def get_block(self, block_number: int, chain_id: str = None) -> W3Block:
         return W3Block(chain_id=chain_id, **self.blocks[block_number])

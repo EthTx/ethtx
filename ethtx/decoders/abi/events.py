@@ -12,7 +12,7 @@
 
 from typing import List, Dict, Union, Optional
 
-from ethtx.models.decoded_model import DecodedEvent, Proxy
+from ethtx.models.decoded_model import DecodedEvent, Proxy, AddressInfo
 from ethtx.models.objects_model import BlockMetadata, TransactionMetadata, Event
 from ethtx.semantics.standards.erc20 import ERC20_EVENTS
 from ethtx.semantics.standards.erc721 import ERC721_EVENTS
@@ -135,8 +135,7 @@ class ABIEventsDecoder(ABISubmoduleAbc):
             chain_id=chain_id,
             tx_hash=transaction.tx_hash,
             timestamp=block.timestamp,
-            contract_address=event.contract,
-            contract_name=contract_name,
+            contract=AddressInfo(address=event.contract, name=contract_name),
             index=event.log_index,
             call_id=event.call_id,
             event_signature=event_signature,

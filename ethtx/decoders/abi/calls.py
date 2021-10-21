@@ -12,7 +12,7 @@
 import logging
 from typing import Optional, Dict
 
-from ethtx.models.decoded_model import DecodedCall, Proxy
+from ethtx.models.decoded_model import DecodedCall, Proxy, AddressInfo
 from ethtx.models.objects_model import Call, TransactionMetadata, BlockMetadata
 from ethtx.semantics.solidity.precompiles import precompiles
 from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS
@@ -188,10 +188,8 @@ class ABICallsDecoder(ABISubmoduleAbc):
             timestamp=block.timestamp,
             call_id=call_id,
             call_type=call.call_type,
-            from_address=call.from_address,
-            from_name=from_name,
-            to_address=call.to_address,
-            to_name=to_name,
+            from_address=AddressInfo(address=call.from_address, name=from_name),
+            to_address=AddressInfo(address=call.to_address, name=to_name),
             value=call.call_value / 10 ** 18,
             function_signature=function_signature,
             function_name=function_name,
