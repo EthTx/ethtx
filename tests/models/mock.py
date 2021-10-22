@@ -4,6 +4,7 @@ import pytest
 
 from ethtx.models.decoded_model import AddressInfo, Argument
 from ethtx.models.objects_model import BlockMetadata, TransactionMetadata, Call, Event
+from ethtx.models.semantics_model import ParameterSemantics, ContractSemantics
 
 FAKE_TIME = datetime.datetime(2020, 12, 25, 17, 5, 55)
 
@@ -59,3 +60,13 @@ class ObjectModelMock:
     )
 
     EVENT: Event = Event(contract="0x", topics=["", ""], log_index=1)
+
+
+class SemanticModelMock:
+    PARAMETER_SEMANTICS: ParameterSemantics = ParameterSemantics(
+        parameter_name="name", parameter_type="type"
+    )
+
+    CONTRACT_SEMANTICS: ContractSemantics = ContractSemantics(
+        code_hash="0x", name="name"
+    )
