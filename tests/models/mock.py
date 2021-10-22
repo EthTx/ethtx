@@ -3,7 +3,7 @@ import datetime
 import pytest
 
 from ethtx.models.decoded_model import AddressInfo, Argument
-from ethtx.models.objects_model import BlockMetadata, TransactionMetadata
+from ethtx.models.objects_model import BlockMetadata, TransactionMetadata, Call, Event
 
 FAKE_TIME = datetime.datetime(2020, 12, 25, 17, 5, 55)
 
@@ -47,3 +47,15 @@ class ObjectModelMock:
         gas_used=1,
         success=False,
     )
+
+    CALL: Call = Call(
+        call_type="call",
+        from_address="0xa",
+        to_address="0xb",
+        call_value=10,
+        call_data="0x00000000000000000",
+        return_value="0xeeee",
+        status=True,
+    )
+
+    EVENT: Event = Event(contract="0x", topics=["", ""], log_index=1)
