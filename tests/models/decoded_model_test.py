@@ -6,7 +6,8 @@ from ethtx.models.decoded_model import (
     DecodedCall,
     DecodedTransfer,
     DecodedBalance,
-    Proxy, DecodedTransaction,
+    Proxy,
+    DecodedTransaction,
 )
 from tests.models.mock import DecodedModelMock, FAKE_TIME, ObjectModelMock
 
@@ -77,8 +78,8 @@ class TestDecodedModels:
         assert de.index == 1
         assert de.call_id is None
         assert (
-                de.event_signature
-                == "0x0bc2390103cdcea68787f9f22f8be92ccf20f5eae0bb850fbb70af78e366e4dd"
+            de.event_signature
+            == "0x0bc2390103cdcea68787f9f22f8be92ccf20f5eae0bb850fbb70af78e366e4dd"
         )
         assert de.event_name == "WalletAddressesSet"
         assert de.parameters == [DecodedModelMock.ARGUMENT, DecodedModelMock.ARGUMENT]
@@ -178,22 +179,22 @@ class TestDecodedModels:
 
         db = DecodedBalance(holder=DecodedModelMock.ADDRESS_INFO, tokens=[{}])
 
-        dt = DecodedTransaction(
-            block_mmetadata=ObjectModelMock.BLOCK_METADATA,
+        t = DecodedTransaction(
+            block_metadata=ObjectModelMock.BLOCK_METADATA,
             metadata=ObjectModelMock.TRANSACTION_METADATA,
-            events = [de],
-            calls = [dc],
-            transfers = [dt],
-            balances = [db]
+            events=[de],
+            calls=dc,
+            transfers=[dt],
+            balances=[db],
         )
 
-        assert dt.block_metadata == ObjectModelMock.BLOCK_METADATA
-        assert dt.metadata == ObjectModelMock.TRANSACTION_METADATA
-        assert dt.events == [de]
-        assert dt.calls == [dc]
-        assert dt.transfers == [dt]
-        assert dt.balances == [db]
-        assert  dt.status
+        assert t.block_metadata == ObjectModelMock.BLOCK_METADATA
+        assert t.metadata == ObjectModelMock.TRANSACTION_METADATA
+        assert t.events == [de]
+        assert t.calls == dc
+        assert t.transfers == [dt]
+        assert t.balances == [db]
+        assert not t.status
 
     def test_proxy(self):
         p = Proxy(address="address", name="name", type="type")

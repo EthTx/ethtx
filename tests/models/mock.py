@@ -45,5 +45,5 @@ class ObjectModelMock:
         tx_value=4,
         gas_limit=5,
         gas_used=1,
-        success=False
+        success=False,
     )
