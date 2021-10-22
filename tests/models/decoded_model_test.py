@@ -1,7 +1,3 @@
-import datetime
-
-import pytest
-
 from ethtx.models.decoded_model import (
     AddressInfo,
     DecodedTransactionMetadata,
@@ -10,21 +6,9 @@ from ethtx.models.decoded_model import (
     DecodedCall,
     DecodedTransfer,
     DecodedBalance,
-    Proxy,
+    Proxy, DecodedTransaction,
 )
-from tests.models.mock import DecodedModelMock
-
-FAKE_TIME = datetime.datetime(2020, 12, 25, 17, 5, 55)
-
-
-@pytest.fixture
-def patch_datetime_now(monkeypatch):
-    class MyDatetime:
-        @classmethod
-        def now(cls):
-            return FAKE_TIME
-
-    monkeypatch.setattr(datetime, "datetime", MyDatetime)
+from tests.models.mock import DecodedModelMock, FAKE_TIME, ObjectModelMock
 
 
 class TestDecodedModels:
@@ -93,8 +77,8 @@ class TestDecodedModels:
         assert de.index == 1
         assert de.call_id is None
         assert (
-            de.event_signature
-            == "0x0bc2390103cdcea68787f9f22f8be92ccf20f5eae0bb850fbb70af78e366e4dd"
+                de.event_signature
+                == "0x0bc2390103cdcea68787f9f22f8be92ccf20f5eae0bb850fbb70af78e366e4dd"
         )
         assert de.event_name == "WalletAddressesSet"
         assert de.parameters == [DecodedModelMock.ARGUMENT, DecodedModelMock.ARGUMENT]
@@ -157,6 +141,59 @@ class TestDecodedModels:
 
         assert db.holder == DecodedModelMock.ADDRESS_INFO
         assert db.tokens == [{}]
+
+    def test_decoded_transaction(self):
+        de = DecodedEvent(
+            chain_id="mainnet",
+            tx_hash="0x12345",
+            timestamp=FAKE_TIME,
+            contract=DecodedModelMock.ADDRESS_INFO,
+            index=1,
+            event_signature="0x0bc2390103cdcea68787f9f22f8be92ccf20f5eae0bb850fbb70af78e366e4dd",
+            event_name="WalletAddressesSet",
+            parameters=[DecodedModelMock.ARGUMENT, DecodedModelMock.ARGUMENT],
+        )
+        dc = DecodedCall(
+            chain_id="mainnet",
+            tx_hash="0x12345",
+            timestamp=FAKE_TIME,
+            call_type="call",
+            from_address=DecodedModelMock.ADDRESS_INFO,
+            to_address=DecodedModelMock.ADDRESS_INFO,
+            value=15,
+            function_signature="0x521f8bed",
+            function_name="getAllOperator",
+            arguments=[DecodedModelMock.ARGUMENT],
+            outputs=[],
+            gas_used=15,
+            status=True,
+            indent=1,
+        )
+        dt = DecodedTransfer(
+            from_address=DecodedModelMock.ADDRESS_INFO,
+            to_address=DecodedModelMock.ADDRESS_INFO,
+            token_symbol="ts",
+            value=0.15,
+        )
+
+        db = DecodedBalance(holder=DecodedModelMock.ADDRESS_INFO, tokens=[{}])
+
+        dt = DecodedTransaction(
+            block_mmetadata=ObjectModelMock.BLOCK_METADATA,
+            metadata=ObjectModelMock.TRANSACTION_METADATA,
+            events = [de],
+            calls = [dc],
+            transfers = [dt],
+            balances = [db]
+        )
+
+        assert dt.block_metadata == ObjectModelMock.BLOCK_METADATA
+        assert dt.metadata == ObjectModelMock.TRANSACTION_METADATA
+        assert dt.events == [de]
+        assert dt.calls == [dc]
+        assert dt.transfers == [dt]
+        assert dt.balances == [db]
+        assert  dt.status
 
     def test_proxy(self):
         p = Proxy(address="address", name="name", type="type")
