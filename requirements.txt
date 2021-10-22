@@ -8,4 +8,6 @@ mongomock==3.23.0
 pydantic~=1.8.2
 
 pytest~=6.2.5
+pytest-cov==3.0.0
+pytest-mock==3.6.1
 setuptools~=57.4.0
