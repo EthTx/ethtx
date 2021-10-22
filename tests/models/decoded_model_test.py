@@ -12,6 +12,7 @@ from ethtx.models.decoded_model import (
     DecodedBalance,
     Proxy,
 )
+from tests.models.mock import DecodedModelMock
 
 FAKE_TIME = datetime.datetime(2020, 12, 25, 17, 5, 55)
 
@@ -27,11 +28,6 @@ def patch_datetime_now(monkeypatch):
 
 
 class TestDecodedModels:
-    @classmethod
-    def setup_class(cls):
-        cls.ai = AddressInfo(address="address", name="name")
-        cls.a = Argument(name="name", type="type", value=1)
-
     def test_address_info(self):
         ai = AddressInfo(address="address", name="name")
 
@@ -47,8 +43,8 @@ class TestDecodedModels:
             block_hash="0x12345",
             timestamp=FAKE_TIME,
             gas_price=1,
-            sender=self.ai,
-            receiver=self.ai,
+            sender=DecodedModelMock.ADDRESS_INFO,
+            receiver=DecodedModelMock.ADDRESS_INFO,
             tx_index=1,
             tx_value=2,
             gas_limit=3,
@@ -62,8 +58,8 @@ class TestDecodedModels:
         assert dtm.block_hash == "0x12345"
         assert dtm.timestamp == FAKE_TIME
         assert dtm.gas_price == 1
-        assert dtm.sender == self.ai
-        assert dtm.receiver == self.ai
+        assert dtm.sender == DecodedModelMock.ADDRESS_INFO
+        assert dtm.receiver == DecodedModelMock.ADDRESS_INFO
         assert dtm.tx_index == 1
         assert dtm.tx_value == 2
         assert dtm.gas_limit == 3
@@ -83,17 +79,17 @@ class TestDecodedModels:
             chain_id="mainnet",
             tx_hash="0x12345",
             timestamp=FAKE_TIME,
-            contract=self.ai,
+            contract=DecodedModelMock.ADDRESS_INFO,
             index=1,
             event_signature="0x0bc2390103cdcea68787f9f22f8be92ccf20f5eae0bb850fbb70af78e366e4dd",
             event_name="WalletAddressesSet",
-            parameters=[self.a, self.a],
+            parameters=[DecodedModelMock.ARGUMENT, DecodedModelMock.ARGUMENT],
         )
 
         assert de.chain_id == "mainnet"
         assert de.tx_hash == "0x12345"
         assert de.timestamp == FAKE_TIME
-        assert de.contract == self.ai
+        assert de.contract == DecodedModelMock.ADDRESS_INFO
         assert de.index == 1
         assert de.call_id is None
         assert (
@@ -101,7 +97,7 @@ class TestDecodedModels:
             == "0x0bc2390103cdcea68787f9f22f8be92ccf20f5eae0bb850fbb70af78e366e4dd"
         )
         assert de.event_name == "WalletAddressesSet"
-        assert de.parameters == [self.a, self.a]
+        assert de.parameters == [DecodedModelMock.ARGUMENT, DecodedModelMock.ARGUMENT]
         assert not de.guessed
 
     def test_decoded_call(self):
@@ -110,12 +106,12 @@ class TestDecodedModels:
             tx_hash="0x12345",
             timestamp=FAKE_TIME,
             call_type="call",
-            from_address=self.ai,
-            to_address=self.ai,
+            from_address=DecodedModelMock.ADDRESS_INFO,
+            to_address=DecodedModelMock.ADDRESS_INFO,
             value=15,
             function_signature="0x521f8bed",
             function_name="getAllOperator",
-            arguments=[self.a],
+            arguments=[DecodedModelMock.ARGUMENT],
             outputs=[],
             gas_used=15,
             status=True,
@@ -127,12 +123,12 @@ class TestDecodedModels:
         assert dc.timestamp == FAKE_TIME
         assert dc.call_id is None
         assert dc.call_type == "call"
-        assert dc.from_address == self.ai
-        assert dc.to_address == self.ai
+        assert dc.from_address == DecodedModelMock.ADDRESS_INFO
+        assert dc.to_address == DecodedModelMock.ADDRESS_INFO
         assert dc.value == 15
         assert dc.function_signature == "0x521f8bed"
         assert dc.function_name == "getAllOperator"
-        assert dc.arguments == [self.a]
+        assert dc.arguments == [DecodedModelMock.ARGUMENT]
         assert dc.outputs == []
         assert dc.gas_used == 15
         assert dc.error is None
@@ -143,20 +139,23 @@ class TestDecodedModels:
 
     def test_decoded_transfer(self):
         dt = DecodedTransfer(
-            from_address=self.ai, to_address=self.ai, token_symbol="ts", value=0.15
+            from_address=DecodedModelMock.ADDRESS_INFO,
+            to_address=DecodedModelMock.ADDRESS_INFO,
+            token_symbol="ts",
+            value=0.15,
         )
 
-        assert dt.from_address == self.ai
-        assert dt.to_address == self.ai
+        assert dt.from_address == DecodedModelMock.ADDRESS_INFO
+        assert dt.to_address == DecodedModelMock.ADDRESS_INFO
         assert dt.token_address is None
         assert dt.token_symbol == "ts"
         assert dt.token_standard is None
         assert dt.value == 0.15
 
     def test_decoded_balance(self):
-        db = DecodedBalance(holder=self.ai, tokens=[{}])
+        db = DecodedBalance(holder=DecodedModelMock.ADDRESS_INFO, tokens=[{}])
 
-        assert db.holder == self.ai
+        assert db.holder == DecodedModelMock.ADDRESS_INFO
         assert db.tokens == [{}]
 
     def test_proxy(self):
