@@ -70,7 +70,7 @@ class DecodedCall(BaseModel):
     call_type: str
     from_address: AddressInfo
     to_address: AddressInfo
-    value: int
+    value: float
     function_signature: str
     function_name: str
     arguments: List[Argument]
