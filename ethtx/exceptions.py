@@ -27,7 +27,7 @@ class NodeConnectionException(Exception):
     """Node Connection Exception."""
 
     def __init__(self):
-        super().__init__("Couldn't connect to node")
+        super().__init__("Couldn't connect to node(s)")
 
 
 class ProcessingException(Exception):
