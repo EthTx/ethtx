@@ -14,6 +14,8 @@ from __future__ import annotations
 from datetime import datetime
 from typing import List, Optional
 
+from pydantic import Field
+
 from ethtx.models.base_model import BaseModel
 
 
@@ -83,7 +85,7 @@ class Call(BaseModel):
     gas_used: Optional[int]
     status: bool
     error: Optional[str]
-    subcalls: Optional[List[Call]] = []
+    subcalls: List[Call] = Field(default_factory=list)
 
     # for future use
     call_id: Optional[str]

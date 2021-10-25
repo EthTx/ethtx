@@ -127,10 +127,9 @@ class ABIEventsDecoder(ABISubmoduleAbc):
         )
 
         if event_name.startswith("0x") and len(event_name) > 2:
-            is_guessed, event_name = decode_event_abi_name_with_external_source(
+            guessed, event_name = decode_event_abi_name_with_external_source(
                 signature=event_signature
             )
-            guessed = is_guessed
 
         return DecodedEvent(
             chain_id=chain_id,
