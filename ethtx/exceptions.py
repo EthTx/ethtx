@@ -12,7 +12,7 @@
 
 
 __all__ = [
-    "Web3ConnectionException",
+    "NodeConnectionException",
     "ProcessingException",
     "InvalidTransactionHash",
     "InvalidEtherscanReturnCodeException",
@@ -23,11 +23,11 @@ import json
 from typing import Dict
 
 
-class Web3ConnectionException(Exception):
-    """Web3 Connection Exception."""
+class NodeConnectionException(Exception):
+    """Node Connection Exception."""
 
     def __init__(self):
-        super().__init__("Couldn't connect to web3provider")
+        super().__init__("Couldn't connect to node(s)")
 
 
 class ProcessingException(Exception):
