@@ -73,6 +73,7 @@ def decode_function_abi_with_external_source(
                         for i, arg in enumerate(func.get("args"))
                     ],
                     tuple=isinstance(func.get("args"), tuple),
+                    guessed=True,
                 )
             )
 
