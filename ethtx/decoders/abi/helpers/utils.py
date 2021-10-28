@@ -96,7 +96,10 @@ def decode_event_abi_name_with_external_source(
 def _prepare_parameter_semantics(
     args, is_tuple: bool, unknown: bool
 ) -> List[ParameterSemantics]:
-    if not is_tuple:
+    if not args:
+        return []
+
+    elif not is_tuple:
         return [
             ParameterSemantics(
                 parameter_name=arg.name if not unknown else f"arg_{i}",

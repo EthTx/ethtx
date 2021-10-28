@@ -128,7 +128,7 @@ class FourByteProvider(SignatureProvider):
         if "(" in types:
             args = tuple(types[types.find("(") + 1 : types.rfind(")")].split(","))
         else:
-            args = types.split(",")
+            args = list(filter(None, types.split(",")))
 
         return {"name": name, "args": args}
 
