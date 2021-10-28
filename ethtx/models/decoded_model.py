@@ -75,7 +75,7 @@ class DecodedCall(BaseModel):
     function_name: str
     arguments: List[Argument]
     outputs: List[Argument]
-    gas_used: int
+    gas_used: Optional[int]
     error: Optional[str]
     status: bool
     indent: int
