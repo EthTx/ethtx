@@ -43,4 +43,4 @@ class NodeConnectionPool:
             nodes: List[str] = list(node_params.values())[0].split(",")
             poa: bool = list(node_params.values())[1]
             for url in nodes:
-                self.add_connection(NodeConnection(chain=chain, url=url, poa=poa))
+                self.add_connection(NodeConnection(chain=chain, url=url.strip(), poa=poa))
