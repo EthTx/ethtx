@@ -101,6 +101,7 @@ class EthTx:
             database_connection=database,
             etherscan_provider=etherscan_provider,
             web3provider=web3provider,
+            ens_provider=ens_provider,
         )
 
         abi_decoder = ABIDecoder(self.semantics, self._default_chain)
