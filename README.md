@@ -47,18 +47,16 @@ from ethtx.models.decoded_model import DecodedTransaction
 
 ethtx_config = EthTxConfig(
     mongo_connection_string="mongomock://localhost"  ##MongoDB connection string,
-mongo_database = ""  ##MongoDB database,
-etherscan_api_key = ""  ##Etherscan API key,
-web3nodes = {
+    mongo_database = ""  ##MongoDB database,
+    etherscan_api_key = ""  ##Etherscan API key,
+    web3nodes = {
                 "mainnet": {
                     "hook": "_Geth_archive_node_URL_", # multiple nodes supported, separate them with comma
                     "poa": _POA_chain_indicator_  # represented by bool value
                 }
             },
             default_chain = "mainnet",
-                            etherscan_urls = {
-                                                 "mainnet": "https://api.etherscan.io/api",
-                                             },
+            etherscan_urls = {"mainnet": "https://api.etherscan.io/api",},
 )
 
 ethtx = EthTx.initialize(ethtx_config)
