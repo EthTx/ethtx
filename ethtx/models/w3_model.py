@@ -75,7 +75,7 @@ class W3Transaction(BaseModel):
     nonce: int
     r: THexBytes
     s: THexBytes
-    to: str
+    to: Optional[str]
     transactionIndex: int
     v: int
     value: int
@@ -124,7 +124,7 @@ class W3Receipt(BaseModel):
     logsBloom: THexBytes
     root: Optional[str]
     status: int
-    to_address: str
+    to_address: Optional[str]
     transactionHash: THexBytes
     transactionIndex: int
     logs: list = []

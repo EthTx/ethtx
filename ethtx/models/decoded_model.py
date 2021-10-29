@@ -29,10 +29,10 @@ class AddressInfo(BaseModel):
 class DecodedTransactionMetadata(BaseModel):
     chain_id: Optional[str]
     tx_hash: str
-    block_number: int
+    block_number: Optional[int]
     block_hash: Optional[str]
     timestamp: Optional[datetime]
-    gas_price: int
+    gas_price: Optional[int]
     sender: Optional[AddressInfo]
     receiver: Optional[AddressInfo]
     tx_index: int
