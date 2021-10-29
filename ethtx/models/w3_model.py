@@ -15,7 +15,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Optional, List
 
-from ethtx.models._types import HexBytesType
+from ethtx.models._types import THexBytes
 from ethtx.models.base_model import BaseModel
 from ethtx.models.objects_model import BlockMetadata, TransactionMetadata, Event, Call
 
@@ -23,23 +23,23 @@ from ethtx.models.objects_model import BlockMetadata, TransactionMetadata, Event
 class W3Block(BaseModel):
     chain_id: str
     difficulty: int
-    extraData: HexBytesType
+    extraData: THexBytes
     gasLimit: int
     gasUsed: int
-    hash: HexBytesType
-    logsBloom: HexBytesType
+    hash: THexBytes
+    logsBloom: THexBytes
     miner: str
-    nonce: HexBytesType
+    nonce: THexBytes
     number: int
-    parentHash: HexBytesType
-    receiptsRoot: HexBytesType
-    sha3Uncles: HexBytesType
+    parentHash: THexBytes
+    receiptsRoot: THexBytes
+    sha3Uncles: THexBytes
     size: int
-    stateRoot: HexBytesType
+    stateRoot: THexBytes
     timestamp: int
     totalDifficulty: int
     transactions: list
-    transactionsRoot: HexBytesType
+    transactionsRoot: THexBytes
     uncles: list
 
     def to_object(self) -> BlockMetadata:
@@ -65,16 +65,16 @@ class W3Block(BaseModel):
 
 class W3Transaction(BaseModel):
     chain_id: str
-    blockHash: HexBytesType
+    blockHash: THexBytes
     blockNumber: int
     from_address: str
     gas: int
     gasPrice: int
-    hash: HexBytesType
+    hash: THexBytes
     input: str
     nonce: int
-    r: HexBytesType
-    s: HexBytesType
+    r: THexBytes
+    s: THexBytes
     to: str
     transactionIndex: int
     v: int
@@ -115,17 +115,17 @@ class W3Transaction(BaseModel):
 class W3Receipt(BaseModel):
     tx_hash: str
     chain_id: str
-    blockHash: HexBytesType
+    blockHash: THexBytes
     blockNumber: int
     contractAddress: Optional[str]
     cumulativeGasUsed: int
     from_address: str
     gasUsed: int
-    logsBloom: HexBytesType
+    logsBloom: THexBytes
     root: Optional[str]
     status: int
     to_address: str
-    transactionHash: HexBytesType
+    transactionHash: THexBytes
     transactionIndex: int
     logs: list = []
 
@@ -134,13 +134,13 @@ class W3Log(BaseModel):
     tx_hash: str
     chain_id: str
     address: str
-    blockHash: HexBytesType
+    blockHash: THexBytes
     blockNumber: int
     data: str
     logIndex: int
     removed: bool
-    topics: List[HexBytesType]
-    transactionHash: HexBytesType
+    topics: List[THexBytes]
+    transactionHash: THexBytes
     transactionIndex: int
 
     def to_object(self) -> Event:

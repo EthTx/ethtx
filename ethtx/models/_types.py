@@ -13,4 +13,4 @@ from typing import TypeVar
 
 from hexbytes import HexBytes
 
-HexBytesType = TypeVar("HexBytesType", bound=HexBytes.__class__.__base__)
+THexBytes = TypeVar("THexBytes", bound=HexBytes.__class__.__base__)
