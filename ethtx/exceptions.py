@@ -52,7 +52,7 @@ class InvalidEtherscanReturnCodeException(Exception):
 
 
 class FourByteConnectionException(Exception):
-    """ 4byte directory connection error. """
+    """4byte directory connection error."""
 
     def __init__(self, msg: str):
         super().__init__(f"Couldn't connect to 4byte.directory: {msg}")

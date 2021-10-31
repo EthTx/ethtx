@@ -94,7 +94,7 @@ def semantically_decode_parameter(
             context["__transaction__"].sender,
             context["__transaction__"].receiver,
         )
-        parameter.value = AddressInfo(address, name, badge)
+        parameter.value = AddressInfo(address=address, name=name, badge=badge)
     elif parameter.type == "bytes" and isinstance(parameter.value, str):
         if len(parameter.value) > 66:
             parameter.value = parameter.value[:60] + "..." + parameter.value[-6:]
@@ -130,7 +130,9 @@ def decode_call(transaction, repository, contract_address, data):
     contract_badge = get_badge(
         contract_address, transaction.sender, transaction.receiver
     )
-    contract = AddressInfo(contract_address, contract_name, contract_badge)
+    contract = AddressInfo(
+        address=contract_address, name=contract_name, badge=contract_badge
+    )
 
     if repository.check_is_contract(transaction.chain_id, contract_address):
 

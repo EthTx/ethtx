@@ -57,7 +57,7 @@ def decode_event_parameters(data, topics, abi, anonymous):
                         raw_parameter, parameter_type
                     )
                 topic_parameters[i] = Argument(
-                    parameter_name, parameter_type, parameter_value
+                    name=parameter_name, type=parameter_type, value=parameter_value
                 )
             else:
                 log.warning("Topics length mismatch.")
@@ -85,7 +85,7 @@ def decode_event_parameters(data, topics, abi, anonymous):
             )
 
             topic_parameters[i] = Argument(
-                parameter_name, parameter_type, parameter_value
+                name=parameter_name, type=parameter_type, value=parameter_value
             )
 
         no_parameters = len(data) // 64
@@ -95,7 +95,7 @@ def decode_event_parameters(data, topics, abi, anonymous):
             parameter_value = data[64 * i : 64 * (i + 1)]
 
             data_parameters[i] = Argument(
-                parameter_name, parameter_type, parameter_value
+                name=parameter_name, type=parameter_type, value=parameter_value
             )
 
     # store parameters in original ABI order
@@ -147,7 +147,13 @@ def decode_function_parameters(
         input_parameters = []
 
     if not status and output[:10] == "0x08c379a0":
-        error_abi = ParameterSemantics("Error", "string", [], False, True)
+        error_abi = ParameterSemantics(
+            parameter_name="Error",
+            parameter_type="string",
+            components=[],
+            indexed=False,
+            dynamic=True,
+        )
         error_parameters, _ = decode_struct(output[10:], [error_abi])
         output_parameters = [Argument(**error_parameters[0])]
     else:
@@ -406,7 +412,6 @@ def decode_graffiti_parameters(input_data):
             message = bytearray.fromhex(input_data[2:]).decode()
             input_parameters = [Argument(name="message", type="string", value=message)]
         except Exception:
-            # log.warning(e)
             pass
 
     return input_parameters

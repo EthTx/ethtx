@@ -12,7 +12,7 @@
 import logging
 from typing import Optional, Dict
 
-from ethtx.models.decoded_model import DecodedCall, Proxy
+from ethtx.models.decoded_model import DecodedCall, Proxy, AddressInfo
 from ethtx.models.objects_model import Call, TransactionMetadata, BlockMetadata
 from ethtx.semantics.solidity.precompiles import precompiles
 from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS
@@ -80,6 +80,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
     ) -> DecodedCall:
         """Decode single call."""
 
+        guessed = False
         chain_id = chain_id or self._default_chain
 
         if call.call_data:
@@ -143,13 +144,14 @@ class ABICallsDecoder(ABISubmoduleAbc):
                 functions_abi_provider = decode_function_abi_with_external_source(
                     signature=function_signature, repository=self._repository
                 )
-                for function_abi_provider in functions_abi_provider:
+                for is_guessed, function_abi_provider in functions_abi_provider:
                     try:
                         function_abi = function_abi_provider
                         function_name = function_abi.name
                         function_input, function_output = decode_function_parameters(
                             call.call_data, call.return_value, function_abi, call.status
                         )
+                        guessed = is_guessed
                     except Exception as e:
                         log.info(
                             "Skipping getting function from external source and trying to get next. Error: %s",
@@ -188,10 +190,8 @@ class ABICallsDecoder(ABISubmoduleAbc):
             timestamp=block.timestamp,
             call_id=call_id,
             call_type=call.call_type,
-            from_address=call.from_address,
-            from_name=from_name,
-            to_address=call.to_address,
-            to_name=to_name,
+            from_address=AddressInfo(address=call.from_address, name=from_name),
+            to_address=AddressInfo(address=call.to_address, name=to_name),
             value=call.call_value / 10 ** 18,
             function_signature=function_signature,
             function_name=function_name,
@@ -201,6 +201,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
             error=call.error,
             status=status,
             indent=indent,
+            guessed=guessed,
         )
 
     def _decode_nested_calls(

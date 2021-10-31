@@ -15,10 +15,12 @@ from functools import lru_cache
 
 from ..models.semantics_model import ContractSemantics
 from ..semantics.router import Router
+from ..utils.decorators import ignore_unhashable
 
 log = logging.getLogger(__name__)
 
 
+@ignore_unhashable
 @lru_cache(maxsize=128)
 def amend_contract_semantics(semantics: ContractSemantics, router_=Router()):
     if semantics.code_hash in router_:

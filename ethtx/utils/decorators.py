@@ -9,19 +9,21 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
-from typing import Dict
-
-import jsonpickle
+from functools import WRAPPER_ASSIGNMENTS, wraps
 
 
-class JsonObject:
-    """Model to json - base class."""
+def ignore_unhashable(func):
+    uncached = func.__wrapped__
+    attributes = WRAPPER_ASSIGNMENTS + ("cache_info", "cache_clear")
+    wraps(func, assigned=attributes)
 
-    def json_str(self) -> str:
-        """Return object as json string."""
-        return jsonpickle.encode(self, make_refs=False, unpicklable=False)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except TypeError as error:
+            if "unhashable type" in str(error):
+                return uncached(*args, **kwargs)
+            raise
 
-    def json(self) -> Dict:
-        """Return object as json."""
-        return jsonpickle.decode(self.json_str())
+    wrapper.__uncached__ = uncached
+    return wrapper

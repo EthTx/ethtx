@@ -18,13 +18,19 @@ from ethtx.models.semantics_model import (
 )
 
 erc20_transfer_event = EventSemantics(
-    "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-    False,
-    "Transfer",
-    [
-        ParameterSemantics("src", "address", [], True),
-        ParameterSemantics("dst", "address", [], True),
-        ParameterSemantics("value", "uint256", [], False),
+    signature="0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+    anonymous=False,
+    name="Transfer",
+    parameters=[
+        ParameterSemantics(
+            parameter_name="src", parameter_type="address", indexed=True
+        ),
+        ParameterSemantics(
+            parameter_name="dst", parameter_type="address", indexed=True
+        ),
+        ParameterSemantics(
+            parameter_name="value", parameter_type="uint256", indexed=False
+        ),
     ],
 )
 
@@ -35,13 +41,19 @@ erc20_transfer_event_transformation = {
 }
 
 erc20_approval_event = EventSemantics(
-    "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
-    False,
-    "Approval",
-    [
-        ParameterSemantics("src", "address", [], True),
-        ParameterSemantics("dst", "address", [], True),
-        ParameterSemantics("value", "uint256", [], False),
+    signature="0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+    anonymous=False,
+    name="Approval",
+    parameters=[
+        ParameterSemantics(
+            parameter_name="src", parameter_type="address", indexed=True
+        ),
+        ParameterSemantics(
+            parameter_name="dst", parameter_type="address", indexed=True
+        ),
+        ParameterSemantics(
+            parameter_name="value", parameter_type="uint256", indexed=False
+        ),
     ],
 )
 
@@ -52,13 +64,13 @@ erc20_approval_event_transformation = {
 }
 
 erc20_transfer_function = FunctionSemantics(
-    "0xa9059cbb",
-    "transfer",
-    [
-        ParameterSemantics("recipient", "address", []),
-        ParameterSemantics("amount", "uint256", []),
+    signature="0xa9059cbb",
+    name="transfer",
+    inputs=[
+        ParameterSemantics(parameter_name="recipient", parameter_type="address"),
+        ParameterSemantics(parameter_name="amount", parameter_type="uint256"),
     ],
-    [ParameterSemantics("", "bool", [])],
+    outputs=[ParameterSemantics(parameter_name="", parameter_type="bool")],
 )
 
 erc20_transfer_function_transformation = {
@@ -68,14 +80,14 @@ erc20_transfer_function_transformation = {
 }
 
 erc20_transferFrom_function = FunctionSemantics(
-    "0x23b872dd",
-    "transferFrom",
-    [
-        ParameterSemantics("sender", "address", []),
-        ParameterSemantics("recipient", "address", []),
-        ParameterSemantics("amount", "uint256", []),
+    signature="0x23b872dd",
+    name="transferFrom",
+    inputs=[
+        ParameterSemantics(parameter_name="sender", parameter_type="address"),
+        ParameterSemantics(parameter_name="recipient", parameter_type="address"),
+        ParameterSemantics(parameter_name="amount", parameter_type="uint256"),
     ],
-    [ParameterSemantics("", "bool", [])],
+    outputs=[ParameterSemantics(parameter_name="", parameter_type="bool")],
 )
 
 erc20_transferFrom_function_transformation = {
@@ -85,13 +97,13 @@ erc20_transferFrom_function_transformation = {
 }
 
 erc20_approve_function = FunctionSemantics(
-    "0x095ea7b3",
-    "approve",
-    [
-        ParameterSemantics("spender", "address", []),
-        ParameterSemantics("amount", "uint256", []),
+    signature="0x095ea7b3",
+    name="approve",
+    inputs=[
+        ParameterSemantics(parameter_name="spender", parameter_type="address"),
+        ParameterSemantics(parameter_name="amount", parameter_type="uint256"),
     ],
-    [ParameterSemantics("", "bool", [])],
+    outputs=[ParameterSemantics(parameter_name="", parameter_type="bool")],
 )
 
 erc20_approve_function_transformation = {
@@ -101,10 +113,10 @@ erc20_approve_function_transformation = {
 }
 
 erc20_balanceOf_function = FunctionSemantics(
-    "0x70a08231",
-    "balanceOf",
-    [ParameterSemantics("holder", "address", [])],
-    [ParameterSemantics("", "uint256", [])],
+    signature="0x70a08231",
+    name="balanceOf",
+    inputs=[ParameterSemantics(parameter_name="holder", parameter_type="address")],
+    outputs=[ParameterSemantics(parameter_name="", parameter_type="uint256")],
 )
 
 erc20_balanceOf_function_transformation = {
@@ -114,7 +126,10 @@ erc20_balanceOf_function_transformation = {
 }
 
 erc20_totalSupply_function = FunctionSemantics(
-    "0x18160ddd", "totalSupply", [], [ParameterSemantics("", "uint256", [])]
+    signature="0x18160ddd",
+    name="totalSupply",
+    inputs=[],
+    outputs=[ParameterSemantics(parameter_name="", parameter_type="uint256")],
 )
 
 erc20_totalSupply_function_transformation = {

@@ -15,9 +15,19 @@ class TestMongoSemanticsDatabase:
         contract_data = {"code_hash": code_hash, "chain_id": "mainnet"}
 
         try:
-            assert 0 == mongo_db.get_collection(MongoCollections.CONTRACTS).count()
+            assert (
+                0
+                == mongo_db.get_collection(
+                    MongoCollections.CONTRACTS
+                ).estimated_document_count()
+            )
             mongo_semantics_database.insert_contract(contract_data)
-            assert 1 == mongo_db.get_collection(MongoCollections.CONTRACTS).count()
+            assert (
+                1
+                == mongo_db.get_collection(
+                    MongoCollections.CONTRACTS
+                ).estimated_document_count()
+            )
             contract_from_db = mongo_semantics_database.get_contract_semantics(
                 code_hash
             )
@@ -43,9 +53,19 @@ class TestMongoSemanticsDatabase:
         }
 
         try:
-            assert 0 == mongo_db.get_collection(MongoCollections.ADDRESSES).count()
+            assert (
+                0
+                == mongo_db.get_collection(
+                    MongoCollections.ADDRESSES
+                ).estimated_document_count()
+            )
             mongo_semantics_database.insert_address(address_data)
-            assert 1 == mongo_db.get_collection(MongoCollections.ADDRESSES).count()
+            assert (
+                1
+                == mongo_db.get_collection(
+                    MongoCollections.ADDRESSES
+                ).estimated_document_count()
+            )
             address_from_db = mongo_semantics_database.get_address_semantics(
                 "mainnet", address
             )

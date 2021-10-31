@@ -35,14 +35,18 @@ class SemanticMetadataDecoder(SemanticSubmoduleAbc):
             timestamp=block_metadata.timestamp,
             gas_price=tx_metadata.gas_price / 10 ** 9,
             sender=AddressInfo(
-                tx_metadata.from_address,
-                self.repository.get_address_label(chain_id, tx_metadata.from_address),
-                "sender",
+                address=tx_metadata.from_address,
+                name=self.repository.get_address_label(
+                    chain_id, tx_metadata.from_address
+                ),
+                badge="sender",
             ),
             receiver=AddressInfo(
-                tx_metadata.to_address,
-                self.repository.get_address_label(chain_id, tx_metadata.to_address),
-                "receiver",
+                address=tx_metadata.to_address,
+                name=self.repository.get_address_label(
+                    chain_id, tx_metadata.to_address
+                ),
+                badge="receiver",
             ),
             tx_index=tx_metadata.tx_index,
             tx_value=tx_metadata.tx_value,
