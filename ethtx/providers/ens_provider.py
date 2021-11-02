@@ -11,7 +11,7 @@
 #  limitations under the License.
 import logging
 from abc import ABC, abstractmethod
-from typing import Callable, Any
+from typing import Any, TypeVar, Type
 
 from ens import ENS
 from web3 import Web3
@@ -19,14 +19,16 @@ from web3.middleware import geth_poa_middleware
 
 log = logging.getLogger(__name__)
 
+T = TypeVar("T")
+
 
 class ENSProviderBase(ABC):
     @abstractmethod
-    def name(self, provider: Callable, address: Any):
+    def name(self, provider: Type[T], address: Any):
         ...
 
     @abstractmethod
-    def address(self, provider: Callable, name: Any):
+    def address(self, provider: Type[T], name: Any):
         ...
 
 
