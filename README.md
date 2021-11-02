@@ -15,12 +15,14 @@
 <a target="_blank">
     <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="Apache">
 </a>
+<a target="_blank">
+    <img src="https://img.shields.io/pypi/v/EthTx?label=pypi%20package" alt="EthTxPyPi">
+</a>
 </p>
 
-## Live version
+## Introduction
 
-Live version of EthTx is available here [https://EthTx.info](https://EthTx.info), with source code released
-here [https://github.com/ethtx/ethtx](https://github.com/ethtx/ethtx_ce)
+Source Code: [https://github.com/ethtx/ethtx](https://github.com/ethtx/ethtx)
 
 ## Installation
 
