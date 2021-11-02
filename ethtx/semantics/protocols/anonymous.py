@@ -17,15 +17,29 @@ from ethtx.models.semantics_model import (
 )
 
 lognote_event_v1 = EventSemantics(
-    "0xd3ff30f94bb4ebb4f3d773ea26b6efc7328b9766f99f19dff6f01392138be46d",
-    False,
-    "LogNote",
-    [
-        ParameterSemantics("sig", "bytes4", [], True),
-        ParameterSemantics("arg1", "bytes32", [], True),
-        ParameterSemantics("arg2", "bytes32", [], True),
-        ParameterSemantics("arg3", "bytes32", [], True),
-        ParameterSemantics("data", "bytes", [], False, True),
+    signature="0xd3ff30f94bb4ebb4f3d773ea26b6efc7328b9766f99f19dff6f01392138be46d",
+    anonymous=False,
+    name="LogNote",
+    parameters=[
+        ParameterSemantics(
+            parameter_name="sig", parameter_type="bytes4", components=[], indexed=True
+        ),
+        ParameterSemantics(
+            parameter_name="arg1", parameter_type="bytes32", components=[], indexed=True
+        ),
+        ParameterSemantics(
+            parameter_name="arg2", parameter_type="bytes32", components=[], indexed=True
+        ),
+        ParameterSemantics(
+            parameter_name="arg3", parameter_type="bytes32", components=[], indexed=True
+        ),
+        ParameterSemantics(
+            parameter_name="data",
+            parameter_type="bytes",
+            components=[],
+            indexed=False,
+            dynamic=True,
+        ),
     ],
 )
 
@@ -40,15 +54,29 @@ lognote_transformation_v1 = {
 }
 
 lognote_event_v2 = EventSemantics(
-    "0xd3d8bec38a91a5f4411247483bc030a174e77cda9c0351924c759f41453aa5e8",
-    False,
-    "LogNote",
-    [
-        ParameterSemantics("sig", "bytes4", [], True),
-        ParameterSemantics("user", "address", [], True),
-        ParameterSemantics("arg1", "bytes32", [], True),
-        ParameterSemantics("arg2", "bytes32", [], True),
-        ParameterSemantics("data", "bytes", [], False, True),
+    signature="0xd3d8bec38a91a5f4411247483bc030a174e77cda9c0351924c759f41453aa5e8",
+    anonymous=False,
+    name="LogNote",
+    parameters=[
+        ParameterSemantics(
+            parameter_name="sig", parameter_type="bytes4", components=[], indexed=True
+        ),
+        ParameterSemantics(
+            parameter_name="user", parameter_type="address", components=[], indexed=True
+        ),
+        ParameterSemantics(
+            parameter_name="arg1", parameter_type="bytes32", components=[], indexed=True
+        ),
+        ParameterSemantics(
+            parameter_name="arg2", parameter_type="bytes32", components=[], indexed=True
+        ),
+        ParameterSemantics(
+            parameter_name="data",
+            parameter_type="bytes",
+            components=[],
+            indexed=False,
+            dynamic=True,
+        ),
     ],
 )
 
@@ -62,16 +90,32 @@ lognote_transformation_v2 = {
 }
 
 lognote_event_v3 = EventSemantics(
-    "0x644843f351d3fba4abcd60109eaff9f54bac8fb8ccf0bab941009c21df21cf31",
-    False,
-    "LogNote",
-    [
-        ParameterSemantics("sig", "bytes4", [], True),
-        ParameterSemantics("guy", "address", [], True),
-        ParameterSemantics("foo", "bytes32", [], True),
-        ParameterSemantics("bar", "bytes32", [], True),
-        ParameterSemantics("wad", "uint256", [], False),
-        ParameterSemantics("fax", "bytes", [], False, True),
+    signature="0x644843f351d3fba4abcd60109eaff9f54bac8fb8ccf0bab941009c21df21cf31",
+    anonymous=False,
+    name="LogNote",
+    parameters=[
+        ParameterSemantics(
+            parameter_name="sig", parameter_type="bytes4", components=[], indexed=True
+        ),
+        ParameterSemantics(
+            parameter_name="guy", parameter_type="address", components=[], indexed=True
+        ),
+        ParameterSemantics(
+            parameter_name="foo", parameter_type="bytes32", components=[], indexed=True
+        ),
+        ParameterSemantics(
+            parameter_name="bar", parameter_type="bytes32", components=[], indexed=True
+        ),
+        ParameterSemantics(
+            parameter_name="wad", parameter_type="uint256", components=[], indexed=False
+        ),
+        ParameterSemantics(
+            parameter_name="fax",
+            parameter_type="bytes",
+            components=[],
+            indexed=False,
+            dynamic=True,
+        ),
     ],
 )
 
@@ -86,13 +130,26 @@ lognote_transformation_v3 = {
 }
 
 logcall_event = EventSemantics(
-    "0x25fce1fe01d9b241fda40b2152ddd6f4ba063fcfb3c2c81dddf84ee20d3f341f",
-    False,
-    "LOG_CALL",
-    [
-        ParameterSemantics("sig", "bytes4", [], True),
-        ParameterSemantics("caller", "address", [], True),
-        ParameterSemantics("data", "bytes", [], False, True),
+    signature="0x25fce1fe01d9b241fda40b2152ddd6f4ba063fcfb3c2c81dddf84ee20d3f341f",
+    anonymous=False,
+    name="LOG_CALL",
+    parameters=[
+        ParameterSemantics(
+            parameter_name="sig", parameter_type="bytes4", components=[], indexed=True
+        ),
+        ParameterSemantics(
+            parameter_name="caller",
+            parameter_type="address",
+            components=[],
+            indexed=True,
+        ),
+        ParameterSemantics(
+            parameter_name="data",
+            parameter_type="bytes",
+            components=[],
+            indexed=False,
+            dynamic=True,
+        ),
     ],
 )
 

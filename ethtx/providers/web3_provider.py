@@ -20,7 +20,8 @@ from web3.datastructures import AttributeDict
 from web3.middleware import geth_poa_middleware
 from web3.types import BlockData, TxData, TxReceipt, HexStr
 
-from ..exceptions import Web3ConnectionException, ProcessingException
+from .node import NodeConnectionPool
+from ..exceptions import NodeConnectionException, ProcessingException
 from ..models.objects_model import Transaction, BlockMetadata, TransactionMetadata, Call
 from ..models.w3_model import W3Block, W3Transaction, W3Receipt, W3CallTree, W3Log
 from ..semantics.standards import erc20
@@ -32,43 +33,25 @@ def connect_chain(
     http_hook: str = None, ipc_hook: str = None, ws_hook: str = None, poa: bool = False
 ) -> Web3 or None:
     if http_hook:
-        method = "HTTP"
         provider = Web3.HTTPProvider
         hook = http_hook
     elif ipc_hook:
-        method = "IPC"
         provider = Web3.IPCProvider
         hook = ipc_hook
     elif ws_hook:
-        method = "Websocket"
         provider = Web3.WebsocketProvider
         hook = ws_hook
     else:
-        method = "IPC"
         provider = Web3.IPCProvider
         hook = "\\\\.\\pipe\\geth.ipc"
 
-    try:
-        w3 = Web3(provider(hook, request_kwargs={"timeout": 600}))
+    w3 = Web3(provider(hook, request_kwargs={"timeout": 600}))
 
-        # middleware injection for POA chains
-        if poa:
-            w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+    # middleware injection for POA chains
+    if poa:
+        w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
-        if w3.isConnected():
-            log.info(
-                "Connected to %s: %s with latest block %s.",
-                method,
-                hook,
-                w3.eth.block_number,
-            )
-            return w3
-
-        log.info("%s connection to %s failed.", method, hook)
-        raise Web3ConnectionException()
-    except Exception as exc:
-        log.warning("Node connection %s: %s failed.", method, hook, exc_info=exc)
-        raise
+    return w3
 
 
 class NodeDataProvider:
@@ -138,12 +121,23 @@ class Web3Provider(NodeDataProvider):
             raise ProcessingException(
                 "unknown chain_id, it must be defined in the EthTxConfig object"
             )
+            
+        for connection in NodeConnectionPool(nodes=self.nodes).get_connection(
+            chain=chain_id
+        ):
+            w3 = connect_chain(http_hook=connection.url, poa=connection.poa)
 
-        hook, poa = self.nodes[chain_id]["hook"], self.nodes[chain_id]["poa"]
+            if w3.isConnected():
+                log.info(
+                    "Connected to: %s with latest block %s.",
+                    connection,
+                    w3.eth.block_number,
+                )
+                return w3
+            else:
+                log.warning("Connection failed to: %s", connection)
 
-        w3 = connect_chain(http_hook=hook, poa=poa)
-
-        return w3
+        raise NodeConnectionException
 
     # get the raw block data from the node
     @lru_cache(maxsize=512)
@@ -493,10 +487,12 @@ class Web3Provider(NodeDataProvider):
         tmp_call_tree = []
 
         w3input, main_parent_calls = prep_raw_dict(obj)
-        main_parent = W3CallTree(tx_hash, chain_id, **w3input)
+        main_parent = W3CallTree(tx_hash=tx_hash, chain_id=chain_id, **w3input)
         for main_parent_call in main_parent_calls:
             w3input, main_parent_calls = prep_raw_dict(main_parent_call)
-            main_parent_child = W3CallTree(tx_hash, chain_id, **w3input)
+            main_parent_child = W3CallTree(
+                tx_hash=tx_hash, chain_id=chain_id, **w3input
+            )
             main_parent.calls.append(main_parent_child)
             if len(main_parent_calls) > 0:
                 tmp_call_tree.append(
@@ -514,7 +510,9 @@ class Web3Provider(NodeDataProvider):
                 if child_calls is not None:
                     for child_call in child_calls:
                         w3input, child_child_call = prep_raw_dict(child_call)
-                        child = W3CallTree(tx_hash, chain_id, **w3input)
+                        child = W3CallTree(
+                            tx_hash=tx_hash, chain_id=chain_id, **w3input
+                        )
                         parent_call.calls.append(child)
 
                         if len(child_call) > 0:

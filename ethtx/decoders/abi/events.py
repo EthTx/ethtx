@@ -12,7 +12,7 @@
 
 from typing import List, Dict, Union, Optional
 
-from ethtx.models.decoded_model import DecodedEvent, Proxy
+from ethtx.models.decoded_model import DecodedEvent, Proxy, AddressInfo
 from ethtx.models.objects_model import BlockMetadata, TransactionMetadata, Event
 from ethtx.semantics.standards.erc20 import ERC20_EVENTS
 from ethtx.semantics.standards.erc721 import ERC721_EVENTS
@@ -59,7 +59,7 @@ class ABIEventsDecoder(ABISubmoduleAbc):
         else:
             event_signature = None
 
-        anonymous = False
+        anonymous, guessed = False, False
         chain_id = chain_id or self._default_chain
 
         event_abi = self._repository.get_event_abi(
@@ -126,8 +126,8 @@ class ABIEventsDecoder(ABISubmoduleAbc):
             event.log_data, event.topics, event_abi, anonymous
         )
 
-        if event_name and event_name.startswith("0x") and len(event_name) > 2:
-            event_name = decode_event_abi_name_with_external_source(
+        if event_name.startswith("0x") and len(event_name) > 2:
+            guessed, event_name = decode_event_abi_name_with_external_source(
                 signature=event_signature
             )
 
@@ -135,11 +135,11 @@ class ABIEventsDecoder(ABISubmoduleAbc):
             chain_id=chain_id,
             tx_hash=transaction.tx_hash,
             timestamp=block.timestamp,
-            contract_address=event.contract,
-            contract_name=contract_name,
+            contract=AddressInfo(address=event.contract, name=contract_name),
             index=event.log_index,
             call_id=event.call_id,
             event_signature=event_signature,
             event_name=event_name,
             parameters=parameters,
+            guessed=guessed,
         )

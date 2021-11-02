@@ -45,11 +45,11 @@ def _decode_parameters_list(raw_parameters_list: list) -> List[ParameterSemantic
 
         parameters_list.append(
             ParameterSemantics(
-                raw_parameter_semantics["name"],
-                raw_parameter_semantics["type"],
-                components,
-                indexed,
-                dynamic,
+                parameter_name=raw_parameter_semantics["name"],
+                parameter_type=raw_parameter_semantics["type"],
+                components=components,
+                indexed=indexed,
+                dynamic=dynamic,
             )
         )
     return parameters_list
@@ -62,10 +62,10 @@ def decode_events_and_functions(
     for signature, raw_event_semantics in abi.get("events", {}).items():
         parameters = _decode_parameters_list(raw_event_semantics.get("parameters"))
         events[signature] = EventSemantics(
-            signature,
-            raw_event_semantics["anonymous"],
-            raw_event_semantics["name"],
-            parameters,
+            signature=signature,
+            anonymous=raw_event_semantics["anonymous"],
+            name=raw_event_semantics["name"],
+            parameters=parameters,
         )
 
     functions = {}
@@ -78,7 +78,9 @@ def decode_events_and_functions(
             inputs = outputs = []
             name = signature
 
-        functions[signature] = FunctionSemantics(signature, name, inputs, outputs)
+        functions[signature] = FunctionSemantics(
+            signature=signature, name=name, inputs=inputs, outputs=outputs
+        )
 
     return events, functions
 
@@ -94,8 +96,8 @@ def decode_transformations(
                 "arguments", {}
             ).items():
                 transformations[signature][parameter_name] = TransformationSemantics(
-                    parameter_transformation.get("name"),
-                    parameter_transformation.get("type"),
-                    parameter_transformation.get("value"),
+                    transformed_name=parameter_transformation.get("name"),
+                    transformed_type=parameter_transformation.get("type"),
+                    transformation=parameter_transformation.get("value"),
                 )
     return transformations

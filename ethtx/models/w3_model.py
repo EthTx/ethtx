@@ -12,37 +12,35 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List
+from typing import Optional, List
 
-from hexbytes import HexBytes
-
+from ethtx.models._types import THexBytes
+from ethtx.models.base_model import BaseModel
 from ethtx.models.objects_model import BlockMetadata, TransactionMetadata, Event, Call
 
 
-@dataclass
-class W3Block:
+class W3Block(BaseModel):
     chain_id: str
     difficulty: int
-    extraData: HexBytes
+    extraData: THexBytes
     gasLimit: int
     gasUsed: int
-    hash: HexBytes
-    logsBloom: HexBytes
+    hash: THexBytes
+    logsBloom: THexBytes
     miner: str
-    nonce: HexBytes
+    nonce: THexBytes
     number: int
-    parentHash: HexBytes
-    receiptsRoot: HexBytes
-    sha3Uncles: HexBytes
+    parentHash: THexBytes
+    receiptsRoot: THexBytes
+    sha3Uncles: THexBytes
     size: int
-    stateRoot: HexBytes
+    stateRoot: THexBytes
     timestamp: int
     totalDifficulty: int
-    transactions: List
-    transactionsRoot: HexBytes
-    uncles: List
+    transactions: list
+    transactionsRoot: THexBytes
+    uncles: list
 
     def to_object(self) -> BlockMetadata:
         block_hash = self.hash.hex()
@@ -65,20 +63,19 @@ class W3Block:
         )
 
 
-@dataclass
-class W3Transaction:
+class W3Transaction(BaseModel):
     chain_id: str
-    blockHash: str
+    blockHash: THexBytes
     blockNumber: int
     from_address: str
     gas: int
     gasPrice: int
-    hash: HexBytes
+    hash: THexBytes
     input: str
     nonce: int
-    r: HexBytes
-    s: HexBytes
-    to: str
+    r: THexBytes
+    s: THexBytes
+    to: Optional[str]
     transactionIndex: int
     v: int
     value: int
@@ -115,37 +112,35 @@ class W3Transaction:
         )
 
 
-@dataclass
-class W3Receipt:
+class W3Receipt(BaseModel):
     tx_hash: str
     chain_id: str
-    blockHash: HexBytes
+    blockHash: THexBytes
     blockNumber: int
-    contractAddress: str
+    contractAddress: Optional[str]
     cumulativeGasUsed: int
     from_address: str
     gasUsed: int
-    logsBloom: HexBytes
-    root: str
+    logsBloom: THexBytes
+    root: Optional[str]
     status: int
-    to_address: str
-    transactionHash: HexBytes
+    to_address: Optional[str]
+    transactionHash: THexBytes
     transactionIndex: int
-    logs: list = field(default_factory=list)
+    logs: list = []
 
 
-@dataclass
-class W3Log:
+class W3Log(BaseModel):
     tx_hash: str
     chain_id: str
     address: str
-    blockHash: HexBytes
+    blockHash: THexBytes
     blockNumber: int
     data: str
     logIndex: int
     removed: bool
-    topics: List[HexBytes]
-    transactionHash: HexBytes
+    topics: List[THexBytes]
+    transactionHash: THexBytes
     transactionIndex: int
 
     def to_object(self) -> Event:
@@ -162,8 +157,7 @@ class W3Log:
         )
 
 
-@dataclass
-class W3CallTree:
+class W3CallTree(BaseModel):
     tx_hash: str
     chain_id: str
     type: str
@@ -171,12 +165,12 @@ class W3CallTree:
     to_address: str
     input: str
     output: str
-    value: str = None
-    time: str = None
-    gas: str = None
-    gasUsed: str = None
-    error: str = None
-    calls: list = field(default_factory=list)
+    value: Optional[str]
+    time: Optional[str]
+    gas: Optional[str]
+    gasUsed: Optional[str]
+    error: Optional[str]
+    calls: list = []
 
     def to_object(self) -> Call:
         from_address = self.from_address

@@ -35,35 +35,51 @@ class DecoderService:
         self.web3provider: NodeDataProvider = web3provider
         self.default_chain: str = default_chain
 
-    def get_delegations(self, calls: Union[Call, List[Call]]) -> Dict[str, List[str]]:
+    def decode_transaction(self, chain_id: str, tx_hash: str) -> DecodedTransaction:
 
-        delegations = {}
+        # verify the transaction hash
+        tx_hash = tx_hash if tx_hash.startswith("0x") else "0x" + tx_hash
 
-        if not calls:
-            return delegations
+        chain_id = chain_id or self.default_chain
 
-        if isinstance(calls, list):
-            for call in calls:
-                if call.call_type == "delegatecall":
-                    if call.from_address not in delegations:
-                        delegations[call.from_address] = []
-                    if call.to_address not in delegations[call.from_address]:
-                        delegations[call.from_address].append(call.to_address)
-        else:
-            calls_queue = [calls]
+        self.semantic_decoder.repository.record()
+        # read a raw transaction from a node
+        transaction = self.web3provider.get_full_transaction(
+            tx_hash=tx_hash, chain_id=chain_id
+        )
+        # read a raw block from a node
+        block = Block.from_raw(
+            w3block=self.web3provider.get_block(
+                transaction.metadata.block_number, chain_id
+            ),
+            chain_id=chain_id,
+        )
 
-            while calls_queue:
-                call = calls_queue.pop()
-                for _, sub_call in enumerate(call.subcalls):
-                    calls_queue.insert(0, sub_call)
+        # prepare lists of delegations to properly decode delegate-calling contracts
+        delegations = self.get_delegations(transaction.root_call)
+        proxies = self.get_proxies(delegations, chain_id)
 
-                if call.call_type == "delegatecall":
-                    if call.from_address not in delegations:
-                        delegations[call.from_address] = []
-                    if call.to_address not in delegations[call.from_address]:
-                        delegations[call.from_address].append(call.to_address)
+        # decode transaction using ABI
+        abi_decoded_tx = self.abi_decoder.decode_transaction(
+            block=block, transaction=transaction, proxies=proxies, chain_id=chain_id
+        )
 
-        return delegations
+        # decode transaction using additional semantics
+        semantically_decoded_tx = self.semantic_decoder.decode_transaction(
+            block=block.metadata,
+            transaction=abi_decoded_tx,
+            proxies=proxies,
+            chain_id=chain_id,
+        )
+
+        used_semantics = self.semantic_decoder.repository.end_record()
+        log.info(
+            "Semantics used in decoding %s: %s",
+            tx_hash,
+            ", ".join(used_semantics) if used_semantics else "",
+        )
+
+        return semantically_decoded_tx
 
     def get_proxies(
         self, delegations: Dict[str, List[str]], chain_id: str
@@ -114,48 +130,33 @@ class DecoderService:
 
         return proxies
 
-    def decode_transaction(self, chain_id: str, tx_hash: str) -> DecodedTransaction:
+    @staticmethod
+    def get_delegations(calls: Union[Call, List[Call]]) -> Dict[str, List[str]]:
 
-        # verify the transaction hash
-        tx_hash = tx_hash if tx_hash.startswith("0x") else "0x" + tx_hash
+        delegations = {}
 
-        chain_id = chain_id or self.default_chain
+        if not calls:
+            return delegations
 
-        self.semantic_decoder.repository.record()
-        # read a raw transaction from a node
-        transaction = self.web3provider.get_full_transaction(
-            tx_hash=tx_hash, chain_id=chain_id
-        )
-        # read a raw block from a node
-        block = Block.from_raw(
-            w3block=self.web3provider.get_block(
-                transaction.metadata.block_number, chain_id
-            ),
-            chain_id=chain_id,
-        )
+        if isinstance(calls, list):
+            for call in calls:
+                if call.call_type == "delegatecall":
+                    if call.from_address not in delegations:
+                        delegations[call.from_address] = []
+                    if call.to_address not in delegations[call.from_address]:
+                        delegations[call.from_address].append(call.to_address)
+        else:
+            calls_queue = [calls]
 
-        # prepare lists of delegations to properly decode delegate-calling contracts
-        delegations = self.get_delegations(transaction.root_call)
-        proxies = self.get_proxies(delegations, chain_id)
+            while calls_queue:
+                call = calls_queue.pop()
+                for _, sub_call in enumerate(call.subcalls):
+                    calls_queue.insert(0, sub_call)
 
-        # decode transaction using ABI
-        abi_decoded_tx = self.abi_decoder.decode_transaction(
-            block=block, transaction=transaction, proxies=proxies, chain_id=chain_id
-        )
+                if call.call_type == "delegatecall":
+                    if call.from_address not in delegations:
+                        delegations[call.from_address] = []
+                    if call.to_address not in delegations[call.from_address]:
+                        delegations[call.from_address].append(call.to_address)
 
-        # decode transaction using additional semantics
-        semantically_decoded_tx = self.semantic_decoder.decode_transaction(
-            block=block.metadata,
-            transaction=abi_decoded_tx,
-            proxies=proxies,
-            chain_id=chain_id,
-        )
-
-        used_semantics = self.semantic_decoder.repository.end_record()
-        log.info(
-            "Semantics used in decoding %s: %s",
-            tx_hash,
-            ", ".join(used_semantics) if used_semantics else "",
-        )
-
-        return semantically_decoded_tx
+        return delegations
