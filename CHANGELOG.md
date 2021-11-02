@@ -1,6 +1,33 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.3.2 - 2021-11-02
+### Changed
+- Changed exception `Web3ConnectionException` to `NodeConnectionException`[#68](https://github.com/EthTx/ethtx/pull/68)
+- Changed `tests` directory structure [#68](https://github.com/EthTx/ethtx/pull/68)
+- All models now use `pydantic` [#72](https://github.com/EthTx/ethtx/pull/72)
+- Removed `jsonpickle` [#72](https://github.com/EthTx/ethtx/pull/72)
+- Changed the order of methods in `DecoderService` [#72](https://github.com/EthTx/ethtx/pull/72)
+- Update requirements (*requirements.txt* & *Pipfile*) [#72](https://github.com/EthTx/ethtx/pull/72)
+- Update **README** [#72](https://github.com/EthTx/ethtx/pull/72)
+- `strip()` every single node URL in `NodeConnectionPool` [#72](https://github.com/EthTx/ethtx/pull/72)
+- Refactored ENS provider, each time a new ens object is taken [#71](https://github.com/EthTx/ethtx/pull/71)
+
+### Fixed
+- Fixed types in models [#72](https://github.com/EthTx/ethtx/pull/72)
+- Fixed bug with empty args from `4byte` [#72](https://github.com/EthTx/ethtx/pull/72)
+
+### Added
+- Added node switcher - if one is unavailable, it uses the others available to connect with
+  node [#68](https://github.com/EthTx/ethtx/pull/68)
+- Extended function end event models [#72](https://github.com/EthTx/ethtx/pull/72)
+- Model tests added [#72](https://github.com/EthTx/ethtx/pull/72)
+- Catch more exceptions from `4byte.directory` (looks like the service is not always working
+  properly) [#71](https://github.com/EthTx/ethtx/pull/71)
+- Added more logging [#71](https://github.com/EthTx/ethtx/pull/71)
+- Added more exceptions [#71](https://github.com/EthTx/ethtx/pull/71)
+
+
 ## 0.3.1 - 2021-10-14
 ### Fixed
 - Fix tuple components processing [#66](https://github.com/EthTx/ethtx/pull/66)
@@ -8,16 +35,17 @@ All notable changes to this project will be documented in this file.
 
 ## 0.3.0 - 2021-10-14
 ### Fixed
-- Fixed bug where mongo was using database called 'db', instead of one specified in connection string [#62](https://github.com/EthTx/ethtx/pull/62)
+- Fixed bug where mongo was using database called 'db', instead of one specified in connection
+  string [#62](https://github.com/EthTx/ethtx/pull/62)
 
 
 ## 0.2.9 - 2021-10-13
 ### Changed
-Removed indexes -incompatibility with macOS [#63](https://github.com/EthTx/ethtx/pull/63)
+- Removed indexes -incompatibility with macOS [#63](https://github.com/EthTx/ethtx/pull/63)
 
 ### Fixed
-- **ENS** name fix. The contract name was decoded incorrectly, 
-because `None` (unresolved) address value was overwriting the correct one [#63](https://github.com/EthTx/ethtx/pull/63)
+- **ENS** name fix. The contract name was decoded incorrectly, because `None` (unresolved) address value was overwriting
+  the correct one [#63](https://github.com/EthTx/ethtx/pull/63)
 
 
 ## 0.2.8 - 2021-10-12
@@ -26,18 +54,20 @@ because `None` (unresolved) address value was overwriting the correct one [#63](
 - `Signatures` collection in **mongo** is now indexed [#60](https://github.com/EthTx/ethtx/pull/60)
 
 ### Fixed
-- Fixed unknown args for empty guessed functions (empty arguments have been removed) [#59](https://github.com/EthTx/ethtx/pull/59)
+- Fixed unknown args for empty guessed functions (empty arguments have been
+  removed) [#59](https://github.com/EthTx/ethtx/pull/59)
 
-### Added 
+### Added
 - Added more types [#59](https://github.com/EthTx/ethtx/pull/59)
 - Added missing `__init__` files for semantics [#59](https://github.com/EthTx/ethtx/pull/59)
 
 
 ## 0.2.7 - 2021-10-08
 ### Fixed
-- Fixed `ENS.fromWeb3` with poa. **ENS** did not copy middleware from injected **Web3**,
-  therefore the transaction could not be decoded correctly for chains: `Goerli` and `Rinkeby` [#56](https://github.com/EthTx/ethtx/pull/56)
-- Fix bug where `get_proxies` was using only default chain, instead of provided one  [#57](https://github.com/EthTx/ethtx/pull/57)
+- Fixed `ENS.fromWeb3` with poa. **ENS** did not copy middleware from injected **Web3**, therefore the transaction could
+  not be decoded correctly for chains: `Goerli` and `Rinkeby` [#56](https://github.com/EthTx/ethtx/pull/56)
+- Fix bug where `get_proxies` was using only default chain, instead of provided
+  one  [#57](https://github.com/EthTx/ethtx/pull/57)
 
 
 ## 0.2.6 - 2021-10-06
@@ -56,7 +86,8 @@ because `None` (unresolved) address value was overwriting the correct one [#63](
 
 ### Added
 - Standard Proxy contracts (e.g. EIP1969) are now properly decoded
-- All known signatures (from contracts or external sources) are stored into the database [#50](https://github.com/EthTx/ethtx/pull/50)
+- All known signatures (from contracts or external sources) are stored into the
+  database [#50](https://github.com/EthTx/ethtx/pull/50)
 - Guessing missing signatures using other contracts and 4byte.directory [#50](https://github.com/EthTx/ethtx/pull/50)
 - Resolving ENS domains [#50](https://github.com/EthTx/ethtx/pull/50)
 - New providers: ENS, Signature [#50](https://github.com/EthTx/ethtx/pull/50)
@@ -163,7 +194,3 @@ because `None` (unresolved) address value was overwriting the correct one [#63](
 ## 0.1.0 - 2021-10-21
 ### Added
 - Initial release.
-
-
-
-
