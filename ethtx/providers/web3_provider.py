@@ -121,7 +121,7 @@ class Web3Provider(NodeDataProvider):
             raise ProcessingException(
                 "unknown chain_id, it must be defined in the EthTxConfig object"
             )
-            
+
         for connection in NodeConnectionPool(nodes=self.nodes).get_connection(
             chain=chain_id
         ):
