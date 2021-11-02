@@ -141,5 +141,5 @@ class ABIEventsDecoder(ABISubmoduleAbc):
             event_signature=event_signature,
             event_name=event_name,
             parameters=parameters,
-            guessed=guessed,
+            event_guessed=guessed,
         )
