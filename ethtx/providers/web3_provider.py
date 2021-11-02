@@ -15,7 +15,6 @@ import os
 from functools import lru_cache
 from typing import List, Dict, Optional
 
-from ens import ENS
 from web3 import Web3
 from web3.datastructures import AttributeDict
 from web3.middleware import geth_poa_middleware
@@ -53,16 +52,6 @@ def connect_chain(
         w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
     return w3
-
-
-def connect_ens(w3: Web3, poa: bool) -> ENS:
-    ens = ENS.fromWeb3(w3)
-
-    # ENS.fromWeb3 not copying middleware #1657
-    if poa:
-        ens.web3.middleware_onion.inject(geth_poa_middleware, layer=0)
-
-    return ens
 
 
 class NodeDataProvider:
@@ -115,7 +104,6 @@ class NodeDataProvider:
 
 class Web3Provider(NodeDataProvider):
     chain: Web3
-    ens: ENS
 
     def __init__(self, nodes: Dict[str, dict], default_chain=None):
         super().__init__(default_chain)
@@ -138,7 +126,6 @@ class Web3Provider(NodeDataProvider):
             chain=chain_id
         ):
             w3 = connect_chain(http_hook=connection.url, poa=connection.poa)
-            self.ens = connect_ens(w3=w3, poa=connection.poa)
 
             if w3.isConnected():
                 log.info(

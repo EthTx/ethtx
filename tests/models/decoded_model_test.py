@@ -83,7 +83,7 @@ class TestDecodedModels:
         )
         assert de.event_name == "WalletAddressesSet"
         assert de.parameters == [DecodedModelMock.ARGUMENT, DecodedModelMock.ARGUMENT]
-        assert not de.guessed
+        assert not de.event_guessed
 
     def test_decoded_call(self):
         dc = DecodedCall(
@@ -120,7 +120,7 @@ class TestDecodedModels:
         assert dc.status
         assert dc.indent == 1
         assert dc.subcalls == []
-        assert not dc.guessed
+        assert not dc.function_guessed
 
     def test_decoded_transfer(self):
         dt = DecodedTransfer(

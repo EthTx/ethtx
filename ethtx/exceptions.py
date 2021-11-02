@@ -17,6 +17,8 @@ __all__ = [
     "InvalidTransactionHash",
     "InvalidEtherscanReturnCodeException",
     "FourByteConnectionException",
+    "FourByteContentException",
+    "FourByteException",
 ]
 
 import json
@@ -51,8 +53,21 @@ class InvalidEtherscanReturnCodeException(Exception):
         super().__init__(msg)
 
 
-class FourByteConnectionException(Exception):
+class FourByteException(Exception):
+    """4byte base exception class."""
+
+
+class FourByteConnectionException(FourByteException):
     """4byte directory connection error."""
 
     def __init__(self, msg: str):
         super().__init__(f"Couldn't connect to 4byte.directory: {msg}")
+
+
+class FourByteContentException(FourByteException):
+    """4byte content exception. Missing output."""
+
+    def __init__(self, status_code: int, content: bytes):
+        super().__init__(
+            f"Wrong response from 4byte.directory. Status code:{status_code}, content: {content}"
+        )

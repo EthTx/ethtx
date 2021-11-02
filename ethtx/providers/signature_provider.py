@@ -11,11 +11,16 @@
 #  limitations under the License.
 import logging
 from abc import ABC, abstractmethod
+from json import JSONDecodeError
 from typing import Dict, List, Any, Iterator, TypedDict, Union, Tuple
 
 import requests
 
-from ethtx.exceptions import FourByteConnectionException
+from ethtx.exceptions import (
+    FourByteConnectionException,
+    FourByteContentException,
+    FourByteException,
+)
 
 log = logging.getLogger(__name__)
 
@@ -105,15 +110,28 @@ class FourByteProvider(SignatureProvider):
 
         try:
             try:
-                return requests.get(
-                    self.url(endpoint), params=filters, timeout=5
-                ).json()
+                response = requests.get(self.url(endpoint), params=filters, timeout=3)
+                return response.json()
+
             except (
                 requests.exceptions.ConnectionError,
                 requests.exceptions.Timeout,
-            ) as e:
-                raise FourByteConnectionException(e) from e
-        except FourByteConnectionException:
+            ) as connection_error:
+                raise FourByteConnectionException(
+                    connection_error
+                ) from connection_error
+
+            except (JSONDecodeError, ValueError) as value_error:
+                log.warning(value_error)
+                raise FourByteContentException(
+                    response.status_code, response.content
+                ) from value_error
+
+        except FourByteException:
+            return {}
+
+        except Exception as e:
+            log.critical("Unexpected error from 4byte.directory: %s", e)
             return {}
 
     @staticmethod
