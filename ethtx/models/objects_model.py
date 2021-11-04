@@ -101,6 +101,9 @@ class Call(BaseModel):
         return w3calltree.to_object()
 
 
+Call.update_forward_refs()
+
+
 class Transaction(BaseModel):
     metadata: TransactionMetadata
     root_call: Call
