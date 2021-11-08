@@ -162,7 +162,7 @@ class W3CallTree(BaseModel):
     chain_id: str
     type: str
     from_address: str
-    to_address: str
+    to_address: Optional[str]
     input: str
     output: str
     value: Optional[str]
