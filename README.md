@@ -48,7 +48,7 @@ from ethtx import EthTx, EthTxConfig
 from ethtx.models.decoded_model import DecodedTransaction
 
 ethtx_config = EthTxConfig(
-    mongo_connection_string="mongomock://localhost",  ##MongoDB connection string,
+    mongo_connection_string="mongomock://localhost/ethtx",  ##MongoDB connection string,
     etherscan_api_key = "",  ##Etherscan API key,
     web3nodes = {
                 "mainnet": {
