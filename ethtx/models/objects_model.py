@@ -65,7 +65,7 @@ class Event(BaseModel):
     contract: str
     topics: List[str]
     log_data: Optional[str]
-    log_index: int
+    log_index: Optional[int]
 
     call_id: Optional[str]
 
