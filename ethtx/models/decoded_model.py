@@ -21,7 +21,7 @@ from ethtx.models.semantics_model import AddressSemantics, ERC20Semantics
 
 
 class AddressInfo(BaseModel):
-    address: str
+    address: Optional[str]
     name: str
     badge: Optional[str]
 
@@ -54,7 +54,7 @@ class DecodedEvent(BaseModel):
     tx_hash: str
     timestamp: datetime
     contract: AddressInfo
-    index: int
+    index: Optional[int]
     call_id: Optional[str]
     event_signature: str
     event_name: str
