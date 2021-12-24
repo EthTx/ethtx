@@ -8,7 +8,7 @@ pymongo = {extras = ["srv"], version = ">=3.12.0"}
 mongoengine = "==0.23.1"
 mongomock = "==3.23.0"
 requests = ">=2.26.0"
-web3 = ">=5.24.0"
+web3 = ">=5.25.0"
 hexbytes = ">=0.2.2"
 pydantic = ">=1.8.2"
 python-dotenv = "*"
