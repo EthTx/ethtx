@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.3.7 - 2021-12-24
+### Changed
+- Update build dev requirements [#88](https://github.com/EthTx/ethtx/pull/88)
+
+
 ## 0.3.6 - 2021-12-24
 ### Changed
 - Update build requirements [#86](https://github.com/EthTx/ethtx/pull/86)
