@@ -62,10 +62,10 @@ class TransactionMetadata(BaseModel):
 
 
 class Event(BaseModel):
-    contract: str
+    contract: Optional[str]
     topics: List[str]
     log_data: Optional[str]
-    log_index: int
+    log_index: Optional[int]
 
     call_id: Optional[str]
 
