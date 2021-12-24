@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.3.6 - 2021-12-24
+### Changed
+- Update build requirements [#86](https://github.com/EthTx/ethtx/pull/86)
+
+
 ## 0.3.5 - 2021-12-24
 ### Changed
 - Delete unused dependency on `ethereum` package, organized others [#84](https://github.com/EthTx/ethtx/pull/84)
