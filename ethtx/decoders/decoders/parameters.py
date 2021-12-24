@@ -288,7 +288,7 @@ def decode_tuple(data, argument_abi, is_list):
 
 # helper function to decode dynamic arrays
 def decode_dynamic_array(data, array_type):
-    count = int(data[:64], 16)
+    count = int(data[:64], 16) if data else 0
     sub_data = data[64:]
     decoded_argument = []
 
@@ -327,7 +327,7 @@ def decode_struct(data, arguments_abi):
 
         array_type = argument_type.rsplit("[", 1)[0]
         if argument_type[-2:] == "[]":
-            offset = int(raw_value, 16) * 2
+            offset = int(raw_value, 16) * 2 if raw_value else 0
             array_values = decode_dynamic_array(data[offset:], array_type)
             slot += 1
         else:
@@ -381,7 +381,7 @@ def decode_struct(data, arguments_abi):
                     slot += slots
 
             elif argument_type in ("bytes", "string"):
-                offset = int(raw_value, 16) * 2
+                offset = int(raw_value, 16) * 2 if raw_value else 0
                 argument_value = decode_dynamic_argument(data[offset:], argument_type)
                 slot += 1
 

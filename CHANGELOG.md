@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.3.4 - 2021-12-16
+### Changed
+- Set field `W3CallTree.to_address` as optional [#77](https://github.com/EthTx/ethtx/pull/77)
+
+### Fixed
+- Fixed readme commas and delete unused mongo_database from example [#80](https://github.com/EthTx/ethtx/pull/80)
+- Parameters decoding fixes [#81](https://github.com/EthTx/ethtx/pull/81)
+
+
 ## 0.3.3 - 2021-11-05
 ### Changed
 - Return lowercase address if `ENS` provider can not resolve it to name [#75](https://github.com/EthTx/ethtx/pull/75)
