@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.3.5 - 2021-12-24
+### Changed
+- Delete unused dependency on `ethereum` package, organized others [#84](https://github.com/EthTx/ethtx/pull/84)
+- Make object models work with reverted events [#83](https://github.com/EthTx/ethtx/pull/83)
+
+
 ## 0.3.4 - 2021-12-16
 ### Changed
 - Set field `W3CallTree.to_address` as optional [#77](https://github.com/EthTx/ethtx/pull/77)
