@@ -6,18 +6,18 @@ name = "pypi"
 [packages]
 pymongo = {extras = ["srv"], version = ">=3.12.0"}
 mongoengine = "==0.23.1"
+mongomock = "==3.23.0"
 requests = ">=2.26.0"
-web3 = ">=5.24.0"
+web3 = ">=5.25.0"
 hexbytes = ">=0.2.2"
 pydantic = ">=1.8.2"
 python-dotenv = "*"
 
 [dev-packages]
-black = "==19.3b0"
+black = "==21.12b0"
 pytest = ">=6.2.5"
 pytest-cov ="==3.0.0"
 pytest-mock ="==3.6.1"
-mongomock = "==3.23.0"
 pre-commit = "*"
 
 [requires]
