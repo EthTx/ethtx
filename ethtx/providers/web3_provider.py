@@ -14,7 +14,9 @@ import logging
 import os
 from functools import lru_cache
 from typing import List, Dict, Optional
+from time import sleep
 
+from requests.exceptions import HTTPError
 from web3 import Web3
 from web3.datastructures import AttributeDict
 from web3.middleware import geth_poa_middleware
@@ -30,7 +32,7 @@ log = logging.getLogger(__name__)
 
 
 def connect_chain(
-    http_hook: str = None, ipc_hook: str = None, ws_hook: str = None, poa: bool = False
+    http_hook: str = None, ipc_hook: str = None, ws_hook: str = None, poa: bool = False, timeout: int = 600
 ) -> Web3 or None:
     if http_hook:
         provider = Web3.HTTPProvider
@@ -45,7 +47,7 @@ def connect_chain(
         provider = Web3.IPCProvider
         hook = "\\\\.\\pipe\\geth.ipc"
 
-    w3 = Web3(provider(hook, request_kwargs={"timeout": 600}))
+    w3 = Web3(provider(hook, request_kwargs={"timeout": timeout}))
 
     # middleware injection for POA chains
     if poa:
@@ -125,7 +127,7 @@ class Web3Provider(NodeDataProvider):
         for connection in NodeConnectionPool(nodes=self.nodes).get_connection(
             chain=chain_id
         ):
-            w3 = connect_chain(http_hook=connection.url, poa=connection.poa)
+            w3 = connect_chain(http_hook=connection.url, poa=connection.poa, timeout=connection.timeout)
 
             if w3.isConnected():
                 log.info(
@@ -172,7 +174,7 @@ class Web3Provider(NodeDataProvider):
     # get the raw transaction data from the node
     @lru_cache(maxsize=512)
     def get_transaction(
-        self, tx_hash: str, chain_id: Optional[str] = None
+        self, tx_hash: str, chain_id: Optional[str] = None, timeout: Optional[int] = None
     ) -> W3Transaction:
         chain = self._get_node_connection(chain_id)
         raw_tx: TxData = chain.eth.get_transaction(HexStr(tx_hash))
@@ -248,9 +250,24 @@ class Web3Provider(NodeDataProvider):
         # tracer is a temporary fixed implementation of geth tracer
         chain = self._get_node_connection(chain_id)
         tracer = self._get_custom_calls_tracer()
-        response = chain.manager.request_blocking(
-            "debug_traceTransaction", [tx_hash, {"tracer": tracer, "timeout": "60s"}]
-        )
+        retry_count = 10
+        while True:
+            try:
+                response = chain.manager.request_blocking(
+                    "debug_traceTransaction", [tx_hash, {"tracer": tracer, "timeout": "60s"}]
+                )
+                break
+            except HTTPError as e:
+                if retry_count < 0:
+                    raise e
+                retry_count = retry_count - 1
+                log.debug(
+                    "Retrying remote request - %s of 10.",
+                    10 - retry_count,
+                )
+                sleep(1.25) # recommended retry sleep time for alchemy.
+            except Exception as e:
+                raise e
 
         return self._create_call_from_debug_trace_tx(
             tx_hash, chain_id or self.default_chain, response

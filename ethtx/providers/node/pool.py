@@ -42,7 +42,8 @@ class NodeConnectionPool:
         for chain, node_params in nodes.items():
             nodes: List[str] = list(node_params.values())[0].split(",")
             poa: bool = list(node_params.values())[1]
+            timeout: int = list(node_params.values())[2]
             for url in nodes:
                 self.add_connection(
-                    NodeConnection(chain=chain, url=url.strip(), poa=poa)
+                    NodeConnection(chain=chain, url=url.strip(), poa=poa, timeout=timeout)
                 )
