@@ -106,14 +106,14 @@ Call.update_forward_refs()
 
 class Transaction(BaseModel):
     metadata: TransactionMetadata
-    root_call: Call
+    root_call: Optional[Call]
     events: List[Event]
 
     @staticmethod
     def from_raw(w3transaction, w3receipt, w3calltree) -> Transaction:
         data = w3transaction.to_object(w3receipt)
         events = [w3log.to_object() for w3log in w3receipt.logs]
-        root_call = w3calltree.to_object()
+        root_call = w3calltree.to_object() if w3calltree else w3calltree
         return Transaction(metadata=data, root_call=root_call, events=events)
 
 
