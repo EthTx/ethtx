@@ -167,17 +167,17 @@ class ABIDecoder(IABIDecoder):
             )
             raise e
 
-        try:
-            full_decoded_transaction.calls = self.decode_calls(
-                transaction.root_call, block, transaction.metadata, proxies, chain_id
-            )
-        except Exception as e:
-            log.exception(
-                "ABI decoding of calls tree for %s / %s failed.",
-                transaction.metadata.tx_hash,
-                chain_id,
-            )
-            raise e
+        # try:
+        #     full_decoded_transaction.calls = self.decode_calls(
+        #         transaction.root_call, block, transaction.metadata, proxies, chain_id
+        #     )
+        # except Exception as e:
+        #     log.exception(
+        #         "ABI decoding of calls tree for %s / %s failed.",
+        #         transaction.metadata.tx_hash,
+        #         chain_id,
+        #     )
+        #     raise e
 
         try:
             full_decoded_transaction.transfers = self.decode_transfers(

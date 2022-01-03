@@ -44,9 +44,9 @@ class SemanticDecoder(ISemanticDecoder):
         transaction.events = self.decode_events(
             transaction.events, transaction.metadata, proxies
         )
-        transaction.calls = self.decode_calls(
-            transaction.calls, transaction.metadata, proxies
-        )
+        # transaction.calls = self.decode_calls(
+        #     transaction.calls, transaction.metadata, proxies
+        # )
         transaction.transfers = self.decode_transfers(
             transaction.transfers, transaction.metadata
         )
