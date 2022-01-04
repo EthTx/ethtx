@@ -463,7 +463,7 @@ class Web3Provider(NodeDataProvider):
 
         w3transaction = self.get_transaction(tx_hash, chain_id)
         w3receipt = self.get_receipt(tx_hash, chain_id)
-        w3calltree = self.get_calls(tx_hash, chain_id)
+        w3calltree = None
 
         return Transaction.from_raw(
             w3transaction=w3transaction, w3receipt=w3receipt, w3calltree=w3calltree
