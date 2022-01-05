@@ -78,6 +78,7 @@ class SemanticEventsDecoder(SemanticSubmoduleAbc):
             event.event_name != event.event_signature
             and calculated_event_signature != event.event_signature
             and calculated_event_signature not in anonymous_events
+            and not event.event_guessed
         ):
             log.warning(
                 "Event signature mismatch: %s / %s.",
