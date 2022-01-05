@@ -13,6 +13,8 @@
 from functools import lru_cache
 from typing import Optional, List, Dict, Tuple
 
+from web3.exceptions import BadFunctionCallOutput
+
 from ethtx.decoders.decoders.semantics import decode_events_and_functions
 from ethtx.models.semantics_model import (
     AddressSemantics,
@@ -159,10 +161,13 @@ class SemanticsRepository:
 
             name = raw_address_semantics.get("name", address)
             if name == address and not raw_address_semantics["is_contract"]:
-                name = self._ens_provider.name(
-                    provider=self._web3provider._get_node_connection(chain_id),
-                    address=address,
-                )
+                try:
+                    name = self._ens_provider.name(
+                        provider=self._web3provider._get_node_connection(chain_id),
+                        address=address,
+                    )
+                except BadFunctionCallOutput as e:
+                    pass # expected for sidechains like polygon
 
             address_semantics = AddressSemantics(
                 chain_id=chain_id,
@@ -263,10 +268,14 @@ class SemanticsRepository:
             else:
                 # externally owned address
                 contract_semantics = ContractSemantics(code_hash=ZERO_HASH, name="EOA")
-                name = self._ens_provider.name(
-                    provider=self._web3provider._get_node_connection(chain_id),
-                    address=address,
-                )
+                name = ''
+                try:
+                    name = self._ens_provider.name(
+                        provider=self._web3provider._get_node_connection(chain_id),
+                        address=address,
+                    )
+                except BadFunctionCallOutput as e:
+                    pass # expected for sidechains like polygon
                 address_semantics = AddressSemantics(
                     chain_id=chain_id,
                     address=address,

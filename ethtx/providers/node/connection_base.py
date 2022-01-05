@@ -17,9 +17,10 @@ class NodeConnection:
     chain: str
     url: str
     poa: bool
+    timeout: int
 
     def __repr__(self) -> str:
-        return f"<Chain: {self.chain}, Node: {self.url}, Poa: {self.poa}>"
+        return f"<Chain: {self.chain}, Node: {self.url}, Poa: {self.poa}, Timeout: {self.timeout}>"
 
     def __iter__(self):
         return iter(self.__dict__.items())
