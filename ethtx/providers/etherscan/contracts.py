@@ -66,10 +66,10 @@ class EtherscanContract(EtherscanClient):
         return dict(name=contract_name, abi=abi), decoded
 
     @lru_cache(maxsize=1024)
-    def _get_contract_abi(self, chain_id, contract_name) -> Dict:
+    def _get_contract_abi(self, chain_id, contract_address) -> Dict:
         url_dict = self.contract_dict.copy()
         url_dict[self.ACTION] = "getsourcecode"
-        url_dict[self.ADDRESS] = contract_name
+        url_dict[self.ADDRESS] = contract_address
         url = self.build_url(chain_id=self._get_chain_id(chain_id), url_dict=url_dict)
 
         # TODO: etherscan sometimes returns HTTP 502 with no apparent reason, so it's a quick fix
