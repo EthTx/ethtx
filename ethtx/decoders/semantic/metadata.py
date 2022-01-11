@@ -13,7 +13,6 @@
 from ethtx.models.decoded_model import DecodedTransactionMetadata, AddressInfo
 from ethtx.models.objects_model import BlockMetadata, TransactionMetadata
 from .abc import SemanticSubmoduleAbc
-from .helpers.utils import get_eth_price
 
 
 class SemanticMetadataDecoder(SemanticSubmoduleAbc):
@@ -50,7 +49,6 @@ class SemanticMetadataDecoder(SemanticSubmoduleAbc):
             ),
             tx_index=tx_metadata.tx_index,
             tx_value=tx_metadata.tx_value,
-            eth_price=get_eth_price(),
             gas_limit=tx_metadata.gas_limit,
             gas_used=tx_metadata.gas_used,
             success=tx_metadata.success,
