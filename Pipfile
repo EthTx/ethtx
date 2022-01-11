@@ -21,4 +21,4 @@ pytest-mock ="==3.6.1"
 pre-commit = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"
