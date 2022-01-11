@@ -178,7 +178,7 @@ class SemanticsRepository:
 
         return None
 
-    @lru_cache(maxsize=128)
+    @lru_cache(maxsize=1024)
     def get_semantics(self, chain_id: str, address: str) -> Optional[AddressSemantics]:
 
         if not address:
@@ -316,7 +316,7 @@ class SemanticsRepository:
 
         return standard, standard_semantics
 
-    @lru_cache(maxsize=128)
+    @lru_cache(maxsize=1024)
     def get_event_abi(self, chain_id, address, signature) -> Optional[EventSemantics]:
 
         if not address:
@@ -329,7 +329,7 @@ class SemanticsRepository:
 
         return event_semantics
 
-    @lru_cache(maxsize=128)
+    @lru_cache(maxsize=1024)
     def get_transformations(
         self, chain_id, address, signature
     ) -> Optional[Dict[str, TransformationSemantics]]:
@@ -345,7 +345,7 @@ class SemanticsRepository:
 
         return transformations
 
-    @lru_cache(maxsize=128)
+    @lru_cache(maxsize=1024)
     def get_anonymous_event_abi(self, chain_id, address) -> Optional[EventSemantics]:
 
         if not address:
@@ -365,7 +365,7 @@ class SemanticsRepository:
 
         return event_semantics
 
-    @lru_cache(maxsize=128)
+    @lru_cache(maxsize=1024)
     def get_function_abi(
         self, chain_id, address, signature
     ) -> Optional[FunctionSemantics]:
@@ -380,7 +380,7 @@ class SemanticsRepository:
 
         return function_semantics
 
-    @lru_cache(maxsize=128)
+    @lru_cache(maxsize=1024)
     def get_constructor_abi(self, chain_id, address) -> Optional[FunctionSemantics]:
 
         if not address:
@@ -402,6 +402,7 @@ class SemanticsRepository:
 
         return constructor_semantics
 
+    @lru_cache(maxsize=1024)
     def get_address_label(self, chain_id, address, proxies=None) -> str:
 
         if not address:
@@ -422,7 +423,7 @@ class SemanticsRepository:
 
         return contract_label
 
-    @lru_cache(maxsize=128)
+    @lru_cache(maxsize=1024)
     def check_is_contract(self, chain_id, address) -> bool:
 
         if not address:
@@ -433,7 +434,7 @@ class SemanticsRepository:
 
         return is_contract
 
-    @lru_cache(maxsize=128)
+    @lru_cache(maxsize=1024)
     def get_standard(self, chain_id, address) -> Optional[str]:
 
         if not address:
@@ -444,6 +445,7 @@ class SemanticsRepository:
 
         return standard
 
+    @lru_cache(maxsize=1024)
     def get_token_data(
         self, chain_id, address, proxies=None
     ) -> Tuple[Optional[str], Optional[str], Optional[int], Optional[str]]:
@@ -529,6 +531,7 @@ class SemanticsRepository:
 
             self.update_or_insert_signature(new_signature)
 
+    @lru_cache(maxsize=1024)
     def get_most_used_signature(self, signature_hash: str) -> Optional[Signature]:
         signatures = list(
             self.database.get_signature_semantics(signature_hash=signature_hash)
