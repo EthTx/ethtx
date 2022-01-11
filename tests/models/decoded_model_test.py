@@ -49,7 +49,6 @@ class TestDecodedModels:
         assert dtm.tx_value == 2
         assert dtm.gas_limit == 3
         assert dtm.gas_used == 4
-        assert dtm.eth_price is None
         assert dtm.success
 
     def test_argument(self):
