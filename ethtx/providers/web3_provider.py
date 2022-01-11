@@ -13,7 +13,7 @@
 import logging
 import os
 from functools import lru_cache
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Callable
 
 from web3 import Web3
 from web3.datastructures import AttributeDict
@@ -105,9 +105,11 @@ class NodeDataProvider:
 class Web3Provider(NodeDataProvider):
     chain: Web3
 
-    def __init__(self, nodes: Dict[str, dict], default_chain=None):
+    def __init__(self, nodes: Dict[str, dict], default_chain=None, cached: Callable=lambda x:x):
         super().__init__(default_chain)
         self.nodes = nodes
+        self.get_block = cached(self.get_block)
+        self.get_transaction = cached(self.get_transaction)
 
     def _get_node_connection(self, chain_id: Optional[str] = None) -> Web3:
         chain_id = chain_id or self.default_chain

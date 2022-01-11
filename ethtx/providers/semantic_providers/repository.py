@@ -10,8 +10,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from functools import lru_cache
-from typing import Optional, List, Dict, Tuple
+from typing import Optional, List, Dict, Tuple, Callable
 
 from ethtx.decoders.decoders.semantics import decode_events_and_functions
 from ethtx.models.semantics_model import (
@@ -40,7 +39,8 @@ class SemanticsRepository:
             etherscan_provider: EtherscanProvider,
             web3provider: Web3Provider,
             ens_provider: ENSProvider,
-            refresh_ens: bool = True
+            refresh_ens: bool = True,
+            cached: Callable = lambda x: x
     ):
         self.database = database_connection
         self.etherscan = etherscan_provider
@@ -49,6 +49,15 @@ class SemanticsRepository:
         self.refresh_ens = refresh_ens
 
         self._records: Optional[List] = None
+
+        self.get_semantics = cached(self.get_semantics)
+        self.get_event_abi = cached(self.get_event_abi)
+        self.get_transformations = cached(self.get_transformations)
+        self.get_anonymous_event_abi = cached(self.get_anonymous_event_abi)
+        self.get_function_abi = cached(self.get_function_abi)
+        self.get_constructor_abi = cached(self.get_constructor_abi)
+        self.check_is_contract = cached(self.check_is_contract)
+        self.get_standard = cached(self.get_standard)
 
     def record(self) -> None:
         """Records is an array used to hold semantics used in tx decing process.
@@ -174,7 +183,6 @@ class SemanticsRepository:
 
         return address_semantics
 
-    @lru_cache(maxsize=1024)
     def get_semantics(self, chain_id: str, address: str) -> Optional[AddressSemantics]:
 
         if not address:
@@ -224,7 +232,6 @@ class SemanticsRepository:
 
         return standard, standard_semantics
 
-    @lru_cache(maxsize=1024)
     def get_event_abi(self, chain_id, address, signature) -> Optional[EventSemantics]:
 
         if not address:
@@ -237,7 +244,6 @@ class SemanticsRepository:
 
         return event_semantics
 
-    @lru_cache(maxsize=1024)
     def get_transformations(
             self, chain_id, address, signature
     ) -> Optional[Dict[str, TransformationSemantics]]:
@@ -253,7 +259,6 @@ class SemanticsRepository:
 
         return transformations
 
-    @lru_cache(maxsize=1024)
     def get_anonymous_event_abi(self, chain_id, address) -> Optional[EventSemantics]:
 
         if not address:
@@ -273,7 +278,6 @@ class SemanticsRepository:
 
         return event_semantics
 
-    @lru_cache(maxsize=1024)
     def get_function_abi(
             self, chain_id, address, signature
     ) -> Optional[FunctionSemantics]:
@@ -288,7 +292,6 @@ class SemanticsRepository:
 
         return function_semantics
 
-    @lru_cache(maxsize=1024)
     def get_constructor_abi(self, chain_id, address) -> Optional[FunctionSemantics]:
 
         if not address:
@@ -330,7 +333,6 @@ class SemanticsRepository:
 
         return contract_label
 
-    @lru_cache(maxsize=1024)
     def check_is_contract(self, chain_id, address) -> bool:
 
         if not address:
@@ -341,7 +343,6 @@ class SemanticsRepository:
 
         return is_contract
 
-    @lru_cache(maxsize=1024)
     def get_standard(self, chain_id, address) -> Optional[str]:
 
         if not address:
@@ -437,7 +438,6 @@ class SemanticsRepository:
 
             self.update_or_insert_signature(new_signature)
 
-    @lru_cache(maxsize=1024)
     def get_most_used_signature(self, signature_hash: str) -> Optional[Signature]:
         signatures = list(
             self.database.get_signature_semantics(signature_hash=signature_hash)
