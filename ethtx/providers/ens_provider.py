@@ -11,6 +11,7 @@
 #  limitations under the License.
 import logging
 from abc import ABC, abstractmethod
+from functools import lru_cache
 from typing import Any, TypeVar, Type
 
 from ens import ENS
@@ -35,6 +36,7 @@ class ENSProviderBase(ABC):
 class Web3ENSProvider(ENSProviderBase):
     ns: ENS
 
+    @lru_cache(maxsize=1024)
     def name(self, provider: Web3, address: str) -> str:
         ns = self._set_provider(provider)
         check_sum_address = Web3.toChecksumAddress(address)
@@ -45,6 +47,7 @@ class Web3ENSProvider(ENSProviderBase):
 
         return name if name else address
 
+    @lru_cache(maxsize=1024)
     def address(self, provider: Web3, name: str) -> str:
         ns = self._set_provider(provider)
         address = ns.address(name=name)
