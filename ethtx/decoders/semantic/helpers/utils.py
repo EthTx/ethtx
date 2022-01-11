@@ -25,25 +25,6 @@ from ethtx.semantics.utilities.functions import add_utils_to_context
 
 log = logging.getLogger(__name__)
 
-eth_price: Optional[float] = None
-eth_price_update: Optional[float] = None
-
-
-def get_eth_price() -> Optional[float]:
-    global eth_price, eth_price_update
-
-    current_time = time.time()
-    if (
-        eth_price is None
-        or eth_price_update is None
-        or (current_time - eth_price_update) > 60
-    ):
-        response = requests.get("https://api.coinbase.com/v2/prices/ETH-USD/buy")
-        if response.status_code == 200:
-            eth_price = float(json.loads(response.content)["data"]["amount"])
-            eth_price_update = time.time()
-
-    return eth_price
 
 
 def get_badge(address, sender, receiver):

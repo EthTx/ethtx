@@ -37,7 +37,6 @@ class DecodedTransactionMetadata(BaseModel):
     receiver: Optional[AddressInfo]
     tx_index: int
     tx_value: int
-    eth_price: Optional[float]
     gas_limit: int
     gas_used: int
     success: bool
