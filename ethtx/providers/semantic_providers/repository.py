@@ -58,6 +58,10 @@ class SemanticsRepository:
         self.get_constructor_abi = cached(self.get_constructor_abi)
         self.check_is_contract = cached(self.check_is_contract)
         self.get_standard = cached(self.get_standard)
+        # self.get_address_label = cached(self.get_address_label)
+        self.check_is_contract = cached(self.check_is_contract)
+        # self.get_token_data = cached(self.get_token_data)
+        self.get_most_used_signature = cached(self.get_most_used_signature)
 
     def record(self) -> None:
         """Records is an array used to hold semantics used in tx decing process.

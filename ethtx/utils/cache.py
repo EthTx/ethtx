@@ -1,3 +1,4 @@
+import hashlib
 import json
 import pickle
 
@@ -49,6 +50,7 @@ def get_redis_cache_method():
 
             redis_args = (func.__qualname__,) + args
             key = str(make_key(redis_args, kwargs, False))
+            key = hashlib.md5(key.encode()).digest()
 
             result = redis.get(key)
 
