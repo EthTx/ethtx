@@ -13,12 +13,13 @@
 import logging
 import os
 from functools import lru_cache
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Type
 
 from web3 import Web3
 from web3.datastructures import AttributeDict
 from web3.middleware import geth_poa_middleware
 from web3.types import BlockData, TxData, TxReceipt, HexStr
+from ens import ENS
 
 from .node import NodeConnectionPool
 from ..exceptions import NodeConnectionException, ProcessingException
@@ -102,12 +103,24 @@ class NodeDataProvider:
         ...
 
 
-class Web3Provider(NodeDataProvider):
+class ENSProvider:
+
+    def name(self, address: str):
+        ...
+
+    def address(self, name: str):
+        ...
+
+
+class Web3Provider(NodeDataProvider, ENSProvider):
     chain: Web3
+    ns: ENS
 
     def __init__(self, nodes: Dict[str, dict], default_chain=None):
         super().__init__(default_chain)
         self.nodes = nodes
+        self.ns = ENS.fromWeb3(self._get_node_connection())
+        self.ns.web3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
     def _get_node_connection(self, chain_id: Optional[str] = None) -> Web3:
         chain_id = chain_id or self.default_chain
@@ -523,3 +536,21 @@ class Web3Provider(NodeDataProvider):
             tmp_call_tree = new_call_tree
 
         return main_parent
+
+    def name(self, address: str) -> str:
+        check_sum_address = Web3.toChecksumAddress(address)
+        name = self.ns.name(address=check_sum_address)
+
+        if name:
+            log.info("ENS resolved an address: %s to name: %s", address, name)
+
+        return name if name else address
+
+    def address(self, name: str) -> str:
+        address = self.ns.address(name=name)
+
+        if address:
+            log.info("ENS resolved name: %s to address: %s", name, address)
+
+        return address if address else name
+

@@ -20,7 +20,7 @@ from .decoders.decoder_service import DecoderService
 from .decoders.semantic.decoder import SemanticDecoder
 from .models.decoded_model import Proxy, DecodedTransaction
 from .models.objects_model import Call
-from .providers import EtherscanProvider, Web3Provider, ENSProvider
+from .providers import EtherscanProvider, Web3Provider
 from .providers.semantic_providers import (
     ISemanticsDatabase,
     SemanticsRepository,
@@ -74,17 +74,14 @@ class EthTxDecoders:
 class EthTxProviders:
     web3provider: Web3Provider
     etherscan_provider: EtherscanProvider
-    ens_provider: ENSProvider
 
     def __init__(
         self,
         web3provider: Web3Provider,
         etherscan_provider: EtherscanProvider,
-        ens_provider: ENSProvider,
     ):
         self.web3provider = web3provider
         self.etherscan_provider = etherscan_provider
-        self.ens_provider = ens_provider
 
 
 class EthTx:
@@ -94,14 +91,12 @@ class EthTx:
         database: ISemanticsDatabase,
         web3provider: Web3Provider,
         etherscan_provider: EtherscanProvider,
-        ens_provider: ENSProvider,
     ):
         self._default_chain = default_chain
         self._semantics_repository = SemanticsRepository(
             database_connection=database,
             etherscan_provider=etherscan_provider,
             web3provider=web3provider,
-            ens_provider=ens_provider,
         )
 
         abi_decoder = ABIDecoder(self.semantics, self._default_chain)
@@ -113,7 +108,6 @@ class EthTx:
         self._providers = EthTxProviders(
             web3provider=web3provider,
             etherscan_provider=etherscan_provider,
-            ens_provider=ens_provider,
         )
 
     @staticmethod
@@ -130,14 +124,11 @@ class EthTx:
             default_chain_id=config.default_chain,
         )
 
-        ens_provider = ENSProvider
-
         return EthTx(
             config.default_chain,
             repository,
             web3provider,
             etherscan_provider,
-            ens_provider,
         )
 
     @property
