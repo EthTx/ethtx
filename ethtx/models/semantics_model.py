@@ -13,6 +13,7 @@
 from typing import List, Dict, Optional
 
 from ethtx.models.base_model import BaseModel
+from ethtx.providers.semantic_providers import ISemanticsDatabase
 
 
 class TransformationSemantics(BaseModel):
@@ -82,3 +83,112 @@ class AddressSemantics(BaseModel):
 
     class Config:
         allow_mutation = True
+
+
+    @staticmethod
+    def from_mongo_record(raw_address_semantics, database: ISemanticsDatabase) -> 'AddressSemantics':
+
+        def decode_parameter(_parameter):
+            components_semantics = []
+            if "components" in _parameter:
+                for component in _parameter["components"]:
+                    components_semantics.append(decode_parameter(component))
+
+            decoded_parameter = ParameterSemantics(
+                parameter_name=_parameter["parameter_name"],
+                parameter_type=_parameter["parameter_type"],
+                components=components_semantics,
+                indexed=_parameter["indexed"],
+                dynamic=_parameter["dynamic"],
+            )
+
+            return decoded_parameter
+
+        ZERO_HASH = "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+        if raw_address_semantics.get("erc20"):
+            erc20_semantics = ERC20Semantics(
+                name=raw_address_semantics["erc20"]["name"],
+                symbol=raw_address_semantics["erc20"]["symbol"],
+                decimals=raw_address_semantics["erc20"]["decimals"],
+            )
+        else:
+            erc20_semantics = None
+
+        if raw_address_semantics["contract"] == ZERO_HASH:
+            contract_semantics = ContractSemantics(
+                code_hash=raw_address_semantics["contract"], name="EOA"
+            )
+
+        else:
+
+            raw_contract_semantics = database.get_contract_semantics(
+                raw_address_semantics["contract"]
+            )
+            events = {}
+
+            for signature, event in raw_contract_semantics["events"].items():
+
+                parameters_semantics = []
+                for parameter in event["parameters"]:
+                    parameters_semantics.append(decode_parameter(parameter))
+
+                events[signature] = EventSemantics(
+                    signature=signature,
+                    anonymous=event["anonymous"],
+                    name=event["name"],
+                    parameters=parameters_semantics,
+                )
+
+            functions = {}
+            for signature, function in raw_contract_semantics["functions"].items():
+
+                inputs_semantics = []
+                for parameter in function["inputs"]:
+                    inputs_semantics.append(decode_parameter(parameter))
+                outputs_semantics = []
+                for parameter in function["outputs"]:
+                    outputs_semantics.append(decode_parameter(parameter))
+
+                functions[signature] = FunctionSemantics(
+                    signature=signature,
+                    name=function["name"],
+                    inputs=inputs_semantics,
+                    outputs=outputs_semantics,
+                )
+
+            transformations = {}
+            for signature, parameters_transformations in raw_contract_semantics[
+                "transformations"
+            ].items():
+                transformations[signature] = {}
+                for parameter, transformation in parameters_transformations.items():
+                    transformations[signature][parameter] = TransformationSemantics(
+                        transformed_name=transformation["transformed_name"],
+                        transformed_type=transformation["transformed_type"],
+                        transformation=transformation["transformation"],
+                    )
+
+            contract_semantics = ContractSemantics(
+                code_hash=raw_contract_semantics["code_hash"],
+                name=raw_contract_semantics["name"],
+                events=events,
+                functions=functions,
+                transformations=transformations,
+            )
+
+        address = raw_address_semantics.get("address")
+        chain_id = raw_address_semantics.get("chain_id")
+        name = raw_address_semantics.get("name", address)
+
+
+        address_semantics = AddressSemantics(
+            chain_id=chain_id,
+            address=address,
+            name=name,
+            is_contract=raw_address_semantics["is_contract"],
+            contract=contract_semantics,
+            standard=raw_address_semantics["standard"],
+            erc20=erc20_semantics,
+        )
+
+        return address_semantics

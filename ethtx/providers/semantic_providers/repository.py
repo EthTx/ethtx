@@ -35,16 +35,18 @@ from ethtx.semantics.standards.erc721 import ERC721_FUNCTIONS, ERC721_EVENTS
 
 class SemanticsRepository:
     def __init__(
-        self,
-        database_connection: ISemanticsDatabase,
-        etherscan_provider: EtherscanProvider,
-        web3provider: Web3Provider,
-        ens_provider: ENSProvider,
+            self,
+            database_connection: ISemanticsDatabase,
+            etherscan_provider: EtherscanProvider,
+            web3provider: Web3Provider,
+            ens_provider: ENSProvider,
+            refresh_ens: bool = True
     ):
         self.database = database_connection
         self.etherscan = etherscan_provider
         self._web3provider = web3provider
         self._ens_provider = ens_provider
+        self.refresh_ens = refresh_ens
 
         self._records: Optional[List] = None
 
@@ -59,124 +61,119 @@ class SemanticsRepository:
         return tmp_records
 
     def _read_stored_semantics(
-        self, address: str, chain_id: str
+            self, address: str, chain_id: str
     ) -> Optional[AddressSemantics]:
-        def decode_parameter(_parameter):
-            components_semantics = []
-            if "components" in _parameter:
-                for component in _parameter["components"]:
-                    components_semantics.append(decode_parameter(component))
-
-            decoded_parameter = ParameterSemantics(
-                parameter_name=_parameter["parameter_name"],
-                parameter_type=_parameter["parameter_type"],
-                components=components_semantics,
-                indexed=_parameter["indexed"],
-                dynamic=_parameter["dynamic"],
-            )
-
-            return decoded_parameter
 
         if not address:
             return None
 
-        ZERO_HASH = "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
-
         raw_address_semantics = self.database.get_address_semantics(chain_id, address)
 
-        if raw_address_semantics:
+        if not raw_address_semantics:
+            return None
 
-            if raw_address_semantics.get("erc20"):
-                erc20_semantics = ERC20Semantics(
-                    name=raw_address_semantics["erc20"]["name"],
-                    symbol=raw_address_semantics["erc20"]["symbol"],
-                    decimals=raw_address_semantics["erc20"]["decimals"],
+        address_semantics = AddressSemantics.from_mongo_record(raw_address_semantics, self.database)
+
+        if self.refresh_ens and address_semantics.name == address_semantics.address and not raw_address_semantics["is_contract"]:
+            address_semantics.name = self._ens_provider.name(
+                provider=self._web3provider._get_node_connection(chain_id),
+                address=address,
+            )
+            self.update_semantics(address_semantics)
+
+        return address_semantics
+
+    def _create_address_semantics(self, chain_id: str, address: str) -> AddressSemantics:
+        ZERO_HASH = "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+        self._create_address_semantics(chain_id, address)
+
+        # try to read the semantics form the Etherscan provider
+        provider = self._web3provider
+        code_hash = provider.get_code_hash(address, chain_id)
+
+        if code_hash != ZERO_HASH:
+            # smart contract
+            raw_semantics, decoded = self.etherscan.contract.get_contract_abi(
+                chain_id, address
+            )
+            if decoded and raw_semantics:
+                # raw semantics received from Etherscan
+                events, functions = decode_events_and_functions(
+                    raw_semantics["abi"]
                 )
-            else:
-                erc20_semantics = None
-
-            if raw_address_semantics["contract"] == ZERO_HASH:
+                standard, standard_semantics = self._decode_standard_semantics(
+                    address, raw_semantics["name"], events, functions
+                )
+                if standard == "ERC20":
+                    erc20_semantics = standard_semantics
+                else:
+                    proxy_erc20 = provider.guess_erc20_proxy(address, chain_id)
+                    if proxy_erc20:
+                        erc20_semantics = ERC20Semantics(**proxy_erc20)
+                    else:
+                        erc20_semantics = None
                 contract_semantics = ContractSemantics(
-                    code_hash=raw_address_semantics["contract"], name="EOA"
-                )
-
-            else:
-
-                raw_contract_semantics = self.database.get_contract_semantics(
-                    raw_address_semantics["contract"]
-                )
-                events = {}
-
-                for signature, event in raw_contract_semantics["events"].items():
-
-                    parameters_semantics = []
-                    for parameter in event["parameters"]:
-                        parameters_semantics.append(decode_parameter(parameter))
-
-                    events[signature] = EventSemantics(
-                        signature=signature,
-                        anonymous=event["anonymous"],
-                        name=event["name"],
-                        parameters=parameters_semantics,
-                    )
-
-                functions = {}
-                for signature, function in raw_contract_semantics["functions"].items():
-
-                    inputs_semantics = []
-                    for parameter in function["inputs"]:
-                        inputs_semantics.append(decode_parameter(parameter))
-                    outputs_semantics = []
-                    for parameter in function["outputs"]:
-                        outputs_semantics.append(decode_parameter(parameter))
-
-                    functions[signature] = FunctionSemantics(
-                        signature=signature,
-                        name=function["name"],
-                        inputs=inputs_semantics,
-                        outputs=outputs_semantics,
-                    )
-
-                transformations = {}
-                for signature, parameters_transformations in raw_contract_semantics[
-                    "transformations"
-                ].items():
-                    transformations[signature] = {}
-                    for parameter, transformation in parameters_transformations.items():
-                        transformations[signature][parameter] = TransformationSemantics(
-                            transformed_name=transformation["transformed_name"],
-                            transformed_type=transformation["transformed_type"],
-                            transformation=transformation["transformation"],
-                        )
-
-                contract_semantics = ContractSemantics(
-                    code_hash=raw_contract_semantics["code_hash"],
-                    name=raw_contract_semantics["name"],
+                    code_hash=code_hash,
+                    name=raw_semantics["name"],
                     events=events,
                     functions=functions,
-                    transformations=transformations,
+                    transformations={},
                 )
-
-            name = raw_address_semantics.get("name", address)
-            if name == address and not raw_address_semantics["is_contract"]:
-                name = self._ens_provider.name(
-                    provider=self._web3provider._get_node_connection(chain_id),
+                address_semantics = AddressSemantics(
+                    chain_id=chain_id,
                     address=address,
+                    name=raw_semantics["name"],
+                    is_contract=True,
+                    contract=contract_semantics,
+                    standard=standard,
+                    erc20=erc20_semantics,
                 )
 
+            else:
+                # try to guess if the address is a toke
+                potential_erc20_semantics = provider.guess_erc20_token(
+                    address, chain_id
+                )
+                if potential_erc20_semantics:
+                    standard = "ERC20"
+                    erc20_semantics = ERC20Semantics(
+                        name=potential_erc20_semantics["name"],
+                        symbol=potential_erc20_semantics["symbol"],
+                        decimals=potential_erc20_semantics["decimals"],
+                    )
+                else:
+                    standard = None
+                    erc20_semantics = None
+
+                contract_semantics = ContractSemantics(
+                    code_hash=code_hash, name=address
+                )
+                address_semantics = AddressSemantics(
+                    chain_id=chain_id,
+                    address=address,
+                    name=address,
+                    is_contract=True,
+                    contract=contract_semantics,
+                    standard=standard,
+                    erc20=erc20_semantics,
+                )
+
+        else:
+            # externally owned address
+            contract_semantics = ContractSemantics(code_hash=ZERO_HASH, name="EOA")
+            name = self._ens_provider.name(
+                provider=self._web3provider._get_node_connection(chain_id),
+                address=address,
+            )
             address_semantics = AddressSemantics(
                 chain_id=chain_id,
                 address=address,
                 name=name,
-                is_contract=raw_address_semantics["is_contract"],
+                is_contract=False,
                 contract=contract_semantics,
-                standard=raw_address_semantics["standard"],
-                erc20=erc20_semantics,
             )
 
-            return address_semantics
-
-        return None
+        return address_semantics
 
     @lru_cache(maxsize=1024)
     def get_semantics(self, chain_id: str, address: str) -> Optional[AddressSemantics]:
@@ -184,97 +181,9 @@ class SemanticsRepository:
         if not address:
             return None
 
-        ZERO_HASH = "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
-
         address_semantics = self._read_stored_semantics(address, chain_id)
         if not address_semantics:
-
-            # try to read the semantics form the Etherscan provider
-            provider = self._web3provider
-            code_hash = provider.get_code_hash(address, chain_id)
-
-            if code_hash != ZERO_HASH:
-                # smart contract
-                raw_semantics, decoded = self.etherscan.contract.get_contract_abi(
-                    chain_id, address
-                )
-                if decoded and raw_semantics:
-                    # raw semantics received from Etherscan
-                    events, functions = decode_events_and_functions(
-                        raw_semantics["abi"]
-                    )
-                    standard, standard_semantics = self._decode_standard_semantics(
-                        address, raw_semantics["name"], events, functions
-                    )
-                    if standard == "ERC20":
-                        erc20_semantics = standard_semantics
-                    else:
-                        proxy_erc20 = provider.guess_erc20_proxy(address, chain_id)
-                        if proxy_erc20:
-                            erc20_semantics = ERC20Semantics(**proxy_erc20)
-                        else:
-                            erc20_semantics = None
-                    contract_semantics = ContractSemantics(
-                        code_hash=code_hash,
-                        name=raw_semantics["name"],
-                        events=events,
-                        functions=functions,
-                        transformations={},
-                    )
-                    address_semantics = AddressSemantics(
-                        chain_id=chain_id,
-                        address=address,
-                        name=raw_semantics["name"],
-                        is_contract=True,
-                        contract=contract_semantics,
-                        standard=standard,
-                        erc20=erc20_semantics,
-                    )
-
-                else:
-                    # try to guess if the address is a toke
-                    potential_erc20_semantics = provider.guess_erc20_token(
-                        address, chain_id
-                    )
-                    if potential_erc20_semantics:
-                        standard = "ERC20"
-                        erc20_semantics = ERC20Semantics(
-                            name=potential_erc20_semantics["name"],
-                            symbol=potential_erc20_semantics["symbol"],
-                            decimals=potential_erc20_semantics["decimals"],
-                        )
-                    else:
-                        standard = None
-                        erc20_semantics = None
-
-                    contract_semantics = ContractSemantics(
-                        code_hash=code_hash, name=address
-                    )
-                    address_semantics = AddressSemantics(
-                        chain_id=chain_id,
-                        address=address,
-                        name=address,
-                        is_contract=True,
-                        contract=contract_semantics,
-                        standard=standard,
-                        erc20=erc20_semantics,
-                    )
-
-            else:
-                # externally owned address
-                contract_semantics = ContractSemantics(code_hash=ZERO_HASH, name="EOA")
-                name = self._ens_provider.name(
-                    provider=self._web3provider._get_node_connection(chain_id),
-                    address=address,
-                )
-                address_semantics = AddressSemantics(
-                    chain_id=chain_id,
-                    address=address,
-                    name=name,
-                    is_contract=False,
-                    contract=contract_semantics,
-                )
-
+            address_semantics = self._create_address_semantics(chain_id, address)
             self.update_semantics(address_semantics)
 
         # amend semantics with locally stored updates
@@ -286,7 +195,7 @@ class SemanticsRepository:
         return address_semantics
 
     def _decode_standard_semantics(
-        self, address, name, events, functions
+            self, address, name, events, functions
     ) -> Tuple[Optional[str], Optional[ERC20Semantics]]:
         standard = None
         standard_semantics = None
@@ -295,7 +204,7 @@ class SemanticsRepository:
             return standard, standard_semantics
 
         if all(erc20_event in events for erc20_event in ERC20_EVENTS) and all(
-            erc20_function in functions for erc20_function in ERC20_FUNCTIONS
+                erc20_function in functions for erc20_function in ERC20_FUNCTIONS
         ):
             standard = "ERC20"
             try:
@@ -309,7 +218,7 @@ class SemanticsRepository:
             except Exception:
                 standard_semantics = ERC20Semantics(name=name, symbol=name, decimals=18)
         elif all(erc721_event in events for erc721_event in ERC721_EVENTS) and all(
-            erc721_function in functions for erc721_function in ERC721_FUNCTIONS
+                erc721_function in functions for erc721_function in ERC721_FUNCTIONS
         ):
             standard = "ERC721"
             standard_semantics = None
@@ -331,7 +240,7 @@ class SemanticsRepository:
 
     @lru_cache(maxsize=1024)
     def get_transformations(
-        self, chain_id, address, signature
+            self, chain_id, address, signature
     ) -> Optional[Dict[str, TransformationSemantics]]:
 
         if not address:
@@ -367,7 +276,7 @@ class SemanticsRepository:
 
     @lru_cache(maxsize=1024)
     def get_function_abi(
-        self, chain_id, address, signature
+            self, chain_id, address, signature
     ) -> Optional[FunctionSemantics]:
 
         if not address:
@@ -447,7 +356,7 @@ class SemanticsRepository:
 
     @lru_cache(maxsize=1024)
     def get_token_data(
-        self, chain_id, address, proxies=None
+            self, chain_id, address, proxies=None
     ) -> Tuple[Optional[str], Optional[str], Optional[int], Optional[str]]:
 
         if not address:
@@ -558,12 +467,12 @@ class SemanticsRepository:
         )
         for sig in signatures:
             if (
-                signature.name == sig["name"]
-                and signature.signature_hash == sig["signature_hash"]
-                and len(signature.args) == len(sig["args"])
+                    signature.name == sig["name"]
+                    and signature.signature_hash == sig["signature_hash"]
+                    and len(signature.args) == len(sig["args"])
             ):
                 if signature.args and any(
-                    arg for arg in list(sig["args"][0].values()) if "arg" in arg
+                        arg for arg in list(sig["args"][0].values()) if "arg" in arg
                 ):
                     for index, argument in enumerate(sig["args"]):
                         argument["name"] = signature.args[index].name
