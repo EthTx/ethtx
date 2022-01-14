@@ -11,6 +11,7 @@
 #  limitations under the License.
 
 import logging
+from functools import lru_cache
 from typing import Dict, Optional
 
 import bson
@@ -38,10 +39,12 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
     def get_collection_count(self) -> int:
         return len(self._db.list_collection_names())
 
+    @lru_cache(maxsize=1024)
     def get_address_semantics(self, chain_id, address) -> Optional[Dict]:
         _id = f"{chain_id}-{address}"
         return self._addresses.find_one({"_id": _id}, {"_id": 0})
 
+    @lru_cache(maxsize=1024)
     def get_signature_semantics(self, signature_hash: str) -> Cursor:
         return self._signatures.find({"signature_hash": signature_hash})
 
@@ -61,6 +64,7 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         inserted_signature = self._signatures.insert_one(signature)
         return inserted_signature.inserted_id
 
+    @lru_cache(maxsize=1024)
     def get_contract_semantics(self, code_hash):
         """Contract hashes are always the same, no mather what chain we use, so there is no need
         to use chain_id"""
