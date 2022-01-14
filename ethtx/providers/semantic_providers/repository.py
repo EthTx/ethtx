@@ -85,7 +85,6 @@ class SemanticsRepository:
 
     def _create_address_semantics(self, chain_id: str, address: str) -> AddressSemantics:
         ZERO_HASH = "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
-        self._create_address_semantics(chain_id, address)
 
         # try to read the semantics form the Etherscan provider
         provider = self._web3provider

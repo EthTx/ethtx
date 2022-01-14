@@ -10,10 +10,11 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, TYPE_CHECKING
 
 from ethtx.models.base_model import BaseModel
-from ethtx.providers.semantic_providers import ISemanticsDatabase
+if TYPE_CHECKING:
+    from ethtx.providers.semantic_providers import ISemanticsDatabase
 
 
 class TransformationSemantics(BaseModel):
@@ -86,7 +87,7 @@ class AddressSemantics(BaseModel):
 
 
     @staticmethod
-    def from_mongo_record(raw_address_semantics: Dict, database: ISemanticsDatabase) -> 'AddressSemantics':
+    def from_mongo_record(raw_address_semantics: Dict, database: 'ISemanticsDatabase') -> 'AddressSemantics':
 
         ZERO_HASH = "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
 
