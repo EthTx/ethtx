@@ -86,7 +86,9 @@ class AddressSemantics(BaseModel):
 
 
     @staticmethod
-    def from_mongo_record(raw_address_semantics, database: ISemanticsDatabase) -> 'AddressSemantics':
+    def from_mongo_record(raw_address_semantics: Dict, database: ISemanticsDatabase) -> 'AddressSemantics':
+
+        ZERO_HASH = "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
 
         def decode_parameter(_parameter):
             components_semantics = []
@@ -104,7 +106,6 @@ class AddressSemantics(BaseModel):
 
             return decoded_parameter
 
-        ZERO_HASH = "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
         if raw_address_semantics.get("erc20"):
             erc20_semantics = ERC20Semantics(
                 name=raw_address_semantics["erc20"]["name"],
