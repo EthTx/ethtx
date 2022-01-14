@@ -1,6 +1,19 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.3.8 - 2022-01-14
+### Added
+- Added option to disable refreshing of addresses in ENS for existing semantics [#106](https://github.com/EthTx/ethtx/pull/106)
+- Increased and added more lru_caches in different providers [#105](https://github.com/EthTx/ethtx/pull/105)
+
+### Changed
+- Python version bumped to 3.9 [#103](https://github.com/EthTx/ethtx/pull/103)
+- Deleted ethereum price field from decoded transaction model, will be moved to ethtx_ce [#104](https://github.com/EthTx/ethtx/pull/104)
+
+### Fixed
+- Fixed decoding of anonymous events without known contract's abi [#107](https://github.com/EthTx/ethtx/pull/107)
+
+
 ## 0.3.7 - 2021-12-24
 ### Changed
 - Update build dev requirements [#88](https://github.com/EthTx/ethtx/pull/88)
