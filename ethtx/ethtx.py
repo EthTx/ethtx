@@ -9,8 +9,8 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
-from typing import Dict
+import functools
+from typing import Dict, Callable
 
 from mongoengine import connect
 from pymongo import MongoClient
@@ -26,6 +26,7 @@ from .providers.semantic_providers import (
     SemanticsRepository,
     MongoSemanticsDatabase,
 )
+from .utils.cache import get_lru_cache_method
 from .utils.validators import assert_tx_hash
 
 
@@ -37,12 +38,12 @@ class EthTxConfig:
     default_chain: str
 
     def __init__(
-        self,
-        mongo_connection_string: str,
-        web3nodes: Dict[str, dict],
-        etherscan_api_key: str,
-        etherscan_urls: Dict[str, str],
-        default_chain: str = "mainnet",
+            self,
+            mongo_connection_string: str,
+            web3nodes: Dict[str, dict],
+            etherscan_api_key: str,
+            etherscan_urls: Dict[str, str],
+            default_chain: str = "mainnet",
     ):
         self.mongo_connection_string = mongo_connection_string
         self.etherscan_api_key = etherscan_api_key
@@ -61,7 +62,7 @@ class EthTxDecoders:
         self.semantic_decoder: SemanticDecoder = decoder_service.semantic_decoder
 
     def decode_transaction(
-        self, tx_hash: str, chain_id: str = None
+            self, tx_hash: str, chain_id: str = None
     ) -> DecodedTransaction:
         assert_tx_hash(tx_hash)
         return self._decoder_service.decode_transaction(chain_id, tx_hash)
@@ -77,31 +78,37 @@ class EthTxProviders:
     ens_provider: ENSProvider
 
     def __init__(
-        self,
-        web3provider: Web3Provider,
-        etherscan_provider: EtherscanProvider,
-        ens_provider: ENSProvider,
+            self,
+            web3provider: Web3Provider,
+            etherscan_provider: EtherscanProvider,
+            ens_provider: ENSProvider,
     ):
         self.web3provider = web3provider
         self.etherscan_provider = etherscan_provider
         self.ens_provider = ens_provider
 
 
+
+
 class EthTx:
     def __init__(
-        self,
-        default_chain: str,
-        database: ISemanticsDatabase,
-        web3provider: Web3Provider,
-        etherscan_provider: EtherscanProvider,
-        ens_provider: ENSProvider,
+            self,
+            default_chain: str,
+            database: ISemanticsDatabase,
+            web3provider: Web3Provider,
+            etherscan_provider: EtherscanProvider,
+            ens_provider: ENSProvider,
+            caching_method: Callable = get_lru_cache_method()
     ):
+        self._caching_method = caching_method
+
         self._default_chain = default_chain
         self._semantics_repository = SemanticsRepository(
             database_connection=database,
             etherscan_provider=etherscan_provider,
             web3provider=web3provider,
             ens_provider=ens_provider,
+            cached=self._caching_method
         )
 
         abi_decoder = ABIDecoder(self.semantics, self._default_chain)
@@ -117,12 +124,12 @@ class EthTx:
         )
 
     @staticmethod
-    def initialize(config: EthTxConfig):
+    def initialize(config: EthTxConfig, caching_method: Callable = get_lru_cache_method()):
         mongo_client: MongoClient = connect(host=config.mongo_connection_string)
         repository = MongoSemanticsDatabase(db=mongo_client.get_database())
 
         web3provider = Web3Provider(
-            nodes=config.web3nodes, default_chain=config.default_chain
+            nodes=config.web3nodes, default_chain=config.default_chain, cached=caching_method
         )
         etherscan_provider = EtherscanProvider(
             api_key=config.etherscan_api_key,
@@ -138,6 +145,7 @@ class EthTx:
             web3provider,
             etherscan_provider,
             ens_provider,
+            caching_method
         )
 
     @property
