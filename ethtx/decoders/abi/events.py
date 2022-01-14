@@ -120,7 +120,13 @@ class ABIEventsDecoder(ABISubmoduleAbc):
         contract_name = self._repository.get_address_label(
             chain_id, event.contract, proxies
         )
-        event_name = event_abi.name if event_abi else event_signature
+
+        if event_abi:
+            event_name = event_abi.name
+        elif event_signature:
+            event_name = event_signature
+        else:
+            event_name = "Anonymous"
 
         parameters = decode_event_parameters(
             event.log_data, event.topics, event_abi, anonymous
