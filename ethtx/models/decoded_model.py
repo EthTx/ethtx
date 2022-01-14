@@ -55,7 +55,7 @@ class DecodedEvent(BaseModel):
     contract: AddressInfo
     index: Optional[int]
     call_id: Optional[str]
-    event_signature: str
+    event_signature: Optional[str]
     event_name: str
     parameters: List[Argument]
     event_guessed: bool = False
