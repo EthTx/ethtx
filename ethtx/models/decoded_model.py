@@ -68,7 +68,7 @@ class DecodedCall(BaseModel):
     call_id: Optional[str]
     call_type: str
     from_address: AddressInfo
-    to_address: AddressInfo
+    to_address: Optional[AddressInfo]
     value: float
     function_signature: str
     function_name: str
