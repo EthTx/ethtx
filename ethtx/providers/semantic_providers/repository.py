@@ -194,7 +194,7 @@ class SemanticsRepository:
         return address_semantics
 
     def _decode_standard_semantics(
-            self, address, name, events, functions
+            self, address, name, events, functions: Dict[str, FunctionSemantics]
     ) -> Tuple[Optional[str], Optional[ERC20Semantics]]:
         standard = None
         standard_semantics = None
