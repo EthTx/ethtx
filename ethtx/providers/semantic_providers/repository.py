@@ -27,6 +27,7 @@ from ethtx.models.semantics_model import (
 )
 from ethtx.providers import EtherscanProvider, Web3Provider, ENSProvider
 from ethtx.providers.semantic_providers.database import ISemanticsDatabase
+from ethtx.providers.web3_provider import NodeDataProvider
 from ethtx.semantics.protocols_router import amend_contract_semantics
 from ethtx.semantics.solidity.precompiles import precompiles
 from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS, ERC20_EVENTS
@@ -38,7 +39,7 @@ class SemanticsRepository:
             self,
             database_connection: ISemanticsDatabase,
             etherscan_provider: EtherscanProvider,
-            web3provider: Web3Provider,
+            web3provider: NodeDataProvider,
             ens_provider: ENSProvider,
             refresh_ens: bool = True
     ):
@@ -231,9 +232,8 @@ class SemanticsRepository:
             return None
 
         semantics = self.get_semantics(chain_id, address)
-        event_semantics = (
-            semantics.contract.events.get(signature) if semantics else None
-        )
+        event_semantics = semantics.contract.events.get(signature)
+
 
         return event_semantics
 
@@ -246,10 +246,7 @@ class SemanticsRepository:
             return None
 
         semantics = self.get_semantics(chain_id, address)
-        if semantics:
-            transformations = semantics.contract.transformations.get(signature)
-        else:
-            transformations = None
+        transformations = semantics.contract.transformations.get(signature)
 
         return transformations
 
@@ -261,15 +258,15 @@ class SemanticsRepository:
 
         semantics = self.get_semantics(chain_id, address)
         event_semantics = None
-        if semantics:
-            anonymous_events = {
-                signature
-                for signature, event in semantics.contract.events.items()
-                if event.anonymous
-            }
-            if len(anonymous_events) == 1:
-                event_signature = anonymous_events.pop()
-                event_semantics = semantics.contract.events[event_signature]
+
+        anonymous_events = {
+            signature
+            for signature, event in semantics.contract.events.items()
+            if event.anonymous
+        }
+        if len(anonymous_events) == 1:
+            event_signature = anonymous_events.pop()
+            event_semantics = semantics.contract.events[event_signature]
 
         return event_semantics
 
@@ -282,9 +279,7 @@ class SemanticsRepository:
             return None
 
         semantics = self.get_semantics(chain_id, address)
-        function_semantics = (
-            semantics.contract.functions.get(signature) if semantics else None
-        )
+        function_semantics = semantics.contract.functions.get(signature)
 
         return function_semantics
 
@@ -295,9 +290,8 @@ class SemanticsRepository:
             return None
 
         semantics = self.get_semantics(chain_id, address)
-        constructor_semantics = (
-            semantics.contract.functions.get("constructor") if semantics else None
-        )
+        constructor_semantics = semantics.contract.functions.get("constructor")
+
         if constructor_semantics:
             constructor_semantics.outputs.append(
                 ParameterSemantics(
@@ -348,9 +342,7 @@ class SemanticsRepository:
             return None
 
         semantics = self.get_semantics(chain_id, address)
-        standard = semantics.standard if semantics is not None else None
-
-        return standard
+        return semantics.standard
 
     def get_token_data(
             self, chain_id, address, proxies=None
@@ -360,15 +352,15 @@ class SemanticsRepository:
             return None, None, None, None
 
         semantics = self.get_semantics(chain_id, address)
-        if semantics and semantics.erc20:
+        if semantics.erc20:
             token_name = (
-                semantics.erc20.name if semantics and semantics.erc20 else address
+                semantics.erc20.name if semantics.erc20 else address
             )
             token_symbol = (
-                semantics.erc20.symbol if semantics and semantics.erc20 else "Unknown"
+                semantics.erc20.symbol if semantics.erc20 else "Unknown"
             )
             token_decimals = (
-                semantics.erc20.decimals if semantics and semantics.erc20 else 18
+                semantics.erc20.decimals if semantics.erc20 else 18
             )
         elif proxies and address in proxies and proxies[address].token:
             token_name = proxies[address].token.name
