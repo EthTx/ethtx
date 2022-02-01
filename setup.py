@@ -16,6 +16,7 @@ import subprocess
 import sys
 from shutil import rmtree
 
+import toml
 from setuptools import find_packages, setup, Command
 
 # root dir
@@ -47,8 +48,19 @@ except FileNotFoundError:
 
 def load_requirements(fname):
     """Load requirements from file."""
-    with open(fname) as file:
-        return file.read().splitlines()
+    try:
+        with open(fname, "r") as fh:
+            pipfile = fh.read()
+        pipfile_toml = toml.loads(pipfile)
+    except FileNotFoundError:
+        return []
+
+    try:
+        required_packages = pipfile_toml["packages"].items()
+    except KeyError:
+        return []
+
+    return [f"{pkg}{ver}" if ver != "*" else pkg for pkg, ver in required_packages]
 
 
 class UploadCommand(Command):
@@ -82,7 +94,7 @@ class UploadCommand(Command):
         os.system("twine upload dist/*")
 
         self.status("Pushing git tags…")
-        os.system("git tag v{0}".format(about["__version__"]))
+        os.system("git tag {0}".format(about["__version__"]))
         os.system("git push --tags")
 
         sys.exit()
@@ -101,13 +113,13 @@ setup(
     url=URL,
     license="Apache-2.0 License",
     packages=find_packages(exclude=["tests"]),
-    install_requires=load_requirements("requirements.txt"),
+    install_requires=load_requirements("Pipfile"),
     include_package_data=True,
     test_suite="tests",
     classifiers=[
         "Operating System :: POSIX :: Linux",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
     ],
     # $ setup.py publish support.
     cmdclass={"upload": UploadCommand},
