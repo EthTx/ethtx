@@ -78,7 +78,7 @@ class Call(BaseModel):
     call_type: str
     call_gas: Optional[int]
     from_address: str
-    to_address: str
+    to_address: Optional[str]
     call_value: int
     call_data: str
     return_value: str

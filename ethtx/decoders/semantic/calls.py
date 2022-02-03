@@ -36,8 +36,6 @@ class SemanticCallsDecoder(SemanticSubmoduleAbc):
         proxies: Dict[str, Proxy],
     ) -> DecodedCall:
 
-        standard = self.repository.get_standard(call.chain_id, call.to_address.address)
-
         function_transformations = self.repository.get_transformations(
             call.chain_id, call.to_address.address, call.function_signature
         )
