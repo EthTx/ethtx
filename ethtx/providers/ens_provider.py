@@ -36,7 +36,6 @@ class ENSProviderBase(ABC):
 class Web3ENSProvider(ENSProviderBase):
     ns: ENS
 
-    @lru_cache(maxsize=1024)
     def name(self, provider: Web3, address: str) -> str:
         ns = self._set_provider(provider)
         check_sum_address = Web3.toChecksumAddress(address)
@@ -47,7 +46,6 @@ class Web3ENSProvider(ENSProviderBase):
 
         return name if name else address
 
-    @lru_cache(maxsize=1024)
     def address(self, provider: Web3, name: str) -> str:
         ns = self._set_provider(provider)
         address = ns.address(name=name)
@@ -59,12 +57,7 @@ class Web3ENSProvider(ENSProviderBase):
 
     @staticmethod
     def _set_provider(provider: Web3) -> ENS:
-        ns = ENS.fromWeb3(provider)
-
-        # ENS.fromWeb3 not copying middleware #1657
-        ns.web3.middleware_onion.inject(geth_poa_middleware, layer=0)
-
-        return ns
+        return ENS.fromWeb3(provider)
 
 
 ENSProvider = Web3ENSProvider()
