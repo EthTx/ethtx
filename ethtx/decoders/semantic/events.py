@@ -96,8 +96,7 @@ class SemanticEventsDecoder(SemanticSubmoduleAbc):
             event.event_name = event_transformations.get("name") or event.event_name
         else:
             if calculated_event_signature in anonymous_events and (
-                not event_transformations
-                or event.event_signature not in event_transformations
+                event.event_signature not in event_transformations
             ):
                 event_transformations = anonymous_events[calculated_event_signature]
             else:
