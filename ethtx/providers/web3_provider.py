@@ -23,6 +23,7 @@ from web3.types import BlockData, TxData, TxReceipt, HexStr
 from .node import NodeConnectionPool
 from ..exceptions import NodeConnectionException, ProcessingException
 from ..models.objects_model import Transaction, BlockMetadata, TransactionMetadata, Call
+from ..models.semantics_model import FunctionSemantics
 from ..models.w3_model import W3Block, W3Transaction, W3Receipt, W3CallTree, W3Log
 from ..semantics.standards import erc20
 
@@ -272,7 +273,7 @@ class Web3Provider(NodeDataProvider):
         self,
         token_address: str,
         contract_name: str,
-        functions,
+        functions: Dict[str, FunctionSemantics],
         chain_id: Optional[str] = None,
     ):
 

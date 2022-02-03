@@ -55,7 +55,6 @@ class SemanticCallsDecoder(SemanticSubmoduleAbc):
             tx_metadata,
             self.repository,
         )
-        standard = self.repository.get_standard(call.chain_id, call.to_address.address)
 
         # perform parameters transformations
         for i, parameter in enumerate(call.arguments):
