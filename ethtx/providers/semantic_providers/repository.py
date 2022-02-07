@@ -304,7 +304,7 @@ class SemanticsRepository:
 
         return constructor_semantics
 
-    @lru_cache(maxsize=1024)
+    # do not cache with lru - uses unhashable arguments
     def get_address_label(self, chain_id, address, proxies=None) -> str:
 
         if not address:
@@ -345,7 +345,6 @@ class SemanticsRepository:
         semantics = self.get_semantics(chain_id, address)
         return semantics.standard
 
-    @lru_cache(maxsize=128)
     def get_token_data(
             self, chain_id, address, proxies=None
     ) -> Tuple[Optional[str], Optional[str], Optional[int], Optional[str]]:
