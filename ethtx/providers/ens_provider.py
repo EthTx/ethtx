@@ -55,8 +55,7 @@ class Web3ENSProvider(ENSProviderBase):
 
         return address if address else name
 
-    @staticmethod
-    def _set_provider(provider: Web3) -> ENS:
+    def _set_provider(self, provider: Web3) -> ENS:
         return ENS.fromWeb3(provider)
 
 
