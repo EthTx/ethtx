@@ -1,6 +1,21 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.3.9 - 2022-02-02
+
+### Added
+- Add some static types and LRU caches for proxy guessing and web3 [#112](https://github.com/EthTx/ethtx/pull/112)
+
+### Changed
+- Updated old ***Features*** section in `README.md` [#114](https://github.com/EthTx/ethtx/pull/114)
+- Removed *requirements.txt* file. Builds will use Pipfile from now on [#114](https://github.com/EthTx/ethtx/pull/114)
+
+### Fixed
+- `to_address` field in Call/DecodedCall is optional now [#111](https://github.com/EthTx/ethtx/pull/111)
+- Fixed `web3` dependencies [#114](https://github.com/EthTx/ethtx/pull/114)
+- Delete bunch of invalid if conditions when checking for semantic [#113](https://github.com/EthTx/ethtx/pull/113)
+
+
 ## 0.3.8 - 2022-01-14
 ### Added
 - Added option to disable refreshing of addresses in ENS for existing semantics [#106](https://github.com/EthTx/ethtx/pull/106)
