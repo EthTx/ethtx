@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     DEFAULT_CHAIN: str = "mainnet"
     CACHE_SIZE: int = 128
 
-    MONGO_CONNECTION_STRING: str
+    MONGO_CONNECTION_STRING: str = "mongomock://localhost/ethtx"
 
     WEB3_NODES: dict
 
