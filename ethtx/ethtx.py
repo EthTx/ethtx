@@ -15,6 +15,7 @@ from typing import Dict
 from mongoengine import connect
 from pymongo import MongoClient
 
+from .core.config import Settings
 from .decoders.abi.decoder import ABIDecoder
 from .decoders.decoder_service import DecoderService
 from .decoders.semantic.decoder import SemanticDecoder
@@ -27,28 +28,6 @@ from .providers.semantic_providers import (
     MongoSemanticsDatabase,
 )
 from .utils.validators import assert_tx_hash
-
-
-class EthTxConfig:
-    mongo_connection_string: str
-    etherscan_api_key: str
-    web3nodes: Dict[str, dict]
-    etherscan_urls: Dict[str, str]
-    default_chain: str
-
-    def __init__(
-        self,
-        mongo_connection_string: str,
-        web3nodes: Dict[str, dict],
-        etherscan_api_key: str,
-        etherscan_urls: Dict[str, str],
-        default_chain: str = "mainnet",
-    ):
-        self.mongo_connection_string = mongo_connection_string
-        self.etherscan_api_key = etherscan_api_key
-        self.web3nodes = web3nodes
-        self.default_chain = default_chain
-        self.etherscan_urls = etherscan_urls
 
 
 class EthTxDecoders:
@@ -117,23 +96,23 @@ class EthTx:
         )
 
     @staticmethod
-    def initialize(config: EthTxConfig):
-        mongo_client: MongoClient = connect(host=config.mongo_connection_string)
+    def initialize(config: Settings):
+        mongo_client: MongoClient = connect(host=config.MONGO_CONNECTION_STRING)
         repository = MongoSemanticsDatabase(db=mongo_client.get_database())
 
         web3provider = Web3Provider(
-            nodes=config.web3nodes, default_chain=config.default_chain
+            nodes=config.WEB3_NODES, default_chain=config.DEFAULT_CHAIN
         )
         etherscan_provider = EtherscanProvider(
-            api_key=config.etherscan_api_key,
-            nodes=config.etherscan_urls,
-            default_chain_id=config.default_chain,
+            api_key=config.ETHERSCAN_API_KEY,
+            nodes=config.ETHERSCAN_URLS,
+            default_chain_id=config.DEFAULT_CHAIN,
         )
 
         ens_provider = ENSProvider
 
         return EthTx(
-            config.default_chain,
+            config.DEFAULT_CHAIN,
             repository,
             web3provider,
             etherscan_provider,

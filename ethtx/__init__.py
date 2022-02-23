@@ -10,4 +10,5 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .ethtx import EthTx, EthTxConfig
+from .core.config import EthTxConfig
+from .ethtx import EthTx
