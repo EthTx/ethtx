@@ -32,7 +32,7 @@ class SemanticMetadataDecoder(SemanticSubmoduleAbc):
             block_number=block_metadata.block_number,
             block_hash=block_metadata.block_hash,
             timestamp=block_metadata.timestamp,
-            gas_price=tx_metadata.gas_price / 10 ** 9,
+            gas_price=tx_metadata.gas_price / 10**9,
             sender=AddressInfo(
                 address=tx_metadata.from_address,
                 name=self.repository.get_address_label(

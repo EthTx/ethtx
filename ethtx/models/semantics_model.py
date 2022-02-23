@@ -13,6 +13,7 @@
 from typing import List, Dict, Optional, TYPE_CHECKING
 
 from ethtx.models.base_model import BaseModel
+
 if TYPE_CHECKING:
     from ethtx.providers.semantic_providers import ISemanticsDatabase
 
@@ -85,9 +86,10 @@ class AddressSemantics(BaseModel):
     class Config:
         allow_mutation = True
 
-
     @staticmethod
-    def from_mongo_record(raw_address_semantics: Dict, database: 'ISemanticsDatabase') -> 'AddressSemantics':
+    def from_mongo_record(
+        raw_address_semantics: Dict, database: "ISemanticsDatabase"
+    ) -> "AddressSemantics":
 
         ZERO_HASH = "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
 
@@ -181,7 +183,6 @@ class AddressSemantics(BaseModel):
         address = raw_address_semantics.get("address")
         chain_id = raw_address_semantics.get("chain_id")
         name = raw_address_semantics.get("name", address)
-
 
         address_semantics = AddressSemantics(
             chain_id=chain_id,

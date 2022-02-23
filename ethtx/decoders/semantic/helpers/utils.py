@@ -26,7 +26,6 @@ from ethtx.semantics.utilities.functions import add_utils_to_context
 log = logging.getLogger(__name__)
 
 
-
 def get_badge(address, sender, receiver):
     sender_address = sender.address if isinstance(sender, AddressInfo) else sender
     receiver_address = (

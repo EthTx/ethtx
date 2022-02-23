@@ -15,7 +15,7 @@ from functools import lru_cache
 
 from ..models.semantics_model import ContractSemantics
 from ..semantics.router import Router
-from ..utils.decorators import ignore_unhashable
+from ..utils.cache import ignore_unhashable
 
 log = logging.getLogger(__name__)
 
