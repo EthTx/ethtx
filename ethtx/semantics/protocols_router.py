@@ -14,12 +14,10 @@ import logging
 
 from ..models.semantics_model import ContractSemantics
 from ..semantics.router import Router
-from ..utils.cache_tools import cache
 
 log = logging.getLogger(__name__)
 
 
-@cache
 def amend_contract_semantics(semantics: ContractSemantics, router_=Router()):
     if semantics.code_hash in router_:
         try:

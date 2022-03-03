@@ -240,11 +240,6 @@ class Web3Provider(NodeDataProvider):
 
         return receipt
 
-    @staticmethod
-    def _get_custom_calls_tracer():
-        return open(os.path.join(os.path.dirname(__file__), "static/tracer.js")).read()
-
-    @cache
     def get_calls(self, tx_hash: str, chain_id: Optional[str] = None) -> W3CallTree:
         # tracer is a temporary fixed implementation of geth tracer
         chain = self._get_node_connection(chain_id)
@@ -471,9 +466,11 @@ class Web3Provider(NodeDataProvider):
             w3transaction=w3transaction, w3receipt=w3receipt, w3calltree=w3calltree
         )
 
-    @staticmethod
+    def _get_custom_calls_tracer(self):
+        return open(os.path.join(os.path.dirname(__file__), "static/tracer.js")).read()
+
     def _create_call_from_debug_trace_tx(
-        tx_hash: str, chain_id: str, input_rpc: AttributeDict
+        self, tx_hash: str, chain_id: str, input_rpc: AttributeDict
     ) -> W3CallTree:
         def prep_raw_dict(dct: [AttributeDict, Dict]):
             if not isinstance(dct, dict):

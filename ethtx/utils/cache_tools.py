@@ -1,9 +1,7 @@
 import os
 from functools import WRAPPER_ASSIGNMENTS, wraps, lru_cache
 
-CACHE_SIZE = (
-    256 if os.environ.get("CACHE_SIZE") is None else int(os.environ.get("CACHE_SIZE"))
-)
+CACHE_SIZE = int(os.environ.get("CACHE_SIZE", 256))
 
 
 def cache(func, cache_size: int = CACHE_SIZE):
