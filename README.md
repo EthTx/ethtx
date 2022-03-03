@@ -72,7 +72,6 @@ EthTx most important functions:
 1. Raw node data access:
 
 ```python
-ethtx = EthTx.initialize(ethtx_config)
 web3provider = ethtx.providers.web3provider
 
 from ethtx.models.w3_model import W3Transaction, W3Block, W3Receipt, W3CallTree
@@ -96,25 +95,25 @@ from ethtx.models.decoded_model import (
 from ethtx.models.objects_model import Transaction, Event, Block, Call
 
 # read the raw transaction from the node
-transaction: Transaction = web3provider.get_full_transaction(
-    '0x50051e0a6f216ab9484c2080001c7e12d5138250acee1f4b7c725b8fb6bb922d')
+transaction = Transaction.from_raw(
+    w3transaction=w3transaction, w3receipt=w3receipt, w3calltree=w3calls
+)
 
 # get proxies used in the transaction
-proxies = ethtx.decoders.get_proxies(transaction.root_call, 'mainnet')
+proxies = ethtx.decoders.get_proxies(transaction.root_call, "mainnet")
 
 block: Block = Block.from_raw(
-    w3block=web3provider.get_block(
-        transaction.metadata.block_number
-    ),
-    chain_id='mainnet',
+    w3block=web3provider.get_block(transaction.metadata.block_number),
+    chain_id="mainnet",
 )
 
 # decode transaction components
 abi_decoded_events: List[Event] = ethtx.decoders.abi_decoder.decode_events(
     transaction.events, block.metadata, transaction.metadata
 )
-abi_decoded_calls: DecodedCall = ethtx.decoders.abi_decoder.decode_calls(transaction.root_call, block.metadata,
-                                                                         transaction.metadata, proxies)
+abi_decoded_calls: DecodedCall = ethtx.decoders.abi_decoder.decode_calls(
+    transaction.root_call, block.metadata, transaction.metadata, proxies
+)
 abi_decoded_transfers: List[
     DecodedTransfer
 ] = ethtx.decoders.abi_decoder.decode_transfers(abi_decoded_calls, abi_decoded_events)
@@ -124,13 +123,15 @@ abi_decoded_balances: List[DecodedBalance] = ethtx.decoders.abi_decoder.decode_b
 
 # decode a single event
 raw_event: Event = transaction.events[3]
-abi_decoded_event: DecodedEvent = ethtx.decoders.abi_decoder.decode_event(raw_event, block.metadata,
-                                                                          transaction.metadata)
+abi_decoded_event: DecodedEvent = ethtx.decoders.abi_decoder.decode_event(
+    raw_event, block.metadata, transaction.metadata
+)
 
 # decode a single call
 raw_call: Call = transaction.root_call.subcalls[0]
-abi_decoded_call: DecodedCall = ethtx.decoders.abi_decoder.decode_call(raw_call, block.metadata, transaction.metadata,
-                                                                       proxies)
+abi_decoded_call: DecodedCall = ethtx.decoders.abi_decoder.decode_call(
+    raw_call, block.metadata, transaction.metadata, proxies
+)
 ```
 
 3. Semantic decoding:
@@ -141,14 +142,16 @@ from ethtx.models.decoded_model import DecodedTransactionMetadata
 # semantically decode transaction components
 decoded_metadata: DecodedTransactionMetadata = (
     ethtx.decoders.semantic_decoder.decode_metadata(
-        block.metadata, transaction.metadata, 'mainnet'
+        block.metadata, transaction.metadata, "mainnet"
     )
 )
 decoded_events: List[DecodedEvent] = ethtx.decoders.semantic_decoder.decode_events(
     abi_decoded_events, decoded_metadata, proxies
 )
 
-decoded_calls: Call = ethtx.decoders.semantic_decoder.decode_calls(abi_decoded_calls, decoded_metadata, proxies)
+decoded_calls: Call = ethtx.decoders.semantic_decoder.decode_calls(
+    abi_decoded_calls, decoded_metadata, proxies
+)
 decoded_transfers: List[
     DecodedTransfer
 ] = ethtx.decoders.semantic_decoder.decode_transfers(
@@ -161,9 +164,11 @@ decoded_balances: List[
 )
 
 # semantically decode a single event
-decoded_event: DecodedEvent = ethtx.decoders.semantic_decoder.decode_event(abi_decoded_events[0], decoded_metadata,
-                                                                           proxies)
+decoded_event: DecodedEvent = ethtx.decoders.semantic_decoder.decode_event(
+    abi_decoded_events[0], decoded_metadata, proxies
+)
 # semantically decode a single call
-decoded_call: Call = ethtx.decoders.semantic_decoder.decode_call(abi_decoded_calls.subcalls[0],
-                                                                 decoded_metadata, proxies)
+decoded_call: Call = ethtx.decoders.semantic_decoder.decode_call(
+    abi_decoded_calls.subcalls[0], decoded_metadata, proxies
+)
 ```

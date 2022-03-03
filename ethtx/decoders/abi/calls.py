@@ -191,7 +191,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
             call_type=call.call_type,
             from_address=AddressInfo(address=call.from_address, name=from_name),
             to_address=AddressInfo(address=call.to_address, name=to_name),
-            value=call.call_value / 10 ** 18,
+            value=call.call_value / 10**18,
             function_signature=function_signature,
             function_name=function_name,
             arguments=function_input,

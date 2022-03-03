@@ -10,13 +10,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import json
 import logging
-import time
 from functools import partial
-from typing import Optional
-
-import requests
 
 from ethtx.decoders.decoders.parameters import decode_function_parameters
 from ethtx.models.decoded_model import AddressInfo
@@ -24,7 +19,6 @@ from ethtx.models.semantics_model import FunctionSemantics
 from ethtx.semantics.utilities.functions import add_utils_to_context
 
 log = logging.getLogger(__name__)
-
 
 
 def get_badge(address, sender, receiver):

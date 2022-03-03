@@ -11,12 +11,10 @@
 #  limitations under the License.
 import logging
 from abc import ABC, abstractmethod
-from functools import lru_cache
 from typing import Any, TypeVar, Type
 
 from ens import ENS
 from web3 import Web3
-from web3.middleware import geth_poa_middleware
 
 log = logging.getLogger(__name__)
 

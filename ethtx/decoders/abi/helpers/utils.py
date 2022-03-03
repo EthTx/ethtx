@@ -29,7 +29,6 @@ def decode_function_abi_with_external_source(
     repository: SemanticsRepository,
     _provider: Optional[SignatureProvider] = FourByteProvider,
 ) -> Iterator[Tuple[bool, FunctionSemantics]]:
-
     signature_obj = repository.get_most_used_signature(signature_hash=signature)
     if signature_obj:
         log.debug(
