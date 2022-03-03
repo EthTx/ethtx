@@ -11,17 +11,16 @@
 #  limitations under the License.
 
 import logging
-from functools import lru_cache
 
 from ..models.semantics_model import ContractSemantics
 from ..semantics.router import Router
-from ..utils.decorators import ignore_unhashable
+from ..utils.cache_tools import ignore_unhashable, cache
 
 log = logging.getLogger(__name__)
 
 
 @ignore_unhashable
-@lru_cache(maxsize=1024)
+@cache
 def amend_contract_semantics(semantics: ContractSemantics, router_=Router()):
     if semantics.code_hash in router_:
         try:

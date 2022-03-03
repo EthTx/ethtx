@@ -1,9 +1,9 @@
-from functools import lru_cache
-
 from web3 import Web3
 
+from ethtx.utils.cache_tools import cache
 
-@lru_cache(maxsize=1024)
+
+@cache
 def is_eip1969_proxy(chain, delegator, delegate):
     implementation_slot = hex(
         int(Web3.keccak(text="eip1967.proxy.implementation").hex(), 16) - 1
@@ -20,7 +20,7 @@ def is_eip1969_proxy(chain, delegator, delegate):
         return False
 
 
-@lru_cache(maxsize=1024)
+@cache
 def is_eip1969_beacon_proxy(chain, delegator, delegate):
     ibeacon_abi = """[
                         {

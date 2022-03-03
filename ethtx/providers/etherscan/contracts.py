@@ -12,13 +12,13 @@
 
 import json
 import logging
-from functools import lru_cache
 from typing import Dict, Tuple, Union, Any, Optional
 
 from web3 import Web3
 
 from ethtx.exceptions import InvalidEtherscanReturnCodeException
 from .client import EtherscanClient
+from ...utils.cache_tools import cache
 
 log = logging.getLogger(__name__)
 
@@ -65,7 +65,7 @@ class EtherscanContract(EtherscanClient):
 
         return dict(name=contract_name, abi=abi), decoded
 
-    @lru_cache(maxsize=1024)
+    @cache
     def _get_contract_abi(self, chain_id, contract_name) -> Dict:
         url_dict = self.contract_dict.copy()
         url_dict[self.ACTION] = "getsourcecode"
