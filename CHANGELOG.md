@@ -1,6 +1,22 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.3.10 - 2022-03-03
+
+### Added
+- Added `CACHE_SIZE` environment variable used to set the size of the cache [#121](https://github.com/EthTx/ethtx/pull/121)
+- Overwritten `lru_cache` decorator with custom `cache` decorator, which uses
+  `CACHE_SIZE` environment variable to set the size of the cache. Also, it ignores
+  unhashable arguments [#121](https://github.com/EthTx/ethtx/pull/121)
+- Make pydantic `BaseModel` hashable.
+
+### Changed
+- Do not update semantics every time from `ENS` [#117](https://github.com/EthTx/ethtx/pull/117)
+
+### Fixed
+- Fixed some documentation errors in `README.md` file [#121](https://github.com/EthTx/ethtx/pull/121)
+
+
 ## 0.3.9 - 2022-02-02
 
 ### Added
