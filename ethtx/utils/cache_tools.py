@@ -5,7 +5,6 @@ CACHE_SIZE = int(os.environ.get("CACHE_SIZE", 256))
 
 
 def cache(func, cache_size: int = CACHE_SIZE):
-    @ignore_unhashable
     @lru_cache(maxsize=cache_size)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
