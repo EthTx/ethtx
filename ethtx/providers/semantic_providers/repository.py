@@ -86,7 +86,9 @@ class SemanticsRepository:
                 provider=self._web3provider._get_node_connection(chain_id),
                 address=address,
             )
-            self.update_semantics(address_semantics)
+
+            if address_semantics.name != address_semantics.address:
+                self.update_semantics(address_semantics)
 
         return address_semantics
 
