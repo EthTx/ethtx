@@ -6,8 +6,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Added `CACHE_SIZE` environment variable used to set the size of the cache [#121](https://github.com/EthTx/ethtx/pull/121)
 - Overwritten `lru_cache` decorator with custom `cache` decorator, which uses
-  `CACHE_SIZE` environment variable to set the size of the cache. Also, it ignores
-  unhashable arguments [#121](https://github.com/EthTx/ethtx/pull/121)
+  `CACHE_SIZE` environment variable to set the size of the cache [#121](https://github.com/EthTx/ethtx/pull/121)
 - Make pydantic `BaseModel` hashable.
 
 ### Changed
