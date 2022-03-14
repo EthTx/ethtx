@@ -110,7 +110,7 @@ class Web3Provider(NodeDataProvider):
         super().__init__(default_chain)
         self.nodes = nodes
 
-    def _get_node_connection(self, chain_id: Optional[str] = None) -> Web3:
+    def get_node_connection(self, chain_id: Optional[str] = None) -> Web3:
         chain_id = chain_id or self.default_chain
 
         if chain_id is None:
@@ -143,7 +143,7 @@ class Web3Provider(NodeDataProvider):
     # get the raw block data from the node
     @cache
     def get_block(self, block_number: int, chain_id: Optional[str] = None) -> W3Block:
-        chain = self._get_node_connection(chain_id)
+        chain = self.get_node_connection(chain_id)
         raw_block: BlockData = chain.eth.get_block(block_number)
         block = W3Block(
             chain_id=chain_id or self.default_chain,
@@ -175,7 +175,7 @@ class Web3Provider(NodeDataProvider):
     def get_transaction(
         self, tx_hash: str, chain_id: Optional[str] = None
     ) -> W3Transaction:
-        chain = self._get_node_connection(chain_id)
+        chain = self.get_node_connection(chain_id)
         raw_tx: TxData = chain.eth.get_transaction(HexStr(tx_hash))
         transaction = W3Transaction(
             chain_id=chain_id or self.default_chain,
@@ -199,7 +199,7 @@ class Web3Provider(NodeDataProvider):
 
     @cache
     def get_receipt(self, tx_hash: str, chain_id: Optional[str] = None) -> W3Receipt:
-        chain = self._get_node_connection(chain_id)
+        chain = self.get_node_connection(chain_id)
         raw_receipt: TxReceipt = chain.eth.get_transaction_receipt(tx_hash)
         _root = raw_receipt.root if hasattr(raw_receipt, "root") else None
 
@@ -242,7 +242,7 @@ class Web3Provider(NodeDataProvider):
 
     def get_calls(self, tx_hash: str, chain_id: Optional[str] = None) -> W3CallTree:
         # tracer is a temporary fixed implementation of geth tracer
-        chain = self._get_node_connection(chain_id)
+        chain = self.get_node_connection(chain_id)
         tracer = self._get_custom_calls_tracer()
         response = chain.manager.request_blocking(
             "debug_traceTransaction", [tx_hash, {"tracer": tracer, "timeout": "60s"}]
@@ -257,7 +257,7 @@ class Web3Provider(NodeDataProvider):
     def get_code_hash(
         self, contract_address: str, chain_id: Optional[str] = None
     ) -> str:
-        chain = self._get_node_connection(chain_id)
+        chain = self.get_node_connection(chain_id)
         byte_code = chain.eth.get_code(Web3.toChecksumAddress(contract_address))
         code_hash = Web3.keccak(byte_code).hex()
         return code_hash
@@ -314,7 +314,7 @@ class Web3Provider(NodeDataProvider):
         abi = f'[{",".join([name_abi, symbol_abi, decimals_abi])}]'
 
         try:
-            chain = self._get_node_connection(chain_id)
+            chain = self.get_node_connection(chain_id)
             token = chain.eth.contract(
                 address=Web3.toChecksumAddress(token_address), abi=abi
             )
@@ -336,7 +336,7 @@ class Web3Provider(NodeDataProvider):
     # guess if the contract is and erc20 token and get the data
     @cache
     def guess_erc20_token(self, contract_address, chain_id: Optional[str] = None):
-        chain = self._get_node_connection(chain_id)
+        chain = self.get_node_connection(chain_id)
 
         byte_code = chain.eth.get_code(Web3.toChecksumAddress(contract_address)).hex()
 
@@ -393,7 +393,7 @@ class Web3Provider(NodeDataProvider):
     # guess if the contract is and erc20 token proxy and get the data
     @cache
     def guess_erc20_proxy(self, contract_address, chain_id: Optional[str] = None):
-        chain = self._get_node_connection(chain_id)
+        chain = self.get_node_connection(chain_id)
 
         name_abi = (
             '{"name":"name", "constant":true, "payable":false,'
@@ -428,7 +428,7 @@ class Web3Provider(NodeDataProvider):
     # guess if the contract is and erc721 token proxy and get the data
     @cache
     def guess_erc721_proxy(self, contract_address, chain_id: Optional[str] = None):
-        chain = self._get_node_connection(chain_id)
+        chain = self.get_node_connection(chain_id)
 
         name_abi = (
             '{"name":"name", "constant":true, "payable":false,'
