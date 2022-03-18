@@ -15,6 +15,7 @@ from typing import Dict
 from ethtx.models.decoded_model import DecodedCall, DecodedTransactionMetadata, Proxy
 from ethtx.semantics.standards.erc20 import ERC20_TRANSFORMATIONS
 from ethtx.semantics.standards.erc721 import ERC721_TRANSFORMATIONS
+from ethtx.semantics.standards.erc1155 import ERC1155_TRANSFORMATIONS
 from ethtx.utils.measurable import RecursionLimit
 from .abc import SemanticSubmoduleAbc
 from .helpers.utils import (
@@ -112,6 +113,34 @@ class SemanticCallsDecoder(SemanticSubmoduleAbc):
                 or call.function_signature not in function_transformations
             ):
                 function_transformations = ERC721_TRANSFORMATIONS.get(
+                    call.function_signature
+                )
+                if function_transformations:
+                    for i, parameter in enumerate(call.arguments):
+                        semantically_decode_parameter(
+                            self.repository,
+                            parameter,
+                            f"__input{i}__",
+                            function_transformations,
+                            proxies,
+                            context,
+                        )
+                    for i, parameter in enumerate(call.outputs):
+                        semantically_decode_parameter(
+                            self.repository,
+                            parameter,
+                            f"__output{i}__",
+                            function_transformations,
+                            proxies,
+                            context,
+                        )
+        elif standard == "ERC1155":
+            # decode ERC1155 calls if transformations for them are not defined
+            if call.function_signature in ERC1155_TRANSFORMATIONS and (
+                not function_transformations
+                or call.function_signature not in function_transformations
+            ):
+                function_transformations = ERC1155_TRANSFORMATIONS.get(
                     call.function_signature
                 )
                 if function_transformations:

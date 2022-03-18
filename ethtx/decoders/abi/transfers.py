@@ -108,5 +108,75 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                             value=1,
                         )
                     )
+            elif event.event_name == "TransferSingle":
+                from_address = event.parameters[1].value
+                from_name = self._repository.get_address_label(
+                    event.chain_id, from_address, proxies
+                )
+                to_address = event.parameters[2].value
+                to_name = self._repository.get_address_label(
+                    event.chain_id, to_address, proxies
+                )
+
+                standard = self._repository.get_standard(
+                    event.chain_id, event.contract.address
+                )
+                if standard == "ERC1155":
+                    if len(str(event.parameters[3].value)) > 8:
+                        token_symbol = (
+                            f"NFT {str(event.parameters[3].value)[:6]}..."
+                            f"{str(event.parameters[3].value)[-2:]}"
+                        )
+                    else:
+                        token_symbol = f"NFT {event.parameters[3].value}"
+                    token_address = f"{event.contract.address}?a={event.parameters[3].value}#inventory"
+                    transfers.append(
+                        DecodedTransfer(
+                            from_address=AddressInfo(
+                                address=from_address, name=from_name
+                            ),
+                            to_address=AddressInfo(address=to_address, name=to_name),
+                            token_standard=standard,
+                            token_address=token_address,
+                            token_symbol=token_symbol,
+                            value=event.parameters[4].value,
+                        )
+                    )
+
+            elif event.event_name == "TransferBatch":
+                from_address = event.parameters[1].value
+                from_name = self._repository.get_address_label(
+                    event.chain_id, from_address, proxies
+                )
+                to_address = event.parameters[2].value
+                to_name = self._repository.get_address_label(
+                    event.chain_id, to_address, proxies
+                )
+
+                standard = self._repository.get_standard(
+                    event.chain_id, event.contract.address
+                )
+                if standard == "ERC1155":
+                    for (id, val)  in zip(event.parameters[3].value, event.parameters[4].value):
+                        if len(str(id)) > 8:
+                            token_symbol = (
+                                f"NFT {str(id)[:6]}..."
+                                f"{str(id)[-2:]}"
+                            )
+                        else:
+                            token_symbol = f"NFT {id}"
+                        token_address = f"{event.contract.address}?a={id}#inventory"
+                        transfers.append(
+                            DecodedTransfer(
+                                from_address=AddressInfo(
+                                    address=from_address, name=from_name
+                                ),
+                                to_address=AddressInfo(address=to_address, name=to_name),
+                                token_standard=standard,
+                                token_address=token_address,
+                                token_symbol=token_symbol,
+                                value=val,
+                            )
+                        )
 
         return transfers

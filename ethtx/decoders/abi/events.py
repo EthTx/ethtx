@@ -16,6 +16,7 @@ from ethtx.models.decoded_model import DecodedEvent, Proxy, AddressInfo
 from ethtx.models.objects_model import BlockMetadata, TransactionMetadata, Event
 from ethtx.semantics.standards.erc20 import ERC20_EVENTS
 from ethtx.semantics.standards.erc721 import ERC721_EVENTS
+from ethtx.semantics.standards.erc1155 import ERC1155_EVENTS
 from .abc import ABISubmoduleAbc
 from .helpers.utils import decode_event_abi_name_with_external_source
 from ..decoders.parameters import decode_event_parameters
@@ -116,6 +117,21 @@ class ABIEventsDecoder(ABISubmoduleAbc):
                         == len([topic for topic in event.topics if topic]) - 1
                     ):
                         event_abi = ERC721_EVENTS[event_signature]
+                elif event_signature in ERC1155_EVENTS:
+                    # try standard ERC1155 events
+                    if (
+                        len(
+                            [
+                                parameter
+                                for parameter in ERC1155_EVENTS[
+                                    event_signature
+                                ].parameters
+                                if parameter.indexed
+                            ]
+                        )
+                        == len([topic for topic in event.topics if topic]) - 1
+                    ):
+                        event_abi = ERC1155_EVENTS[event_signature]
 
         contract_name = self._repository.get_address_label(
             chain_id, event.contract, proxies
