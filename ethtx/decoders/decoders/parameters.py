@@ -312,7 +312,8 @@ def decode_dynamic_argument(argument_bytes, argument_type):
         value = argument_bytes[64 : 64 + length]
 
         if argument_type == "string":
-            decoded_value = bytes.fromhex(value).decode("utf-8").replace("\x00", "")
+            hex_bytes = bytes.fromhex(value)
+            decoded_value = hex_bytes.decode("utf-8", "ignore").replace("\x00", "")
         else:
             decoded_value = "0x" + value
     else:
