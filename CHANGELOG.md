@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.3.11 - 2022-03-29
+
+### Fixes
+- Fix decoding of strings with special characters [#127](https://github.com/EthTx/ethtx/pull/127)
+- Fix incorrect usage of Web3.toChecksumAddress [#128](https://github.com/EthTx/ethtx/pull/128)
+- Fix decoding of Transfers that use invalid ERC20/ERC721 events [#129](https://github.com/EthTx/ethtx/pull/129)
+
+
 ## 0.3.10 - 2022-03-03
 
 ### Added
