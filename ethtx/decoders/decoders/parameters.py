@@ -76,7 +76,7 @@ def decode_event_parameters(data, topics, abi, anonymous):
         for i, parameter in enumerate(amended_topics[1:]):
             if not amended_topics[i + 1]:
                 break
-            parameter_name = ""
+            parameter_name = f"topic_parameter_{i}"
             parameter_type = "unknown"
             parameter_value = (
                 amended_topics[i + 1]
@@ -90,7 +90,7 @@ def decode_event_parameters(data, topics, abi, anonymous):
 
         no_parameters = len(data) // 64
         for i in range(no_parameters):
-            parameter_name = ""
+            parameter_name = f"data_parameter_{i}"
             parameter_type = "unknown"
             parameter_value = data[64 * i : 64 * (i + 1)]
 
