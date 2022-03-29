@@ -258,7 +258,7 @@ class Web3Provider(NodeDataProvider):
         self, contract_address: str, chain_id: Optional[str] = None
     ) -> str:
         chain = self._get_node_connection(chain_id)
-        byte_code = chain.eth.get_code(Web3.toChecksumAddress(contract_address))
+        byte_code = chain.eth.get_code(Web3.toChecksumAddress(contract_address[-40:]))
         code_hash = Web3.keccak(byte_code).hex()
         return code_hash
 
@@ -338,7 +338,7 @@ class Web3Provider(NodeDataProvider):
     def guess_erc20_token(self, contract_address, chain_id: Optional[str] = None):
         chain = self._get_node_connection(chain_id)
 
-        byte_code = chain.eth.get_code(Web3.toChecksumAddress(contract_address)).hex()
+        byte_code = chain.eth.get_code(Web3.toChecksumAddress(contract_address[-40:])).hex()
 
         if all(
             "63" + signature[2:] in byte_code
