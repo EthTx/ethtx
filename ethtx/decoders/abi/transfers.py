@@ -49,7 +49,8 @@ class ABITransfersDecoder(ABISubmoduleAbc):
 
         for event in events:
 
-            if event.event_name == "Transfer":
+            # this is a signature of Transfer event valid for ERC20 and ERC721
+            if event.event_signature == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef":
 
                 from_address = event.parameters[0].value
                 from_name = self._repository.get_address_label(
@@ -75,6 +76,7 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                         event.chain_id, event.contract.address, proxies
                     )
                     value = event.parameters[2].value / 10**token_decimals
+
                     transfers.append(
                         DecodedTransfer(
                             from_address=AddressInfo(
