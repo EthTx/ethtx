@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+
+## 0.3.12 - 2022-03-29
+
+### Changed
+- Add placeholder names for not decoded parameters [#131](https://github.com/EthTx/ethtx/pull/131)
+
+
 ## 0.3.11 - 2022-03-29
 
 ### Fixes
