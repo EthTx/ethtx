@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.3.13 - 2022-03-30
+
+### Fixed
+- Gracefully handle errors for evaluating value of transfers [#133](https://github.com/EthTx/ethtx/pull/133)
+
 
 ## 0.3.12 - 2022-03-29
 
