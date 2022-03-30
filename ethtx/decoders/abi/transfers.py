@@ -75,7 +75,10 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                     ) = self._repository.get_token_data(
                         event.chain_id, event.contract.address, proxies
                     )
-                    value = event.parameters[2].value / 10**token_decimals
+                    try:
+                        value = event.parameters[2].value / 10**token_decimals
+                    except:
+                        value = 0
 
                     transfers.append(
                         DecodedTransfer(
