@@ -103,8 +103,8 @@ class AddressSemantics(BaseModel):
                 parameter_name=_parameter["parameter_name"],
                 parameter_type=_parameter["parameter_type"],
                 components=components_semantics,
-                indexed=_parameter["indexed"],
-                dynamic=_parameter["dynamic"],
+                indexed=_parameter.get("indexed", None),
+                dynamic=_parameter.get("dynamic", None),
             )
 
             return decoded_parameter

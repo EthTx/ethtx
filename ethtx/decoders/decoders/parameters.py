@@ -440,7 +440,10 @@ def decode_struct(data, arguments_abi):
                 slot += 1
 
             elif argument_type[-1:] == "]":
-                argument_value, raw_value, slot = decode_array(raw_value, argument_type, slot)
+                argument_value, slot = decode_array(raw_value, argument_type, slot)
+                if argument_type[-2:] == "[]":
+                    offset = int(raw_value, 16) * 2 if raw_value else 0
+                    raw_value = data[offset:]
 
             else:
                 argument_value = decode_static_argument(raw_value, argument_type)
@@ -455,6 +458,7 @@ def decode_struct(data, arguments_abi):
             arguments_list.append(
                 dict(name=argument_name, type=argument_type, value=argument_value, raw=raw_value)
             )
+
 
     return arguments_list, slot
 

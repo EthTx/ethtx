@@ -48,6 +48,7 @@ class Argument(BaseModel):
     name: str
     type: str
     value: Any
+    raw: Any
 
 
 class DecodedEvent(BaseModel):

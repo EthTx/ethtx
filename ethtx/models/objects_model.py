@@ -60,6 +60,8 @@ class TransactionMetadata(BaseModel):
     def from_raw(w3transaction, w3receipt) -> TransactionMetadata:
         return w3transaction.to_object(w3receipt)
 
+    def __hash__(self):
+        return hash((type(self),) + tuple(self.__dict__.values()))
 
 class Event(BaseModel):
     contract: Optional[str]

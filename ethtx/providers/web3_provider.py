@@ -127,16 +127,17 @@ class Web3Provider(NodeDataProvider):
             chain=chain_id
         ):
             w3 = connect_chain(http_hook=connection.url, poa=connection.poa)
+            return w3
 
-            if w3.isConnected():
-                log.info(
-                    "Connected to: %s with latest block %s.",
-                    connection,
-                    w3.eth.block_number,
-                )
-                return w3
-            else:
-                log.warning("Connection failed to: %s", connection)
+            # if w3.isConnected():
+            #     log.info(
+            #         "Connected to: %s with latest block %s.",
+            #         connection,
+            #         w3.eth.block_number,
+            #     )
+            #     return w3
+            # else:
+            #     log.warning("Connection failed to: %s", connection)
 
         raise NodeConnectionException
 
