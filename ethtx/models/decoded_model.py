@@ -16,7 +16,7 @@ from datetime import datetime
 from typing import List, Any, Optional
 
 from ethtx.models.base_model import BaseModel
-from ethtx.models.objects_model import BlockMetadata, TransactionMetadata
+from ethtx.models.objects_model import BlockMetadata
 from ethtx.models.semantics_model import AddressSemantics, ERC20Semantics
 
 

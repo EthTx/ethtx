@@ -11,7 +11,7 @@
 #  limitations under the License.
 
 from ethtx.models.decoded_model import DecodedTransactionMetadata, AddressInfo
-from ethtx.models.objects_model import BlockMetadata, TransactionMetadata
+from ethtx.models.objects_model import BlockMetadata
 from .abc import SemanticSubmoduleAbc
 
 

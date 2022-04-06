@@ -27,7 +27,7 @@ from ethtx.models.decoded_model import (
     DecodedCall,
     Proxy,
 )
-from ethtx.models.objects_model import BlockMetadata, TransactionMetadata
+from ethtx.models.objects_model import BlockMetadata
 
 
 class SemanticDecoder(ISemanticDecoder):
