@@ -21,7 +21,7 @@ class SemanticMetadataDecoder(SemanticSubmoduleAbc):
     def decode(
         self,
         block_metadata: BlockMetadata,
-        tx_metadata: TransactionMetadata,
+        tx_metadata: DecodedTransactionMetadata,
         chain_id: str,
     ) -> DecodedTransactionMetadata:
         """Semantically decode metadata."""

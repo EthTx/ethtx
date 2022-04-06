@@ -180,7 +180,7 @@ class TestDecodedModels:
 
         t = DecodedTransaction(
             block_metadata=ObjectModelMock.BLOCK_METADATA,
-            metadata=ObjectModelMock.TRANSACTION_METADATA,
+            metadata=DecodedModelMock.DECODED_TRANSACTION_METADATA,
             events=[de],
             calls=dc,
             transfers=[dt],
@@ -188,7 +188,7 @@ class TestDecodedModels:
         )
 
         assert t.block_metadata == ObjectModelMock.BLOCK_METADATA
-        assert t.metadata == ObjectModelMock.TRANSACTION_METADATA
+        assert t.metadata == DecodedModelMock.DECODED_TRANSACTION_METADATA
         assert t.events == [de]
         assert t.calls == dc
         assert t.transfers == [dt]
