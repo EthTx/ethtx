@@ -27,7 +27,7 @@ class TransformationSemantics(BaseModel):
 class ParameterSemantics(BaseModel):
     parameter_name: str
     parameter_type: str
-    components: list = []
+    components: List['ParameterSemantics'] = []
     indexed: bool = False
     dynamic: bool = False
 
