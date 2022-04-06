@@ -1,6 +1,23 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.3.14 - 2022-04-06
+
+### Fixed
+- Caught exception for ens where there is no code associated with the specified
+  address [#137](https://github.com/EthTx/ethtx/pull/137)
+- Fixed wrong transaction metadata types [#136](https://github.com/EthTx/ethtx/pull/136)
+
+### Changed
+- Skip compiled structure from `4bytes` [#138](https://github.com/EthTx/ethtx/pull/138)
+- Updated black `pre-commit` version [#136](https://github.com/EthTx/ethtx/pull/136)
+- Updated tests [#136](https://github.com/EthTx/ethtx/pull/136)
+
+### Added
+- Added optional fields `from_address` and `to_address` to DecodedTransactionMetadata
+  model [#136](https://github.com/EthTx/ethtx/pull/136)
+
+
 ## 0.3.13 - 2022-03-30
 
 ### Fixed
