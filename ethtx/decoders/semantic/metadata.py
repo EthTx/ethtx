@@ -11,7 +11,7 @@
 #  limitations under the License.
 
 from ethtx.models.decoded_model import DecodedTransactionMetadata, AddressInfo
-from ethtx.models.objects_model import BlockMetadata, TransactionMetadata
+from ethtx.models.objects_model import BlockMetadata
 from .abc import SemanticSubmoduleAbc
 
 
@@ -21,7 +21,7 @@ class SemanticMetadataDecoder(SemanticSubmoduleAbc):
     def decode(
         self,
         block_metadata: BlockMetadata,
-        tx_metadata: TransactionMetadata,
+        tx_metadata: DecodedTransactionMetadata,
         chain_id: str,
     ) -> DecodedTransactionMetadata:
         """Semantically decode metadata."""

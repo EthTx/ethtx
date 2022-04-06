@@ -27,7 +27,7 @@ from ethtx.models.decoded_model import (
     DecodedCall,
     Proxy,
 )
-from ethtx.models.objects_model import BlockMetadata, TransactionMetadata
+from ethtx.models.objects_model import BlockMetadata
 
 
 class SemanticDecoder(ISemanticDecoder):
@@ -59,7 +59,7 @@ class SemanticDecoder(ISemanticDecoder):
     def decode_metadata(
         self,
         block_metadata: BlockMetadata,
-        tx_metadata: TransactionMetadata,
+        tx_metadata: DecodedTransactionMetadata,
         chain_id: str,
     ) -> DecodedTransactionMetadata:
         return SemanticMetadataDecoder(repository=self.repository).decode(

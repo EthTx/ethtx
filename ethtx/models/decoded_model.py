@@ -16,7 +16,7 @@ from datetime import datetime
 from typing import List, Any, Optional
 
 from ethtx.models.base_model import BaseModel
-from ethtx.models.objects_model import BlockMetadata, TransactionMetadata
+from ethtx.models.objects_model import BlockMetadata
 from ethtx.models.semantics_model import AddressSemantics, ERC20Semantics
 
 
@@ -33,6 +33,8 @@ class DecodedTransactionMetadata(BaseModel):
     block_hash: Optional[str]
     timestamp: Optional[datetime]
     gas_price: Optional[int]
+    from_address: Optional[str]
+    to_address: Optional[str]
     sender: Optional[AddressInfo]
     receiver: Optional[AddressInfo]
     tx_index: int
@@ -98,7 +100,7 @@ class DecodedBalance(BaseModel):
 
 class DecodedTransaction(BaseModel):
     block_metadata: BlockMetadata
-    metadata: TransactionMetadata
+    metadata: DecodedTransactionMetadata
     events: List[DecodedEvent]
     calls: Optional[DecodedCall]
     transfers: List[DecodedTransfer]
