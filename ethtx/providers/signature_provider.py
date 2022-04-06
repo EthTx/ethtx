@@ -12,7 +12,7 @@
 import logging
 from abc import ABC, abstractmethod
 from json import JSONDecodeError
-from typing import Dict, List, Any, Iterator, TypedDict, Union, Tuple
+from typing import Dict, List, Any, Iterator, TypedDict, Union, Tuple, Optional
 
 import requests
 
@@ -68,7 +68,8 @@ class FourByteProvider(SignatureProvider):
         )
 
         for function in reversed(data):
-            yield self._parse_text_signature_response(function)
+            if parsed := self._parse_text_signature_response(function):
+                yield parsed
 
     def get_event(self, signature: str) -> Iterator[SignatureReturnType]:
         if signature == "0x":
@@ -79,7 +80,8 @@ class FourByteProvider(SignatureProvider):
         )
 
         for event in reversed(data):
-            yield self._parse_text_signature_response(event)
+            if parsed := self._parse_text_signature_response(event):
+                yield parsed
 
     def url(self, endpoint: str) -> str:
         return f"{self.API_URL}/{endpoint}/"
@@ -135,7 +137,7 @@ class FourByteProvider(SignatureProvider):
             return {}
 
     @staticmethod
-    def _parse_text_signature_response(data: Dict) -> SignatureReturnType:
+    def _parse_text_signature_response(data: Dict) -> Optional[SignatureReturnType]:
         text_sig = data.get("text_signature", "")
 
         name = text_sig.split("(")[0] if text_sig else ""
@@ -145,6 +147,9 @@ class FourByteProvider(SignatureProvider):
         )
         if "(" in types:
             args = tuple(types[types.find("(") + 1 : types.rfind(")")].split(","))
+            if any("(" in arg for arg in args):
+                log.warning("Could not parse signature: %s", text_sig)
+                return None
         else:
             args = list(filter(None, types.split(",")))
 
