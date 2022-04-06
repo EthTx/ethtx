@@ -45,7 +45,7 @@ class Web3ENSProvider(ENSProviderBase):
                 "ENS name not found for address: %s. There is no code associated with this address.",
                 address,
             )
-            name = address
+            name = None
 
         if name:
             log.info("ENS resolved an address: %s to name: %s", address, name)
