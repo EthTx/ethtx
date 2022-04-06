@@ -14,7 +14,7 @@ from abc import ABC, abstractmethod
 from typing import Any, TypeVar, Type
 
 from ens import ENS
-from web3 import Web3
+from web3 import Web3, exceptions
 
 log = logging.getLogger(__name__)
 
@@ -37,7 +37,15 @@ class Web3ENSProvider(ENSProviderBase):
     def name(self, provider: Web3, address: str) -> str:
         ns = self._set_provider(provider)
         check_sum_address = Web3.toChecksumAddress(address)
-        name = ns.name(address=check_sum_address)
+
+        try:
+            name = ns.name(address=check_sum_address)
+        except exceptions.BadFunctionCallOutput:
+            log.warning(
+                "ENS name not found for address: %s. There is no code associated with this address.",
+                address,
+            )
+            name = None
 
         if name:
             log.info("ENS resolved an address: %s to name: %s", address, name)
