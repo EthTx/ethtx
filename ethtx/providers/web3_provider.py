@@ -258,6 +258,10 @@ class Web3Provider(NodeDataProvider):
     def get_code_hash(
         self, contract_address: str, chain_id: Optional[str] = None
     ) -> str:
+
+        if contract_address in ['', None]:
+            raise ValueError(f"Invalid contract address provided: '{contract_address}'")
+
         chain = self._get_node_connection(chain_id)
         byte_code = chain.eth.get_code(Web3.toChecksumAddress(contract_address[-40:]))
         code_hash = Web3.keccak(byte_code).hex()
