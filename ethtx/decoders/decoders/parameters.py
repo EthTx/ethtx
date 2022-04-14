@@ -346,7 +346,7 @@ def decode_dynamic_array(data, array_type):
             offset = 64 * i
             if offset >= len(sub_data):
                 break
-            decoded = decode_static_argument(sub_data[offset: offset + 64], array_type)
+            decoded = decode_static_argument(sub_data[offset : offset + 64], array_type)
         decoded_argument.append(decoded)
 
     return decoded_argument
@@ -371,6 +371,7 @@ def decode_dynamic_argument(argument_bytes, argument_type):
 
 # helper function to decode ABI 2.0 structs
 def decode_struct(data, arguments_abi):
+
     def decode_array(raw_value, argument_type, slot):
 
         array_type = argument_type.rsplit("[", 1)[0]
@@ -440,10 +441,7 @@ def decode_struct(data, arguments_abi):
                 slot += 1
 
             elif argument_type[-1:] == "]":
-                argument_value, slot = decode_array(raw_value, argument_type, slot)
-                if argument_type[-2:] == "[]":
-                    offset = int(raw_value, 16) * 2 if raw_value else 0
-                    raw_value = data[offset:]
+                argument_value, raw_value, slot = decode_array(raw_value, argument_type, slot)
 
             else:
                 argument_value = decode_static_argument(raw_value, argument_type)
@@ -458,7 +456,6 @@ def decode_struct(data, arguments_abi):
             arguments_list.append(
                 dict(name=argument_name, type=argument_type, value=argument_value, raw=raw_value)
             )
-
 
     return arguments_list, slot
 
