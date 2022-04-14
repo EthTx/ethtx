@@ -15,6 +15,7 @@ from json import JSONDecodeError
 from typing import Dict, List, Any, Iterator, TypedDict, Union, Tuple, Optional
 
 import requests
+import requests_cache
 
 from ethtx.exceptions import (
     FourByteConnectionException,
@@ -63,9 +64,10 @@ class FourByteProvider(SignatureProvider):
         if signature == "0x":
             raise ValueError(f"Signature can not be: {signature}")
 
-        data = self._get_all(
-            endpoint=self.FUNCTION_ENDPOINT, filters={"hex_signature": signature}
-        )
+        with requests_cache.enabled("4byte_function_cache", expire_after=120):
+            data = self._get_all(
+                endpoint=self.FUNCTION_ENDPOINT, filters={"hex_signature": signature}
+            )
 
         for function in reversed(data):
             if parsed := self._parse_text_signature_response(function):
@@ -75,9 +77,10 @@ class FourByteProvider(SignatureProvider):
         if signature == "0x":
             raise ValueError(f"Signature can not be: {signature}")
 
-        data = self._get_all(
-            endpoint=self.EVENT_ENDPOINT, filters={"hex_signature": signature}
-        )
+        with requests_cache.enabled("4byte_event_cache", expire_after=120):
+            data = self._get_all(
+                endpoint=self.EVENT_ENDPOINT, filters={"hex_signature": signature}
+            )
 
         for event in reversed(data):
             if parsed := self._parse_text_signature_response(event):
@@ -136,8 +139,9 @@ class FourByteProvider(SignatureProvider):
             log.critical("Unexpected error from 4byte.directory: %s", e)
             return {}
 
-    @staticmethod
-    def _parse_text_signature_response(data: Dict) -> Optional[SignatureReturnType]:
+    def _parse_text_signature_response(
+        self, data: Dict
+    ) -> Optional[SignatureReturnType]:
         text_sig = data.get("text_signature", "")
 
         name = text_sig.split("(")[0] if text_sig else ""
