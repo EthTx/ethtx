@@ -42,7 +42,7 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
     @cache
     def get_address_semantics(
         self, chain_id, address, *, cursor_timeout_millis=None
-    ) -> Optional[Dict]:
+    ) -> Cursor:
         _id = f"{chain_id}-{address}"
 
         return self._addresses.find_one(
@@ -77,7 +77,9 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         return inserted_signature.inserted_id
 
     @cache
-    def get_contract_semantics(self, code_hash, *, cursor_timeout_millis=None):
+    def get_contract_semantics(
+        self, code_hash, *, cursor_timeout_millis=None
+    ) -> Cursor:
         """Contract hashes are always the same, no mather what chain we use, so there is no need
         to use chain_id"""
         return self._contracts.find_one(
@@ -122,7 +124,7 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         inserted_address = self._addresses.insert_one(address_with_id)
         return inserted_address.inserted_id
 
-    def _cursor_properties(self, cursor_timeout_millis=None) -> Dict:
+    def _cursor_properties(self, cursor_timeout_millis: int = None) -> Dict:
         return (
             {"max_time_ms": cursor_timeout_millis}
             if cursor_timeout_millis
