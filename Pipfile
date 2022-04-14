@@ -5,22 +5,22 @@ name = "pypi"
 
 [packages]
 toml = "*"
-pymongo = ">=3.12.0"
-dnspython = ">=2.2.0"
-mongoengine = "==0.23.1"
-mongomock = "==3.23.0"
+pymongo = ">=3.10.0"
+dnspython = ">=2.0.0"
+mongoengine = "*"
+mongomock = "*"
 web3 = "==5.26.0"
 eth-account = "==0.5.6"
 eth-utils = "==1.10.0"
 eth-rlp = "==0.2.1"
-pydantic = ">=1.9.0"
+pydantic = ">=1.8.0"
 python-dotenv = "*"
 
 [dev-packages]
 black = "*"
-pytest = ">=6.2.5"
-pytest-cov =">=3.0.0"
-pytest-mock =">=3.6.1"
+pytest = ">=6.0.0"
+pytest-cov ="*"
+pytest-mock ="*"
 pre-commit = "*"
 
 [requires]
