@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 toml = "*"
-pymongo = ">=3.10.0"
+pymongo = ">=3.10.0,<4.0"
 dnspython = ">=2.0.0"
 mongoengine = "*"
 mongomock = "*"
