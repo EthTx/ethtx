@@ -298,6 +298,8 @@ def decode_dynamic_array(data, array_type):
             decoded = decode_dynamic_argument(sub_data[offset:], array_type)
         else:
             offset = 64 * i
+            if offset >= len(sub_data):
+                break
             decoded = decode_static_argument(sub_data[offset : offset + 64], array_type)
 
         decoded_argument.append(decoded)
