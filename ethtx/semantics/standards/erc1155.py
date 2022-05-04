@@ -180,14 +180,14 @@ erc1155_isApprovedForAll_function = FunctionSemantics(
     outputs=[ParameterSemantics(parameter_name="", parameter_type="bool")],
 )
 
-erc1155_EVENTS = {
+ERC1155_EVENTS = {
     erc1155_transferSingle_event.signature: erc1155_transferSingle_event,
     erc1155_transferBatch_event.signature: erc1155_transferBatch_event,
     erc1155_approvalForAll_event.signature: erc1155_approvalForAll_event,
     erc1155_URI_event.signature: erc1155_URI_event,
 }
 
-erc1155_FUNCTIONS = {
+ERC1155_FUNCTIONS = {
     erc1155_safeTransferFrom_function.signature: erc1155_safeTransferFrom_function,
     erc1155_safeBatchTransferFrom_function.signature: erc1155_safeBatchTransferFrom_function,
     erc1155_balanceOf_function.signature: erc1155_balanceOf_function,

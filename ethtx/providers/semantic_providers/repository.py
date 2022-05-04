@@ -29,6 +29,7 @@ from ethtx.providers.semantic_providers.database import ISemanticsDatabase
 from ethtx.providers.web3_provider import NodeDataProvider
 from ethtx.semantics.protocols_router import amend_contract_semantics
 from ethtx.semantics.solidity.precompiles import precompiles
+from ethtx.semantics.standards.erc1155 import ERC1155_EVENTS, ERC1155_FUNCTIONS
 from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS, ERC20_EVENTS
 from ethtx.semantics.standards.erc721 import ERC721_FUNCTIONS, ERC721_EVENTS
 from ethtx.utils.cache_tools import cache
@@ -112,6 +113,8 @@ class SemanticsRepository:
                 standard, standard_semantics = self._decode_standard_semantics(
                     address, raw_semantics["name"], events, functions
                 )
+
+
                 if standard == "ERC20":
                     erc20_semantics = standard_semantics
                 else:
@@ -209,6 +212,14 @@ class SemanticsRepository:
         standard_semantics = None
 
         if not address:
+            return standard, standard_semantics
+
+        if all(e in e for e in ERC1155_EVENTS) and all(e in functions for e in ERC1155_FUNCTIONS):
+            standard = "ERC1155"
+
+            # TODO: missing standard semantics creation for ERC1155
+            standard_semantics = None
+
             return standard, standard_semantics
 
         if all(erc20_event in events for erc20_event in ERC20_EVENTS) and all(
