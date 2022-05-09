@@ -88,6 +88,7 @@ class Call(BaseModel):
     status: bool
     error: Optional[str]
     subcalls: List[Call] = Field(default_factory=list)
+    storage_address: Optional[str]
 
     # for future use
     call_id: Optional[str]
