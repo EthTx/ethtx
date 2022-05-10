@@ -35,6 +35,6 @@ class SemanticTransfersDecoder(SemanticSubmoduleAbc):
             )
 
             # format the transfer value
-            transfer.value = f"{transfer.value:,.4f}"
+            transfer.value = float(f"{transfer.value:,.4f}")
 
         return transfers
