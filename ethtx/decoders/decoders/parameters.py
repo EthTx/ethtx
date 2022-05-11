@@ -18,6 +18,52 @@ from ethtx.models.semantics_model import ParameterSemantics
 
 log = logging.getLogger(__name__)
 
+ERRORS = {
+    '0x08c379a0': {
+        'name': 'Error',
+        'abi': [
+            ParameterSemantics(
+                parameter_name="Error",
+                parameter_type="string",
+                components=[],
+                indexed=False,
+                dynamic=True,
+            )
+        ]
+    },
+    '0xfdb6ca8d': {
+        'name': 'OrderStatusError',
+        'abi': [
+            ParameterSemantics(
+                parameter_name="orderHash",
+                parameter_type="bytes32",
+            ),
+            ParameterSemantics(
+                parameter_name="orderStatus",
+                parameter_type="uint8"
+            )
+        ]
+    },
+    '0x990174d2': {
+        'name': 'IncompleteTransformERC20Error',
+        'abi':
+            [
+                ParameterSemantics(
+                    parameter_name="outputToken",
+                    parameter_type="address"
+                ),
+                ParameterSemantics(
+                    parameter_name="outputTokenAmount",
+                    parameter_type="uint256"
+                ),
+                ParameterSemantics(
+                    parameter_name="minOutputTokenAmount",
+                    parameter_type="uint256"
+                )
+            ]
+    }
+}
+
 
 def decode_event_parameters(data, topics, abi, anonymous):
     # making copy to avoid modifying of the original list
@@ -146,16 +192,16 @@ def decode_function_parameters(
     else:
         input_parameters = []
 
-    if not status and output[:10] == "0x08c379a0":
-        error_abi = ParameterSemantics(
-            parameter_name="Error",
-            parameter_type="string",
-            components=[],
-            indexed=False,
-            dynamic=True,
+    if not status and (error_sig := output[:10]) in ERRORS:
+        error_name = Argument(
+            name="__error",
+            type="string",
+            value=ERRORS[error_sig]["name"],
+            raw="0x" + ERRORS[error_sig]["name"].encode('utf-8').hex()
         )
-        error_parameters, _ = decode_struct(output[10:], [error_abi])
-        output_parameters = [Argument(**error_parameters[0])]
+        error_abi = ERRORS[error_sig]["abi"]
+        error_parameters, _ = decode_struct(output[10:], error_abi)
+        output_parameters = [error_name, *(Argument(**param) for param in error_parameters)]
     else:
         if abi:
             if abi.outputs and status and output == "0x":
