@@ -205,7 +205,7 @@ def decode_function_parameters(
     else:
         if abi:
             if abi.outputs and status and output == "0x":
-                # log.warning("Warning: missing output data...")
+                log.warning("Warning: missing output data...")
                 output_parameters = []
             elif output != "0x":
                 if len(abi.outputs) == 1 and abi.outputs[0].parameter_type == "raw":
