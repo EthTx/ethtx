@@ -196,8 +196,7 @@ def decode_function_parameters(
         error_name = Argument(
             name="__error",
             type="string",
-            value=ERRORS[error_sig]["name"],
-            raw="0x" + ERRORS[error_sig]["name"].encode('utf-8').hex()
+            value=ERRORS[error_sig]["name"]
         )
         error_abi = ERRORS[error_sig]["abi"]
         error_parameters, _ = decode_struct(output[10:], error_abi)
