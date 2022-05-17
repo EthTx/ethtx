@@ -38,7 +38,7 @@ The package needs a few external resources, defined in `EthTxConfig` object:
    the `debug` option ON
 2. **Etherscan API key** - required to get the source code and ABI for smart contracts used in transaction
 3. (Optional) **MongoDB database** - required to store smart contracts' ABI and semantics used in the decoding process.
-   If you don't want to setup permanent database, you can enter `mongomock://localhost`, then in-memory mongo will be
+   If you don't want to setup permanent database, you can enter `mongomock://localhost/ethtx`, then in-memory mongo will be
    set up that discards all data with every run.
 
 ## Getting started
