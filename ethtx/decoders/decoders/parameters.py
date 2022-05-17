@@ -269,7 +269,10 @@ def decode_tuple(data, argument_abi, is_list):
                 offset = int(raw_value, 16) * 2
                 sub_bytes = data[offset:]
             else:
-                sub_bytes = data
+                sub_bytes = data[slots * 64:]
+
+            if not sub_bytes:
+                break
 
             decoded, num = decode_struct(sub_bytes, argument_abi)
             for i, parameter in enumerate(decoded):
@@ -398,6 +401,7 @@ def decode_struct(data, arguments_abi):
             argument_name = f"arg_{i + 1}"
             argument_type = "unknown"
             argument_value = "0x" + raw_value
+            slot += 1
 
         if argument_type != "unknown" or argument_value != "0x":
             arguments_list.append(
