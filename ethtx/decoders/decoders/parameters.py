@@ -272,7 +272,7 @@ def decode_tuple(data, argument_abi, is_list):
                 sub_bytes = data[slots * 64:]
 
             if not sub_bytes:
-                break
+                raise IndexError
 
             decoded, num = decode_struct(sub_bytes, argument_abi)
             for i, parameter in enumerate(decoded):
