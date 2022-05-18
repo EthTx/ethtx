@@ -14,74 +14,9 @@ import logging
 from datetime import datetime
 
 from ethtx.models.decoded_model import Argument
-from ethtx.models.semantics_model import ParameterSemantics
+from ethtx.decoders.decoders.errors import ERRORS
 
 log = logging.getLogger(__name__)
-
-ERRORS = {
-    '0x08c379a0': {
-        'name': 'Error',
-        'abi': [
-            ParameterSemantics(
-                parameter_name="Error",
-                parameter_type="string",
-                components=[],
-                indexed=False,
-                dynamic=True,
-            )
-        ]
-    },
-    '0xfdb6ca8d': {
-        'name': 'OrderStatusError',
-        'abi': [
-            ParameterSemantics(
-                parameter_name="orderHash",
-                parameter_type="bytes32",
-            ),
-            ParameterSemantics(
-                parameter_name="orderStatus",
-                parameter_type="uint8"
-            )
-        ]
-    },
-    '0x990174d2': {
-        'name': 'IncompleteTransformERC20Error',
-        'abi':
-            [
-                ParameterSemantics(
-                    parameter_name="outputToken",
-                    parameter_type="address"
-                ),
-                ParameterSemantics(
-                    parameter_name="outputTokenAmount",
-                    parameter_type="uint256"
-                ),
-                ParameterSemantics(
-                    parameter_name="minOutputTokenAmount",
-                    parameter_type="uint256"
-                )
-            ]
-    },
-    '0x4678472b': {
-        'name': 'AssetProxyTransferError',
-        'abi':
-            [
-                ParameterSemantics(
-                    parameter_name="orderHash",
-                    parameter_type="bytes32"
-                ),
-                ParameterSemantics(
-                    parameter_name="assetData",
-                    parameter_type="bytes"
-                ),
-                ParameterSemantics(
-                    parameter_name="errorData",
-                    parameter_type="bytes"
-                )
-            ]
-    }
-}
-
 
 
 def decode_event_parameters(data, topics, abi, anonymous):
@@ -368,7 +303,7 @@ def decode_dynamic_array(data, array_type):
             offset = 64 * i
             if offset >= len(sub_data):
                 break
-            decoded = decode_static_argument(sub_data[offset : offset + 64], array_type)
+            decoded = decode_static_argument(sub_data[offset: offset + 64], array_type)
         decoded_argument.append(decoded)
 
     return decoded_argument
@@ -393,7 +328,6 @@ def decode_dynamic_argument(argument_bytes, argument_type):
 
 # helper function to decode ABI 2.0 structs
 def decode_struct(data, arguments_abi):
-
     def decode_array(raw_value, argument_type, slot):
 
         array_type = argument_type.rsplit("[", 1)[0]
