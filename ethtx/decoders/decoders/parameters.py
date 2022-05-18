@@ -61,8 +61,27 @@ ERRORS = {
                     parameter_type="uint256"
                 )
             ]
+    },
+    '0x4678472b': {
+        'name': 'AssetProxyTransferError',
+        'abi':
+            [
+                ParameterSemantics(
+                    parameter_name="orderHash",
+                    parameter_type="bytes32"
+                ),
+                ParameterSemantics(
+                    parameter_name="assetData",
+                    parameter_type="bytes"
+                ),
+                ParameterSemantics(
+                    parameter_name="errorData",
+                    parameter_type="bytes"
+                )
+            ]
     }
 }
+
 
 
 def decode_event_parameters(data, topics, abi, anonymous):
