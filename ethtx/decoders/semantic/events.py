@@ -24,6 +24,7 @@ from ethtx.models.decoded_model import DecodedEvent, DecodedTransactionMetadata,
 from ethtx.semantics.protocols.anonymous import anonymous_events
 from ethtx.semantics.standards.erc20 import ERC20_EVENTS, ERC20_TRANSFORMATIONS
 from ethtx.semantics.standards.erc721 import ERC721_TRANSFORMATIONS, ERC721_EVENTS
+from ethtx.semantics.standards.erc1155 import ERC1155_TRANSFORMATIONS, ERC1155_EVENTS
 from .abc import SemanticSubmoduleAbc
 
 log = logging.getLogger(__name__)
@@ -150,6 +151,25 @@ class SemanticEventsDecoder(SemanticSubmoduleAbc):
                 or event.event_signature not in event_transformations
             ):
                 event_transformations = ERC721_TRANSFORMATIONS.get(
+                    event.event_signature
+                )
+                if event_transformations:
+                    for i, parameter in enumerate(event.parameters):
+                        semantically_decode_parameter(
+                            self.repository,
+                            parameter,
+                            f"__input{i}__",
+                            event_transformations,
+                            proxies,
+                            context,
+                        )
+        elif standard == "ERC1155":
+            # decode ERC721 events if transformations for them are not defined
+            if event.event_signature in ERC1155_EVENTS and (
+                not event_transformations
+                or event.event_signature not in event_transformations
+            ):
+                event_transformations = ERC1155_TRANSFORMATIONS.get(
                     event.event_signature
                 )
                 if event_transformations:
