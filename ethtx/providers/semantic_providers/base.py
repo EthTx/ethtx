@@ -36,3 +36,6 @@ class ISemanticsDatabase(ABC):
 
     def insert_signature(self, signature, update_if_exist: bool = False) -> Any:
         ...
+
+    def delete_semantics_by_address(self, chain_id: str, address: str) -> None:
+        ...
