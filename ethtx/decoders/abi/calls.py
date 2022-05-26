@@ -21,6 +21,7 @@ from ethtx.utils.measurable import RecursionLimit
 from .abc import ABISubmoduleAbc
 from .helpers.utils import decode_function_abi_with_external_source
 from ..decoders.parameters import decode_function_parameters, decode_graffiti_parameters
+from decimal import Decimal
 
 log = logging.getLogger(__name__)
 
@@ -191,7 +192,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
             call_type=call.call_type,
             from_address=AddressInfo(address=call.from_address, name=from_name),
             to_address=AddressInfo(address=call.to_address, name=to_name),
-            value=call.call_value / 10**18,
+            value=Decimal(call.call_value) / 10**18,
             function_signature=function_signature,
             function_name=function_name,
             arguments=function_input,
