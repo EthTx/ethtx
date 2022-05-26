@@ -14,6 +14,7 @@ import logging
 from typing import Dict, Optional
 
 import bson
+from pymongo.collection import Collection
 from pymongo.cursor import Cursor
 from pymongo.database import Database as MongoDatabase
 
@@ -26,6 +27,10 @@ log = logging.getLogger(__name__)
 
 class MongoSemanticsDatabase(ISemanticsDatabase):
     _db: MongoDatabase
+
+    _addresses: Collection
+    _contracts: Collection
+    _signatures: Collection
 
     def __init__(self, db: MongoDatabase):
         self._db = db
@@ -132,3 +137,20 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
     def _init_collections(self) -> None:
         for mongo_collection in MongoCollections:
             self.__setattr__(f"_{mongo_collection}", self._db[mongo_collection])
+
+    def delete_semantics_by_address(self, chain_id: str, address: str) -> None:
+
+        address_semantics = self.get_address_semantics(chain_id, address)
+
+        if not address_semantics:
+            return
+
+        codehash = address_semantics['contract']
+        # contract_semantics = self.get_contract_semantics(codehash)
+
+        self._addresses.delete_one({"chain_id": chain_id, "address": address})
+        self._contracts.delete_one({"code_hash": codehash})
+
+        self.get_contract_semantics.cache_clear()
+        self.get_address_semantics.cache_clear()
+
