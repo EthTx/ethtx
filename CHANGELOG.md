@@ -1,6 +1,24 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.3.15 - 2022-05-26
+
+### Fixed
+- Break dynamic array decoding if there are no more available parameter
+- Fixed `DecodedTransfer.value` type (str -> float) [#144](https://github.com/EthTx/ethtx/pull/144)
+- Fixed `README` mongo string [#140](https://github.com/EthTx/ethtx/pull/140)
+
+### Changed
+- Make more flexible deps - `ethtx` is easier to install in other apps [#140](https://github.com/EthTx/ethtx/pull/140)
+- No timeout for mongo cursor - some collections may sometimes require more time to
+  search [#140](https://github.com/EthTx/ethtx/pull/140)
+
+### Added
+- Cache `4bytes` response, if some transactions have a lot of guessed functions/events, it definitely speeds
+  up `ethtx`! [#140](https://github.com/EthTx/ethtx/pull/140)
+- Added an option to recreate semantics used for transaction decoding [#148](https://github.com/EthTx/ethtx/pull/148)
+
+
 ## 0.3.14 - 2022-04-06
 
 ### Fixed
