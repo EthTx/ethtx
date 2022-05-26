@@ -4,10 +4,12 @@ All notable changes to this project will be documented in this file.
 ## 0.3.16 - 2022-05-26
 
 ### Changed
-- Removed support for optional parameters in mongo, due to different tiers of atlas.
-- Removed the formatting of `transfer.value`, so the value remains unchanged
-- Renamed a variable in `README.md`
-- `black` formatting
+- Removed support for optional parameters in mongo, due to different tiers of
+  atlas [#152](https://github.com/EthTx/ethtx/pull/152)
+- Removed the formatting of `transfer.value`, so the value remains
+  unchanged [#152](https://github.com/EthTx/ethtx/pull/152)
+- Renamed a variable in `README.md` [#152](https://github.com/EthTx/ethtx/pull/152)
+- `black` formatting [#152](https://github.com/EthTx/ethtx/pull/152)
 
 
 ## 0.3.15 - 2022-05-26
