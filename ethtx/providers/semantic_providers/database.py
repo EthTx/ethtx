@@ -45,25 +45,14 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         return len(self._db.list_collection_names())
 
     @cache
-    def get_address_semantics(
-        self, chain_id, address, *, cursor_timeout_millis=None
-    ) -> Dict:
+    def get_address_semantics(self, chain_id: str, address: str) -> Dict:
         _id = f"{chain_id}-{address}"
 
-        return self._addresses.find_one(
-            {"_id": _id},
-            {"_id": 0},
-            **self._cursor_properties(cursor_timeout_millis=cursor_timeout_millis),
-        )
+        return self._addresses.find_one({"_id": _id}, {"_id": 0})
 
     @cache
-    def get_signature_semantics(
-        self, signature_hash: str, *, cursor_timeout_millis=None
-    ) -> Cursor:
-        return self._signatures.find(
-            {"signature_hash": signature_hash},
-            **self._cursor_properties(cursor_timeout_millis=cursor_timeout_millis),
-        )
+    def get_signature_semantics(self, signature_hash: str) -> Cursor:
+        return self._signatures.find({"signature_hash": signature_hash})
 
     def insert_signature(
         self, signature: dict, update_if_exist=False
@@ -82,14 +71,10 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         return inserted_signature.inserted_id
 
     @cache
-    def get_contract_semantics(self, code_hash, *, cursor_timeout_millis=None) -> Dict:
+    def get_contract_semantics(self, code_hash: str) -> Dict:
         """Contract hashes are always the same, no mather what chain we use, so there is no need
         to use chain_id"""
-        return self._contracts.find_one(
-            {"_id": code_hash},
-            {"_id": 0},
-            **self._cursor_properties(cursor_timeout_millis=cursor_timeout_millis),
-        )
+        return self._contracts.find_one({"_id": code_hash}, {"_id": 0})
 
     def insert_contract(
         self, contract, update_if_exist=False
@@ -127,13 +112,6 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         inserted_address = self._addresses.insert_one(address_with_id)
         return inserted_address.inserted_id
 
-    def _cursor_properties(self, cursor_timeout_millis: int = None) -> Dict:
-        return (
-            {"max_time_ms": cursor_timeout_millis}
-            if cursor_timeout_millis
-            else {"no_cursor_timeout": True}
-        )
-
     def _init_collections(self) -> None:
         for mongo_collection in MongoCollections:
             self.__setattr__(f"_{mongo_collection}", self._db[mongo_collection])
@@ -145,7 +123,7 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         if not address_semantics:
             return
 
-        codehash = address_semantics['contract']
+        codehash = address_semantics["contract"]
         # contract_semantics = self.get_contract_semantics(codehash)
 
         self._addresses.delete_one({"chain_id": chain_id, "address": address})
@@ -153,4 +131,3 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
 
         self.get_contract_semantics.cache_clear()
         self.get_address_semantics.cache_clear()
-
