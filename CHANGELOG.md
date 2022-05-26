@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.3.16 - 2022-05-26
+
+### Changed
+- Removed support for optional parameters in mongo, due to different tiers of atlas.
+- Removed the formatting of `transfer.value`, so the value remains unchanged
+- Renamed a variable in `README.md`
+- `black` formatting
+
+
 ## 0.3.15 - 2022-05-26
 
 ### Fixed
