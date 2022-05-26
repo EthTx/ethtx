@@ -34,7 +34,4 @@ class SemanticTransfersDecoder(SemanticSubmoduleAbc):
                 tx_metadata.receiver.address,
             )
 
-            # format the transfer value
-            transfer.value = float(f"{transfer.value:,.4f}")
-
         return transfers
