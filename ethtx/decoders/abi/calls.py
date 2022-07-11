@@ -164,9 +164,6 @@ class ABICallsDecoder(ABISubmoduleAbc):
                         function_input, function_output = decode_function_parameters(
                             call.call_data, call.return_value, function_abi, call.status
                         )
-                        upsert_guessed_function_semantics(
-                            function_signature, function_abi, self._repository
-                        )
                     except Exception as e:
                         log.info(
                             "Skipping getting function from external source and trying to get next. Error: %s",
@@ -175,6 +172,10 @@ class ABICallsDecoder(ABISubmoduleAbc):
                         continue
                     else:
                         break
+                if repository_functions[0][1] is None:
+                    upsert_guessed_function_semantics(
+                        function_signature, function_abi, self._repository
+                    )
 
             if (
                 not call.status
