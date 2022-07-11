@@ -19,7 +19,11 @@ from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS
 from ethtx.semantics.standards.erc721 import ERC721_FUNCTIONS
 from ethtx.utils.measurable import RecursionLimit
 from .abc import ABISubmoduleAbc
-from .helpers.utils import decode_function_abi_with_external_source
+from .helpers.utils import (
+    decode_function_abi_with_external_source,
+    decode_function_abi_with_repository,
+    upsert_guessed_function_semantics,
+)
 from ..decoders.parameters import decode_function_parameters, decode_graffiti_parameters
 
 log = logging.getLogger(__name__)
@@ -141,15 +145,24 @@ class ABICallsDecoder(ABISubmoduleAbc):
             )
 
             if function_name.startswith("0x") and len(function_signature) > 2:
-                functions_abi_provider = decode_function_abi_with_external_source(
-                    signature=function_signature, repository=self._repository
-                )
-                for guessed, function_abi_provider in functions_abi_provider:
+                decoded_functions = [
+                    decode_function_abi_with_repository(
+                        function_signature, self._repository
+                    )
+                ]
+                if decoded_functions[0][1] is None:
+                    decoded_functions = decode_function_abi_with_external_source(
+                        signature=function_signature
+                    )
+                for guessed, decoded_function in decoded_functions:
                     try:
-                        function_abi = function_abi_provider
+                        function_abi = decoded_function
                         function_name = function_abi.name
                         function_input, function_output = decode_function_parameters(
                             call.call_data, call.return_value, function_abi, call.status
+                        )
+                        upsert_guessed_function_semantics(
+                            function_signature, function_abi, self._repository
                         )
                     except Exception as e:
                         log.info(
