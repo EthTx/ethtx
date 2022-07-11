@@ -145,15 +145,18 @@ class ABICallsDecoder(ABISubmoduleAbc):
             )
 
             if function_name.startswith("0x") and len(function_signature) > 2:
-                decoded_functions = [
+                repository_functions = [
                     decode_function_abi_with_repository(
                         function_signature, self._repository
                     )
                 ]
-                if decoded_functions[0][1] is None:
-                    decoded_functions = decode_function_abi_with_external_source(
+                decoded_functions = (
+                    decode_function_abi_with_external_source(
                         signature=function_signature
                     )
+                    if repository_functions[0][1] is None
+                    else repository_functions
+                )
                 for guessed, decoded_function in decoded_functions:
                     try:
                         function_abi = decoded_function

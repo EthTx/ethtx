@@ -51,28 +51,22 @@ def decode_function_abi_with_external_source(
     _provider: Optional[SignatureProvider] = FourByteProvider,
 ) -> List[Optional[Tuple[bool, FunctionSemantics]]]:
     functions = _provider.get_function(signature=signature)
-    guessed_functions = []
 
-    if not functions:
-        return []
-
-    for func in functions:
-        guessed_functions.append(
-            (
-                True,
-                FunctionSemantics(
-                    signature=signature,
-                    name=func.get("name"),
-                    inputs=_prepare_parameter_semantics(
-                        func.get("args"),
-                        isinstance(func.get("args"), tuple),
-                        unknown=True,
-                    ),
+    return [
+        (
+            True,
+            FunctionSemantics(
+                signature=signature,
+                name=func.get("name"),
+                inputs=_prepare_parameter_semantics(
+                    func.get("args"),
+                    isinstance(func.get("args"), tuple),
+                    unknown=True,
                 ),
-            )
+            ),
         )
-
-    return guessed_functions
+        for func in functions
+    ]
 
 
 def upsert_guessed_function_semantics(
@@ -80,12 +74,11 @@ def upsert_guessed_function_semantics(
     function_semantics: FunctionSemantics,
     repository: SemanticsRepository,
 ) -> None:
-    if "function_semantics" in locals():
-        log.info(
-            "Function (signature: %s, name: %s) guessed from 4byte.",
-            signature,
-            function_semantics.name,
-        )
+    log.info(
+        "Function (signature: %s, name: %s) guessed from external source.",
+        signature,
+        function_semantics.name,
+    )
 
     repository.update_or_insert_signature(
         signature=Signature(
