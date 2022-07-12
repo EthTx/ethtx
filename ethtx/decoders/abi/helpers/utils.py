@@ -30,8 +30,9 @@ def decode_function_abi_with_repository(
     signature_obj = repository.get_most_used_signature(signature_hash=signature)
     if signature_obj:
         log.info(
-            "Successfully guessed function from SemanticsRepository - %s.",
-            signature_obj.json(),
+            "Function (signature: %s, name: %s) guessed from SemanticsRepository.",
+            signature_obj.signature_hash,
+            signature_obj.name,
         )
         function_semantics = FunctionSemantics(
             signature=signature,
