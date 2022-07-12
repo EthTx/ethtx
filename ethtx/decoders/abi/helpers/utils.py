@@ -67,6 +67,7 @@ def decode_function_abi_with_external_source(
             ),
         )
         for func in functions
+        if func
     ]
 
 
