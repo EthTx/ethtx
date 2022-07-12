@@ -172,7 +172,7 @@ class ABICallsDecoder(ABISubmoduleAbc):
                         continue
                     else:
                         break
-                if repository_functions[0][1] is None:
+                if repository_functions[0][1] is None and decoded_functions:
                     upsert_guessed_function_semantics(
                         function_signature, function_abi, self._repository
                     )

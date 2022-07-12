@@ -60,7 +60,7 @@ class FourByteProvider(SignatureProvider):
     def list_event_signatures(self, filters: Dict = None) -> List[Dict]:
         return self._get_all(endpoint=self.EVENT_ENDPOINT, filters=filters)
 
-    def get_function(self, signature: str) -> Iterator[SignatureReturnType]:
+    def get_function(self, signature: str) -> Iterator[Optional[SignatureReturnType]]:
         if signature == "0x":
             raise ValueError(f"Signature can not be: {signature}")
 
@@ -73,7 +73,7 @@ class FourByteProvider(SignatureProvider):
             if parsed := self._parse_text_signature_response(function):
                 yield parsed
 
-    def get_event(self, signature: str) -> Iterator[SignatureReturnType]:
+    def get_event(self, signature: str) -> Iterator[Optional[SignatureReturnType]]:
         if signature == "0x":
             raise ValueError(f"Signature can not be: {signature}")
 
@@ -149,6 +149,10 @@ class FourByteProvider(SignatureProvider):
         types = (
             text_sig[text_sig.find("(") + 1 : text_sig.rfind(")")] if text_sig else ""
         )
+
+        if not name and not types:
+            return None
+
         if "(" in types:
             args = tuple(types[types.find("(") + 1 : types.rfind(")")].split(","))
             if any("(" in arg for arg in args):
