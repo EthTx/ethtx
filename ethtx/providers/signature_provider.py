@@ -11,17 +11,10 @@
 #  limitations under the License.
 import logging
 from abc import ABC, abstractmethod
-from json import JSONDecodeError
 from typing import Dict, List, Any, Iterator, TypedDict, Union, Tuple, Optional
 
 import requests
 import requests_cache
-
-from ethtx.exceptions import (
-    FourByteConnectionException,
-    FourByteContentException,
-    FourByteException,
-)
 
 log = logging.getLogger(__name__)
 
@@ -114,29 +107,15 @@ class FourByteProvider(SignatureProvider):
             filters["page"] = page
 
         try:
-            try:
-                response = requests.get(self.url(endpoint), params=filters, timeout=3)
-                return response.json()
+            response = requests.get(self.url(endpoint), params=filters, timeout=3)
+            return response.json()
 
-            except (
-                requests.exceptions.ConnectionError,
-                requests.exceptions.Timeout,
-            ) as connection_error:
-                raise FourByteConnectionException(
-                    connection_error
-                ) from connection_error
-
-            except (JSONDecodeError, ValueError) as value_error:
-                log.warning(value_error)
-                raise FourByteContentException(
-                    response.status_code, response.content
-                ) from value_error
-
-        except FourByteException:
+        except requests.exceptions.RequestException as e:
+            log.warning("Could not get data from 4byte.directory: %s", e)
             return {}
 
         except Exception as e:
-            log.critical("Unexpected error from 4byte.directory: %s", e)
+            log.warning("Unexpected error from 4byte.directory: %s", e)
             return {}
 
     def _parse_text_signature_response(
