@@ -61,7 +61,7 @@ ethtx_config = EthTxConfig(
 )
 
 ethtx = EthTx.initialize(ethtx_config)
-transaction: DecodedTransaction = ethtx.decoders.decode_transaction(
+decoded_transaction: DecodedTransaction = ethtx.decoders.decode_transaction(
     '0x50051e0a6f216ab9484c2080001c7e12d5138250acee1f4b7c725b8fb6bb922d')
 ```
 

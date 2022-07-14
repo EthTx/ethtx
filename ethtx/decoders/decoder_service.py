@@ -35,7 +35,9 @@ class DecoderService:
         self.web3provider: NodeDataProvider = web3provider
         self.default_chain: str = default_chain
 
-    def decode_transaction(self, chain_id: str, tx_hash: str) -> DecodedTransaction:
+    def decode_transaction(
+        self, chain_id: str, tx_hash: str, recreate_semantics: bool = False
+    ) -> DecodedTransaction:
 
         # verify the transaction hash
         tx_hash = tx_hash if tx_hash.startswith("0x") else "0x" + tx_hash
@@ -78,6 +80,10 @@ class DecoderService:
             tx_hash,
             ", ".join(used_semantics) if used_semantics else "",
         )
+
+        if recreate_semantics:
+            self.semantic_decoder.repository.delete_semantics(chain_id, used_semantics)
+            return self.decode_transaction(chain_id, tx_hash, False)
 
         return semantically_decoded_tx
 
