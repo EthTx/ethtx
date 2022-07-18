@@ -135,7 +135,11 @@ class FourByteProvider(SignatureProvider):
         if "(" in types:
             args = tuple(types[types.find("(") + 1 : types.rfind(")")].split(","))
             if any("(" in arg for arg in args):
-                log.warning("Could not parse signature: %s", text_sig)
+                log.warning(
+                    "Could not parse %s signature: %s",
+                    data.get("hex_signature"),
+                    data.get("text_signature"),
+                )
                 return None
         else:
             args = list(filter(None, types.split(",")))
