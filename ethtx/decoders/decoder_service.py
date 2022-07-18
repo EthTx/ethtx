@@ -83,7 +83,7 @@ class DecoderService:
         log.info(
             "Semantics used in decoding %s: %s",
             tx_hash,
-            ", ".join(used_semantics) if used_semantics else "",
+            ", ".join(set(used_semantics)) if used_semantics else "",
         )
 
         if recreate_semantics:
