@@ -1,6 +1,21 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.3.17 - 2022-07-18
+
+### Changed
+- Refactored/split `utils` code [#156](https://github.com/EthTx/ethtx/pull/156)
+- Refactored `SignatureProvider` [#156](https://github.com/EthTx/ethtx/pull/156)
+- Removed `@cache` from signature Cursor object [#156](https://github.com/EthTx/ethtx/pull/156)
+- Updated logging [#156](https://github.com/EthTx/ethtx/pull/156)
+
+### Fixed
+- Updated `requests-cache` version. Pipenv could not handle the bad dependencies in this
+  package [#157](https://github.com/EthTx/ethtx/pull/157)
+- Fixed guessing function (problem with writing to and reading from the
+  base) [#156](https://github.com/EthTx/ethtx/pull/156)
+
+
 ## 0.3.16 - 2022-05-26
 
 ### Changed
