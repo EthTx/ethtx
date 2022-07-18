@@ -455,12 +455,12 @@ class SemanticsRepository:
                 if signature.args and any(
                     arg for arg in list(sig["args"][0].values()) if "arg" in arg
                 ):
+                    sig["guessed"] = signature.guessed
                     for index, argument in enumerate(sig["args"]):
                         argument["name"] = signature.args[index].name
                         argument["type"] = signature.args[index].type
 
                 sig["count"] += 1
-                sig["guessed"] = False
                 self.database.insert_signature(signature=sig, update_if_exist=True)
                 break
 

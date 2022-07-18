@@ -19,7 +19,11 @@ from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS
 from ethtx.semantics.standards.erc721 import ERC721_FUNCTIONS
 from ethtx.utils.measurable import RecursionLimit
 from .abc import ABISubmoduleAbc
-from .helpers.utils import decode_function_abi_with_external_source
+from .helpers.utils import (
+    decode_function_abi_with_external_source,
+    decode_function_abi_with_repository,
+    upsert_guessed_function_semantics,
+)
 from ..decoders.parameters import decode_function_parameters, decode_graffiti_parameters
 
 log = logging.getLogger(__name__)
@@ -141,12 +145,21 @@ class ABICallsDecoder(ABISubmoduleAbc):
             )
 
             if function_name.startswith("0x") and len(function_signature) > 2:
-                functions_abi_provider = decode_function_abi_with_external_source(
-                    signature=function_signature, repository=self._repository
+                repository_functions = [
+                    decode_function_abi_with_repository(
+                        function_signature, self._repository
+                    )
+                ]
+                decoded_functions = (
+                    decode_function_abi_with_external_source(
+                        signature=function_signature
+                    )
+                    if repository_functions[0][1] is None
+                    else repository_functions
                 )
-                for guessed, function_abi_provider in functions_abi_provider:
+                for guessed, decoded_function in decoded_functions:
                     try:
-                        function_abi = function_abi_provider
+                        function_abi = decoded_function
                         function_name = function_abi.name
                         function_input, function_output = decode_function_parameters(
                             call.call_data, call.return_value, function_abi, call.status
@@ -159,6 +172,10 @@ class ABICallsDecoder(ABISubmoduleAbc):
                         continue
                     else:
                         break
+                if repository_functions[0][1] is None and decoded_functions:
+                    upsert_guessed_function_semantics(
+                        function_signature, function_abi, self._repository
+                    )
 
             if (
                 not call.status

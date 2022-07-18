@@ -11,17 +11,10 @@
 #  limitations under the License.
 import logging
 from abc import ABC, abstractmethod
-from json import JSONDecodeError
 from typing import Dict, List, Any, Iterator, TypedDict, Union, Tuple, Optional
 
 import requests
 import requests_cache
-
-from ethtx.exceptions import (
-    FourByteConnectionException,
-    FourByteContentException,
-    FourByteException,
-)
 
 log = logging.getLogger(__name__)
 
@@ -60,7 +53,7 @@ class FourByteProvider(SignatureProvider):
     def list_event_signatures(self, filters: Dict = None) -> List[Dict]:
         return self._get_all(endpoint=self.EVENT_ENDPOINT, filters=filters)
 
-    def get_function(self, signature: str) -> Iterator[SignatureReturnType]:
+    def get_function(self, signature: str) -> Iterator[Optional[SignatureReturnType]]:
         if signature == "0x":
             raise ValueError(f"Signature can not be: {signature}")
 
@@ -73,7 +66,7 @@ class FourByteProvider(SignatureProvider):
             if parsed := self._parse_text_signature_response(function):
                 yield parsed
 
-    def get_event(self, signature: str) -> Iterator[SignatureReturnType]:
+    def get_event(self, signature: str) -> Iterator[Optional[SignatureReturnType]]:
         if signature == "0x":
             raise ValueError(f"Signature can not be: {signature}")
 
@@ -114,29 +107,15 @@ class FourByteProvider(SignatureProvider):
             filters["page"] = page
 
         try:
-            try:
-                response = requests.get(self.url(endpoint), params=filters, timeout=3)
-                return response.json()
+            response = requests.get(self.url(endpoint), params=filters, timeout=3)
+            return response.json()
 
-            except (
-                requests.exceptions.ConnectionError,
-                requests.exceptions.Timeout,
-            ) as connection_error:
-                raise FourByteConnectionException(
-                    connection_error
-                ) from connection_error
-
-            except (JSONDecodeError, ValueError) as value_error:
-                log.warning(value_error)
-                raise FourByteContentException(
-                    response.status_code, response.content
-                ) from value_error
-
-        except FourByteException:
+        except requests.exceptions.RequestException as e:
+            log.warning("Could not get data from 4byte.directory: %s", e)
             return {}
 
         except Exception as e:
-            log.critical("Unexpected error from 4byte.directory: %s", e)
+            log.warning("Unexpected error from 4byte.directory: %s", e)
             return {}
 
     def _parse_text_signature_response(
@@ -149,10 +128,18 @@ class FourByteProvider(SignatureProvider):
         types = (
             text_sig[text_sig.find("(") + 1 : text_sig.rfind(")")] if text_sig else ""
         )
+
+        if not name and not types:
+            return None
+
         if "(" in types:
             args = tuple(types[types.find("(") + 1 : types.rfind(")")].split(","))
             if any("(" in arg for arg in args):
-                log.warning("Could not parse signature: %s", text_sig)
+                log.warning(
+                    "Could not parse %s signature: %s",
+                    data.get("hex_signature"),
+                    data.get("text_signature"),
+                )
                 return None
         else:
             args = list(filter(None, types.split(",")))

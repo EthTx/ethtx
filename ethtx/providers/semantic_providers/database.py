@@ -50,7 +50,6 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
 
         return self._addresses.find_one({"_id": _id}, {"_id": 0})
 
-    @cache
     def get_signature_semantics(self, signature_hash: str) -> Cursor:
         return self._signatures.find({"signature_hash": signature_hash})
 
