@@ -109,7 +109,7 @@ def decode_event_abi_name_with_external_source(
         event_name = event.get("name")
         if event_name:
             log.info(
-                "Event (signature: %s, name: %s) guessed from 4byte.",
+                "Event (signature: %s, name: %s) guessed from external source.",
                 signature,
                 event_name,
             )
