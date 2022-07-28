@@ -132,15 +132,20 @@ class Web3Provider(NodeDataProvider):
         ):
             w3 = connect_chain(http_hook=connection.url, poa=connection.poa)
 
-            if w3.isConnected():
-                log.info(
-                    "Connected to: %s with latest block %s.",
-                    connection,
-                    w3.eth.block_number,
+            try:
+                if w3.isConnected():
+                    log.info(
+                        "Connected to: %s with latest block %s.",
+                        connection,
+                        w3.eth.block_number,
+                    )
+                    return w3
+                else:
+                    log.warning("Connection failed to: %s", connection)
+            except AssertionError:
+                log.warning(
+                    "Node is available, but RPC connection failed: %s", connection
                 )
-                return w3
-            else:
-                log.warning("Connection failed to: %s", connection)
 
         raise NodeConnectionException
 
