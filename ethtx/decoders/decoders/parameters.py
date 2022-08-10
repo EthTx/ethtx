@@ -17,8 +17,8 @@
 import logging
 from datetime import datetime
 
+from ethtx.decoders.decoders.errors import ERRORS
 from ethtx.models.decoded_model import Argument
-from ethtx.models.semantics_model import ParameterSemantics
 
 log = logging.getLogger(__name__)
 
@@ -96,7 +96,7 @@ def decode_event_parameters(data, topics, abi, anonymous):
         for i in range(no_parameters):
             parameter_name = f"data_parameter_{i}"
             parameter_type = "unknown"
-            parameter_value = data[64 * i : 64 * (i + 1)]
+            parameter_value = data[64 * i: 64 * (i + 1)]
 
             data_parameters[i] = Argument(
                 name=parameter_name, type=parameter_type, value=parameter_value
@@ -125,7 +125,7 @@ def decode_event_parameters(data, topics, abi, anonymous):
 
 
 def decode_function_parameters(
-    input_data, output, abi, status=True, strip_signature=True
+        input_data, output, abi, status=True, strip_signature=True
 ):
     if strip_signature and len(input_data) >= 10:
         stripped_input_data = input_data[10:]
@@ -150,16 +150,15 @@ def decode_function_parameters(
     else:
         input_parameters = []
 
-    if not status and output[:10] == "0x08c379a0":
-        error_abi = ParameterSemantics(
-            parameter_name="Error",
-            parameter_type="string",
-            components=[],
-            indexed=False,
-            dynamic=True,
+    if not status and (error_sig := output[:10]) in ERRORS:
+        error_name = Argument(
+            name="__error",
+            type="string",
+            value=ERRORS[error_sig]["name"]
         )
-        error_parameters, _ = decode_struct(output[10:], [error_abi])
-        output_parameters = [Argument(**error_parameters[0])]
+        error_abi = ERRORS[error_sig]["abi"]
+        error_parameters, _ = decode_struct(output[10:], error_abi)
+        output_parameters = [error_name, *(Argument(**param) for param in error_parameters)]
     else:
         if abi:
             if abi.outputs and status and output == "0x":
@@ -269,7 +268,7 @@ def decode_tuple(data, argument_abi, is_list):
         for c in range(count):
             do_offset = any(a.dynamic for a in argument_abi)
             if do_offset:
-                raw_value = data[c * 64 : (c + 1) * 64]
+                raw_value = data[c * 64: (c + 1) * 64]
                 offset = int(raw_value, 16) * 2
                 sub_bytes = data[offset:]
             else:
@@ -298,13 +297,13 @@ def decode_dynamic_array(data, array_type):
 
     for i in range(count):
         if array_type in ("bytes", "string"):
-            offset = int(sub_data[64 * i : 64 * (i + 1)], 16) * 2
+            offset = int(sub_data[64 * i: 64 * (i + 1)], 16) * 2
             decoded = decode_dynamic_argument(sub_data[offset:], array_type)
         else:
             offset = 64 * i
             if offset >= len(sub_data):
                 break
-            decoded = decode_static_argument(sub_data[offset : offset + 64], array_type)
+            decoded = decode_static_argument(sub_data[offset: offset + 64], array_type)
 
         decoded_argument.append(decoded)
 
@@ -315,7 +314,7 @@ def decode_dynamic_array(data, array_type):
 def decode_dynamic_argument(argument_bytes, argument_type):
     if len(argument_bytes):
         length = int(argument_bytes[:64], 16) * 2
-        value = argument_bytes[64 : 64 + length]
+        value = argument_bytes[64: 64 + length]
 
         if argument_type == "string":
             hex_bytes = bytes.fromhex(value)
@@ -347,7 +346,7 @@ def decode_struct(data, arguments_abi):
                 else:
                     array_values.append(decode_static_argument(raw_value, array_type))
                     slot += 1
-                raw_value = data[slot * 64 : (slot + 1) * 64]
+                raw_value = data[slot * 64: (slot + 1) * 64]
 
         return array_values, slot
 
@@ -359,7 +358,7 @@ def decode_struct(data, arguments_abi):
     arguments_list = []
     slot = 0
     for i in range(no_arguments):
-        raw_value = data[slot * 64 : (slot + 1) * 64]
+        raw_value = data[slot * 64: (slot + 1) * 64]
 
         if arguments_abi:
 
@@ -374,7 +373,7 @@ def decode_struct(data, arguments_abi):
                     offset = int(raw_value, 16) * 2
                     sub_arguments = data[offset:]
                 else:
-                    sub_arguments = data[i * 64 :]
+                    sub_arguments = data[i * 64:]
 
                 argument_value, slots = decode_tuple(
                     sub_arguments,
