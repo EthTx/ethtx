@@ -42,6 +42,18 @@ from .transfers import ABITransfersDecoder
 log = logging.getLogger(__name__)
 
 
+def prune_delegates(call: DecodedCall) -> DecodedCall:
+    while len(call.subcalls) == 1 and call.subcalls[0].call_type == "delegatecall":
+        _value = call.value
+        call = call.subcalls[0]
+        call.value = _value
+
+    for i, sub_call in enumerate(call.subcalls):
+        call.subcalls[i] = prune_delegates(sub_call)
+
+    return call
+
+
 class ABIDecoder(IABIDecoder):
     def decode_transaction(
         self,
@@ -209,6 +221,9 @@ class ABIDecoder(IABIDecoder):
                 chain_id,
             )
             raise e
+
+        # remove chained delegatecalls from the tree
+        prune_delegates(full_decoded_transaction.calls)
 
         full_decoded_transaction.status = True
 

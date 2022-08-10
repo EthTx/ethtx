@@ -72,8 +72,6 @@ class ABICallsDecoder(ABISubmoduleAbc):
                 chain_id,
             )
 
-        calls_tree = self._prune_delegates(calls_tree)
-
         return calls_tree
 
     def decode_call(
@@ -266,17 +264,5 @@ class ABICallsDecoder(ABISubmoduleAbc):
                     proxies,
                     chain_id,
                 )
-
-        return call
-
-    def _prune_delegates(self, call: DecodedCall) -> DecodedCall:
-
-        while len(call.subcalls) == 1 and call.subcalls[0].call_type == "delegatecall":
-            _value = call.value
-            call = call.subcalls[0]
-            call.value = _value
-
-        for i, sub_call in enumerate(call.subcalls):
-            call.subcalls[i] = self._prune_delegates(sub_call)
 
         return call
