@@ -14,6 +14,8 @@
 # not licensed under the Apache 2.0 license. When using or reproducing the code, please remove
 # the trademark and/or other branding elements.
 
+from __future__ import annotations
+
 from typing import List, Dict, Optional, TYPE_CHECKING
 
 from ethtx.models.base_model import BaseModel
@@ -31,9 +33,12 @@ class TransformationSemantics(BaseModel):
 class ParameterSemantics(BaseModel):
     parameter_name: str
     parameter_type: str
-    components: list['ParmeterSemantics'] = []
+    components: list[ParameterSemantics] = []
     indexed: bool = False
     dynamic: bool = False
+
+
+ParameterSemantics.update_forward_refs()
 
 
 class EventSemantics(BaseModel):
