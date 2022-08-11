@@ -17,7 +17,7 @@
 import logging
 from typing import Dict, Optional
 
-import bson
+from bson import ObjectId
 from pymongo.collection import Collection
 from pymongo.cursor import Cursor
 from pymongo.database import Database as MongoDatabase
@@ -58,8 +58,8 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         return self._signatures.find({"signature_hash": signature_hash})
 
     def insert_signature(
-        self, signature: dict, update_if_exist=False
-    ) -> Optional[bson.ObjectId]:
+        self, signature: dict, update_if_exist: Optional[bool] = False
+    ) -> Optional[ObjectId]:
         if update_if_exist:
             updated_signature = self._signatures.replace_one(
                 {"_id": signature["_id"]}, signature, upsert=True
@@ -80,8 +80,8 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         return self._contracts.find_one({"_id": code_hash}, {"_id": 0})
 
     def insert_contract(
-        self, contract, update_if_exist=False
-    ) -> Optional[bson.ObjectId]:
+        self, contract: Dict, update_if_exist: Optional[bool] = False
+    ) -> Optional[ObjectId]:
         contract_with_id = {"_id": contract["code_hash"], **contract}
 
         if update_if_exist:
@@ -98,7 +98,9 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
         inserted_contract = self._contracts.insert_one(contract_with_id)
         return inserted_contract.inserted_id
 
-    def insert_address(self, address, update_if_exist=False) -> Optional[bson.ObjectId]:
+    def insert_address(
+        self, address: Dict, update_if_exist: Optional[bool] = False
+    ) -> Optional[ObjectId]:
         address_with_id = {
             "_id": f"{address['chain_id']}-{address['address']}",
             **address,
