@@ -50,9 +50,7 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
 
     @cache
     def get_address_semantics(self, chain_id: str, address: str) -> Dict:
-        _id = f"{chain_id}-{address}"
-
-        return self._addresses.find_one({"_id": _id}, {"_id": 0})
+        return self._addresses.find_one({"chain_id": chain_id, "address": address})
 
     def get_signature_semantics(self, signature_hash: str) -> Cursor:
         return self._signatures.find({"signature_hash": signature_hash})
@@ -77,16 +75,15 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
     def get_contract_semantics(self, code_hash: str) -> Dict:
         """Contract hashes are always the same, no mather what chain we use, so there is no need
         to use chain_id"""
-        return self._contracts.find_one({"_id": code_hash}, {"_id": 0})
+        return self._contracts.find_one({"code_hash": code_hash})
 
     def insert_contract(
         self, contract: Dict, update_if_exist: Optional[bool] = False
     ) -> Optional[ObjectId]:
-        contract_with_id = {"_id": contract["code_hash"], **contract}
 
         if update_if_exist:
             updated_contract = self._contracts.replace_one(
-                {"_id": contract_with_id["_id"]}, contract_with_id, upsert=True
+                {"code_hash": contract["code_hash"]}, contract, upsert=True
             )
 
             return (
@@ -95,26 +92,24 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
                 else updated_contract.upserted_id
             )
 
-        inserted_contract = self._contracts.insert_one(contract_with_id)
+        inserted_contract = self._contracts.insert_one(contract)
         return inserted_contract.inserted_id
 
     def insert_address(
         self, address: Dict, update_if_exist: Optional[bool] = False
     ) -> Optional[ObjectId]:
-        address_with_id = {
-            "_id": f"{address['chain_id']}-{address['address']}",
-            **address,
-        }
 
         if update_if_exist:
             updated_address = self._addresses.replace_one(
-                {"_id": address_with_id["_id"]}, address_with_id, upsert=True
+                {"chain_id": address["chain_id"], "address": address["address"]},
+                address,
+                upsert=True,
             )
             return (
                 None if updated_address.modified_count else updated_address.upserted_id
             )
 
-        inserted_address = self._addresses.insert_one(address_with_id)
+        inserted_address = self._addresses.insert_one(address)
         return inserted_address.inserted_id
 
     def _init_collections(self) -> None:
