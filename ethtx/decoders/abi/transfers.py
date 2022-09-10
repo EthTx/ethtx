@@ -53,17 +53,30 @@ class ABITransfersDecoder(ABISubmoduleAbc):
 
         for event in events:
 
-            # this is a signature of Transfer event valid for ERC20 and ERC721
+            # signatures of Transfer event valid for ERC20 and ERC721 and
+            # TransferSingle for ERC1155
             if (
-                event.event_signature
-                == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+                    event.event_signature in
+                    ("0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                     "0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62")
             ):
 
-                from_address = event.parameters[0].value
+                # Transfer event
+                if event.event_signature == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef":
+                    from_address = event.parameters[0].value[-40:]
+                    to_address = event.parameters[1].value[-40:]
+                    token_id = event.parameters[2].value
+                    value = event.parameters[2].value
+                # TransferSingle event
+                else:
+                    from_address = event.parameters[1].value[-40:]
+                    to_address = event.parameters[2].value[-40:]
+                    token_id = event.parameters[3].value
+                    value = event.parameters[4].value
+
                 from_name = self._repository.get_address_label(
                     event.chain_id, from_address, proxies
                 )
-                to_address = event.parameters[1].value
                 to_name = self._repository.get_address_label(
                     event.chain_id, to_address, proxies
                 )
@@ -72,7 +85,8 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                     event.chain_id, event.contract.address
                 )
 
-                if standard == "ERC20" or event.contract.address in proxies:
+                if event.event_signature == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef" and \
+                        (standard == "ERC20" or event.contract.address in proxies):
 
                     (
                         _,
@@ -83,7 +97,7 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                         event.chain_id, event.contract.address, proxies
                     )
                     try:
-                        value = event.parameters[2].value / 10**token_decimals
+                        value = value / 10 ** token_decimals
                     except:
                         value = 0
 
@@ -99,15 +113,29 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                             value=value,
                         )
                     )
-                elif standard == "ERC721":
-                    if len(str(event.parameters[2].value)) > 8:
+                else:
+
+                    (
+                        _,
+                        token_symbol,
+                        token_decimals,
+                        _,
+                    ) = self._repository.get_token_data(
+                        event.chain_id, event.contract.address, proxies
+                    )
+                    if standard == "ERC721":
+                        value = 1
+                    if token_symbol == 'Unknown' or (token_symbol) > 10:
+                        token_symbol = 'NFT'
+
+                    if len(str(token_id)) > 8:
                         token_symbol = (
-                            f"NFT {str(event.parameters[2].value)[:6]}..."
-                            f"{str(event.parameters[2].value)[-2:]}"
+                            f"{token_symbol} {str(token_id)[:6]}..."
+                            f"{str(token_id)[-2:]}"
                         )
                     else:
-                        token_symbol = f"NFT {event.parameters[2].value}"
-                    token_address = f"{event.contract.address}?a={event.parameters[2].value}#inventory"
+                        token_symbol = f"{token_symbol} {token_id}"
+                    token_address = f"{event.contract.address}?a={token_id}#inventory"
                     transfers.append(
                         DecodedTransfer(
                             from_address=AddressInfo(
@@ -117,7 +145,7 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                             token_standard=standard,
                             token_address=token_address,
                             token_symbol=token_symbol,
-                            value=1,
+                            value=value,
                         )
                     )
 
