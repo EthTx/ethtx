@@ -198,6 +198,8 @@ def decode_static_argument(raw_value, argument_type):
     if not raw_value:
         return raw_value
 
+    decoded_value = raw_value
+
     if argument_type == "address":
         if len(raw_value) >= 40:
             decoded_value = "0x" + raw_value[-40:]
