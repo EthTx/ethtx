@@ -63,14 +63,14 @@ class ABITransfersDecoder(ABISubmoduleAbc):
 
                 # Transfer event
                 if event.event_signature == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef":
-                    from_address = event.parameters[0].value[-40:]
-                    to_address = event.parameters[1].value[-40:]
+                    from_address = '0x' + event.parameters[0].value[-40:]
+                    to_address = '0x' + event.parameters[1].value[-40:]
                     token_id = event.parameters[2].value
                     value = event.parameters[2].value
                 # TransferSingle event
                 else:
-                    from_address = event.parameters[1].value[-40:]
-                    to_address = event.parameters[2].value[-40:]
+                    from_address = '0x' + event.parameters[1].value[-40:]
+                    to_address = '0x' + event.parameters[2].value[-40:]
                     token_id = event.parameters[3].value
                     value = event.parameters[4].value
 
