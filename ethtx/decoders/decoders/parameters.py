@@ -194,67 +194,70 @@ def decode_function_parameters(
 
 # helper function to decode an argument value based on expected type
 def decode_static_argument(raw_value, argument_type):
-    decoded_value = raw_value
 
-    if decoded_value:
+    if not raw_value:
+        return raw_value
 
-        if argument_type == "address":
-            if len(raw_value) >= 40:
-                decoded_value = "0x" + raw_value[-40:]
-            else:
-                decoded_value = raw_value
+    if argument_type == "address":
+        if len(raw_value) >= 40:
+            decoded_value = "0x" + raw_value[-40:]
+        else:
+            decoded_value = raw_value
 
-        elif argument_type[:4] == "uint":
-            if isinstance(raw_value, str):
-                decoded_value = int(raw_value, 16)
-            else:
-                decoded_value = raw_value
+    elif argument_type[:4] == "uint":
+        if isinstance(raw_value, str):
+            decoded_value = int(raw_value, 16)
+        else:
+            decoded_value = raw_value
 
-        elif argument_type[:3] == "int":
-            if isinstance(raw_value, str):
-                decoded_value = int(raw_value, 16)
-                if decoded_value & (1 << (256 - 1)):
-                    decoded_value -= 1 << 256
-            else:
-                decoded_value = raw_value
+    elif argument_type[:3] == "int":
+        if isinstance(raw_value, str):
+            decoded_value = int(raw_value, 16)
+            if decoded_value & (1 << (256 - 1)):
+                decoded_value -= 1 << 256
+        else:
+            decoded_value = raw_value
 
-        elif argument_type == "bool":
-            if int(raw_value, 16) == 0:
-                decoded_value = "False"
-            else:
-                decoded_value = "True"
+    elif argument_type == "bool":
+        if int(raw_value, 16) == 0:
+            decoded_value = "False"
+        else:
+            decoded_value = "True"
 
-        elif argument_type == "bytes":
-            decoded_value = "0x" + bytes.fromhex(raw_value[2:]).hex()
+    elif argument_type == "bytes":
+        decoded_value = "0x" + bytes.fromhex(raw_value[2:]).hex()
 
-        elif argument_type[:5] == "bytes":
+    elif argument_type[:5] == "bytes":
+        if raw_value.startswith("0x"):
+            decoded_value = raw_value
+        else:
             decoded_value = "0x" + raw_value
 
-        elif argument_type == "byte":
-            decoded_value = "0x" + bytes.fromhex(raw_value[2:])[0].hex()
+    elif argument_type == "byte":
+        decoded_value = "0x" + bytes.fromhex(raw_value[2:])[0].hex()
 
-        elif argument_type in ("string", "string32"):
-            try:
-                if raw_value[:2] == "0x":
-                    raw_value = raw_value[2:]
-                decoded_value = (
-                    bytes.fromhex(raw_value).decode("utf-8").replace("\x00", "")
-                )
-            except Exception:
-                pass
+    elif argument_type in ("string", "string32"):
+        try:
+            if raw_value[:2] == "0x":
+                raw_value = raw_value[2:]
+            decoded_value = (
+                bytes.fromhex(raw_value).decode("utf-8").replace("\x00", "")
+            )
+        except Exception:
+            return raw_value
 
-        elif argument_type == "timestamp":
-            if isinstance(raw_value, str):
-                decoded_value = str(datetime.utcfromtimestamp(int(raw_value, 16)))
-            else:
-                decoded_value = str(datetime.utcfromtimestamp(raw_value))
+    elif argument_type == "timestamp":
+        if isinstance(raw_value, str):
+            decoded_value = str(datetime.utcfromtimestamp(int(raw_value, 16)))
+        else:
+            decoded_value = str(datetime.utcfromtimestamp(raw_value))
 
-        elif argument_type == "hashmap":
-            decoded_value = "[...]"
-        elif argument_type == "tuple":
-            decoded_value = "(...)"
-        elif argument_type == "tuple[]":
-            decoded_value = "(...)[]"
+    elif argument_type == "hashmap":
+        decoded_value = "[...]"
+    elif argument_type == "tuple":
+        decoded_value = "(...)"
+    elif argument_type == "tuple[]":
+        decoded_value = "(...)[]"
 
     return decoded_value
 

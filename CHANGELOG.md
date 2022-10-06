@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+
+## 0.3.18 - 2022-10.06
+
+### Fixed
+- Fixed amount calculation for NFT transfers [#169](https://github.com/EthTx/ethtx/pull/169)
+- Fix decode_static_argument doubling 0x prefix in bytes type [#168](https://github.com/EthTx/ethtx/pull/168)
+
+
 ## 0.3.17 - 2022-07-18
 
 ### Changed
