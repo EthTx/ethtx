@@ -69,7 +69,6 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                     value = event.parameters[2].value
                 # TransferSingle event
                 else:
-
                     from_address = '0x' + event.parameters[1].value[-40:]
                     to_address = '0x' + event.parameters[2].value[-40:]
                     token_id = event.parameters[3].value
@@ -131,7 +130,6 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                         value = int(value, 16) if type(value) == str else value
 
                     if token_symbol == 'Unknown':
-
                         token_symbol = 'NFT'
 
                     if len(str(token_id)) > 8:

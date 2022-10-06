@@ -174,7 +174,10 @@ def decode_function_parameters(
                         )
                     ]
                 else:
-                    output_parameters, _ = decode_struct(output[2:], abi.outputs)
+                    if status:
+                        output_parameters, _ = decode_struct(output[2:], abi.outputs)
+                    else:
+                        output_parameters = []
                     for i, parameter in enumerate(output_parameters):
                         output_parameters[i] = Argument(**parameter)
             else:
