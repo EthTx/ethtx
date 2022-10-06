@@ -123,9 +123,13 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                     ) = self._repository.get_token_data(
                         event.chain_id, event.contract.address, proxies
                     )
-                    if standard == "ERC721":
+
+                    if event.event_signature == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef":
                         value = 1
-                    if token_symbol == 'Unknown' or (token_symbol) > 10:
+                    else:
+                        value = int(value, 16) if type(value) == str else value
+
+                    if token_symbol == 'Unknown':
                         token_symbol = 'NFT'
 
                     if len(str(token_id)) > 8:
