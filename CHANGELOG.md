@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 
 
+## 0.3.19 - 2022-10.06
+
+### Fixed
+- Fix output decoding for reverted calls[#172](https://github.com/EthTx/ethtx/pull/172)
+- Fix missing decoded_value in parameters decoding for events [#173](https://github.com/EthTx/ethtx/pull/173)
+
+
 ## 0.3.18 - 2022-10.06
 
 ### Fixed
