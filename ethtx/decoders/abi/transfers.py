@@ -63,14 +63,15 @@ class ABITransfersDecoder(ABISubmoduleAbc):
 
                 # Transfer event
                 if event.event_signature == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef":
-                    from_address = event.parameters[0].value[-40:]
-                    to_address = event.parameters[1].value[-40:]
+                    from_address = '0x' + event.parameters[0].value[-40:]
+                    to_address = '0x' + event.parameters[1].value[-40:]
                     token_id = event.parameters[2].value
                     value = event.parameters[2].value
                 # TransferSingle event
                 else:
-                    from_address = event.parameters[1].value[-40:]
-                    to_address = event.parameters[2].value[-40:]
+
+                    from_address = '0x' + event.parameters[1].value[-40:]
+                    to_address = '0x' + event.parameters[2].value[-40:]
                     token_id = event.parameters[3].value
                     value = event.parameters[4].value
 
@@ -123,9 +124,14 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                     ) = self._repository.get_token_data(
                         event.chain_id, event.contract.address, proxies
                     )
-                    if standard == "ERC721":
+
+                    if event.event_signature == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef":
                         value = 1
-                    if token_symbol == 'Unknown' or (token_symbol) > 10:
+                    else:
+                        value = int(value, 16) if type(value) == str else value
+
+                    if token_symbol == 'Unknown':
+
                         token_symbol = 'NFT'
 
                     if len(str(token_id)) > 8:
