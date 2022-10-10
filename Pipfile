@@ -15,7 +15,7 @@ eth-utils = "==1.10.0"
 eth-rlp = "==0.2.1"
 pydantic = ">=1.8.0"
 python-dotenv = "*"
-requests-cache = "!=0.9.5"
+requests-cache = "==0.9.4"
 
 [dev-packages]
 black = "*"
