@@ -92,6 +92,10 @@ def semantically_decode_parameter(
 def evaluate_transformation(value, transformation, context):
     try:
         new_value = eval(transformation, context)
+        
+        #Check if resulting float of transformation is actually an int
+        if new_value.is_integer():
+            new_value = int(new_value)
     except Exception as e:
         log.warning("Transformation: %s failed.", transformation, exc_info=e)
         new_value = value
