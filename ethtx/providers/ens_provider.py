@@ -39,12 +39,12 @@ class ENSProviderBase(ABC):
 class Web3ENSProvider(ENSProviderBase):
     ns: ENS
 
-    def name(self, provider: Web3, address: str) -> str:
+    def name(self, provider: Web3, address: str, *, strict: bool = True) -> str:
         ns = self._set_provider(provider)
         check_sum_address = Web3.toChecksumAddress(address)
 
         try:
-            name = ns.name(address=check_sum_address)
+            name = ns.name(address=check_sum_address, strict=strict)
         except exceptions.BadFunctionCallOutput:
             log.warning(
                 "ENS name not found for address: %s. There is no code associated with this address.",
@@ -60,7 +60,6 @@ class Web3ENSProvider(ENSProviderBase):
     def address(self, provider: Web3, name: str) -> str:
         ns = self._set_provider(provider)
         address = ns.address(name=name)
-
         if address:
             log.info("ENS resolved name: %s to address: %s", name, address)
 
