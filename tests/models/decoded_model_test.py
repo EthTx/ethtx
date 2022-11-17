@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from ethtx.models.decoded_model import (
     AddressInfo,
     DecodedTransactionMetadata,
@@ -126,7 +128,7 @@ class TestDecodedModels:
             from_address=DecodedModelMock.ADDRESS_INFO,
             to_address=DecodedModelMock.ADDRESS_INFO,
             token_symbol="ts",
-            value=0.15,
+            value=Decimal(0.15),
         )
 
         assert dt.from_address == DecodedModelMock.ADDRESS_INFO

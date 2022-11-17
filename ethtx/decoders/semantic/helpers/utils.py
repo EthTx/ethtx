@@ -17,6 +17,11 @@
 import logging
 from functools import partial
 
+from decimal import Decimal
+from decimal import getcontext
+
+getcontext().prec = 256
+
 from ethtx.decoders.decoders.parameters import decode_function_parameters
 from ethtx.models.decoded_model import AddressInfo
 from ethtx.models.semantics_model import FunctionSemantics
@@ -92,10 +97,10 @@ def semantically_decode_parameter(
 def evaluate_transformation(value, transformation, context):
     try:
         new_value = eval(transformation, context)
-        
-        #Check if resulting float of transformation is actually an int
-        if new_value.is_integer():
-            new_value = int(new_value)
+
+        # Check for proper representation of large floats and integers as str
+        if isinstance(new_value, Decimal):
+            new_value = str(new_value)
     except Exception as e:
         log.warning("Transformation: %s failed.", transformation, exc_info=e)
         new_value = value

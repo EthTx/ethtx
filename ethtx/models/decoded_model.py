@@ -19,6 +19,13 @@ from __future__ import annotations
 from datetime import datetime
 from typing import List, Any, Optional
 
+from decimal import Decimal
+from decimal import getcontext
+
+getcontext().prec = 256
+
+from pydantic import validator
+
 from ethtx.models.base_model import BaseModel
 from ethtx.models.objects_model import BlockMetadata
 from ethtx.models.semantics_model import AddressSemantics, ERC20Semantics
@@ -53,6 +60,12 @@ class Argument(BaseModel):
     type: str
     value: Any
 
+    @validator("value")
+    def decimal_conv(cls, v):
+        if isinstance(v, int) or isinstance(v, float):
+            return Decimal(v)
+        return v
+
 
 class DecodedEvent(BaseModel):
     chain_id: str
@@ -75,7 +88,7 @@ class DecodedCall(BaseModel):
     call_type: str
     from_address: AddressInfo
     to_address: Optional[AddressInfo]
-    value: float
+    value: Decimal
     function_signature: str
     function_name: str
     arguments: List[Argument]
@@ -94,7 +107,7 @@ class DecodedTransfer(BaseModel):
     token_address: Optional[str]
     token_symbol: str
     token_standard: Optional[str]
-    value: float
+    value: Decimal
 
 
 class DecodedBalance(BaseModel):
