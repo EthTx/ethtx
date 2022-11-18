@@ -18,16 +18,13 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import List, Any, Optional
-from decimal import Decimal, getcontext
+from decimal import Decimal
 
 from pydantic import validator
 
 from ethtx.models.base_model import BaseModel
 from ethtx.models.objects_model import BlockMetadata
 from ethtx.models.semantics_model import AddressSemantics, ERC20Semantics
-
-# Set decimal operation precision to avoid loss of digits with arithmetic operations
-getcontext().prec = 256
 
 
 class AddressInfo(BaseModel):
@@ -60,7 +57,7 @@ class Argument(BaseModel):
     value: Any
 
     @validator("value")
-    def decimal_conv(cls, v):
+    def decimal_conv(cls, v: Any) -> Any:
         if isinstance(v, int) or isinstance(v, float):
             return Decimal(v)
         return v

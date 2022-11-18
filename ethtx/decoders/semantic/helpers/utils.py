@@ -96,8 +96,9 @@ def evaluate_transformation(value, transformation, context):
     try:
         new_value = eval(transformation, context)
 
-        # Check for proper representation of large floats and integers as str
-        new_value = _handle_decimal_representations(new_value)
+        if isinstance(new_value, Decimal):
+            # Check for proper representation of Decimals representing large floats and integers as str
+            new_value = _handle_decimal_representations(new_value)
     except Exception as e:
         log.warning("Transformation: %s failed.", transformation, exc_info=e)
         new_value = value
@@ -203,23 +204,20 @@ def create_transformation_context(
     return context
 
 
-def _handle_decimal_representations(val):
-    """Handles argument format. For Decimal objects, it convertsinto a string representation taking into accound border
+def _handle_decimal_representations(val: Decimal) -> str:
+    """Handles argument format for Decimal objects. Converts into a string representation taking into accound border
     cases of big integer and small floats.
     """
-    if isinstance(val, Decimal):
-        val_str = str(val)
+    val_str = str(val)
 
-        # handle the case of small decimal numbers and scientific representation
-        if val < DECIMAL_CLASS_MINIMAL_LIMIT:
-            digits, exponent = val_str.split("E")
+    # handle the case of small decimal numbers and scientific representation
+    if val < DECIMAL_CLASS_MINIMAL_LIMIT:
+        digits, exponent = val_str.split("E")
 
-            digit_part = digits.replace(".", "")
-            num_zeros = abs(int(exponent)) - 1
+        digit_part = digits.replace(".", "")
+        num_zeros = abs(int(exponent)) - 1
 
-            new_str_format = ["0.0", "0" * num_zeros, digit_part]
-            return "".join(new_str_format)
-        else:
-            return val_str
-    else:
-        return val
+        new_str_format = ["0.0", "0" * num_zeros, digit_part]
+        return "".join(new_str_format)
+
+    return val_str
