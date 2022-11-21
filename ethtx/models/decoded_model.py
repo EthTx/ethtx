@@ -18,6 +18,9 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import List, Any, Optional
+from decimal import Decimal, getcontext
+
+from pydantic import validator
 
 from ethtx.models.base_model import BaseModel
 from ethtx.models.objects_model import BlockMetadata
@@ -53,6 +56,16 @@ class Argument(BaseModel):
     type: str
     value: Any
 
+    @validator("value")
+    def decimal_conv(cls, v: Any) -> Any:
+        """Method dealing with the case of large int and float by handling them as Decimal. Avoids loss of precision
+        in digits.
+        """
+        if isinstance(v, int) or isinstance(v, float):
+            getcontext().prec = 256
+            return Decimal(v)
+        return v
+
 
 class DecodedEvent(BaseModel):
     chain_id: str
@@ -75,7 +88,7 @@ class DecodedCall(BaseModel):
     call_type: str
     from_address: AddressInfo
     to_address: Optional[AddressInfo]
-    value: float
+    value: Decimal
     function_signature: str
     function_name: str
     arguments: List[Argument]
@@ -94,7 +107,7 @@ class DecodedTransfer(BaseModel):
     token_address: Optional[str]
     token_symbol: str
     token_standard: Optional[str]
-    value: float
+    value: Decimal
 
 
 class DecodedBalance(BaseModel):
