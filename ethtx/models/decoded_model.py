@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import List, Any, Optional
-from decimal import Decimal, getcontext, setcontext
+from decimal import Decimal, getcontext
 
 from pydantic import validator
 
@@ -63,7 +63,6 @@ class Argument(BaseModel):
         """
         if isinstance(v, int) or isinstance(v, float):
             getcontext().prec = 256
-            setcontext(getcontext())
             return Decimal(v)
         return v
 
