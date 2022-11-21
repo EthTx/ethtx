@@ -15,10 +15,6 @@
 # the trademark and/or other branding elements.
 
 from pydantic import BaseModel as PydanticBaseModel
-from decimal import getcontext
-
-# Set decimal operation precision to avoid loss of digits with arithmetic operations
-getcontext().prec = 256
 
 
 class BaseModel(PydanticBaseModel):

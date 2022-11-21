@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import List, Any, Optional
-from decimal import Decimal
+from decimal import Decimal, getcontext, setcontext
 
 from pydantic import validator
 
@@ -58,7 +58,12 @@ class Argument(BaseModel):
 
     @validator("value")
     def decimal_conv(cls, v: Any) -> Any:
+        """Method dealing with the case of large int and float by handling them as Decimal. Avoids loss of precision
+        in digits.
+        """
         if isinstance(v, int) or isinstance(v, float):
+            getcontext().prec = 256
+            setcontext(getcontext())
             return Decimal(v)
         return v
 
