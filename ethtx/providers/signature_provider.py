@@ -19,7 +19,6 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Any, Iterator, TypedDict, Union, Tuple, Optional
 
 import requests
-import requests_cache
 
 log = logging.getLogger(__name__)
 
@@ -62,10 +61,9 @@ class FourByteProvider(SignatureProvider):
         if signature == "0x":
             raise ValueError(f"Signature can not be: {signature}")
 
-        with requests_cache.enabled("4byte_function_cache", expire_after=120):
-            data = self._get_all(
-                endpoint=self.FUNCTION_ENDPOINT, filters={"hex_signature": signature}
-            )
+        data = self._get_all(
+            endpoint=self.FUNCTION_ENDPOINT, filters={"hex_signature": signature}
+        )
 
         for function in reversed(data):
             if parsed := self._parse_text_signature_response(function):
@@ -75,10 +73,9 @@ class FourByteProvider(SignatureProvider):
         if signature == "0x":
             raise ValueError(f"Signature can not be: {signature}")
 
-        with requests_cache.enabled("4byte_event_cache", expire_after=120):
-            data = self._get_all(
-                endpoint=self.EVENT_ENDPOINT, filters={"hex_signature": signature}
-            )
+        data = self._get_all(
+            endpoint=self.EVENT_ENDPOINT, filters={"hex_signature": signature}
+        )
 
         for event in reversed(data):
             if parsed := self._parse_text_signature_response(event):
