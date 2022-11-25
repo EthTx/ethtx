@@ -212,9 +212,6 @@ def _handle_decimal_representations(val: Decimal) -> str:
 
     # handle the case of small decimal numbers and scientific representation
     if val < DECIMAL_CLASS_MINIMAL_LIMIT:
-        if len(val_str.split("E")) < 2:
-            return val_str
-
         digits, exponent = val_str.split("E")
 
         digit_part = digits.replace(".", "")
