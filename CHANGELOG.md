@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 - Removed `requests-cache` dependencies and replaced with standard `requests` [#180](https://github.com/EthTx/ethtx/pull/180)
 
 ### Fixed
+- Fixed missing `decoded_value` in `parameters` of decoded events [#171](https://github.com/EthTx/ethtx/pull/171)
 - Fixed `Web3ENSProviderENSProvider` resolution [#178](https://github.com/EthTx/ethtx/pull/178)
 - Fixed the format of large numbers by suppressing the scientific
   notation[#179](https://github.com/EthTx/ethtx/pull/179)
