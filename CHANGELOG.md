@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - Fixed **major issue regarding loss of decimal precision** for `value` field in decoded models `Argument`,
   `DecodedCall` and `DecodedTransfer` [#179](https://github.com/EthTx/ethtx/pull/179)
 
+
 ## 0.3.19 - 2022-10-06
 
 ### Fixed
