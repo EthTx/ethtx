@@ -2,14 +2,28 @@
 All notable changes to this project will be documented in this file.
 
 
-## 0.3.19 - 2022-10.06
+## 0.3.20 - 2022-11-25
+
+### Changed
+- Bumped `web3` to 5.28.0 and removed no longer necessary `eth` dependecies [#178](https://github.com/EthTx/ethtx/pull/178)
+- Set field `DecodedEvent.value` and `DecodedTransfer.value` as Decimal [#179](https://github.com/EthTx/ethtx/pull/179)
+- Removed `requests-cache` dependencies and replaced with standard `requests` [#180](https://github.com/EthTx/ethtx/pull/180)
+
+### Fixed
+- Fixed missing `decoded_value` in `parameters` of decoded events [#171](https://github.com/EthTx/ethtx/pull/171)
+- Fixed `Web3ENSProviderENSProvider` resolution [#178](https://github.com/EthTx/ethtx/pull/178)
+- Fixed the format of large numbers by suppressing the scientific
+  notation[#179](https://github.com/EthTx/ethtx/pull/179)
+
+
+## 0.3.19 - 2022-10-06
 
 ### Fixed
 - Fix output decoding for reverted calls[#172](https://github.com/EthTx/ethtx/pull/172)
 - Fix missing decoded_value in parameters decoding for events [#173](https://github.com/EthTx/ethtx/pull/173)
 
 
-## 0.3.18 - 2022-10.06
+## 0.3.18 - 2022-10-06
 
 ### Fixed
 - Fixed amount calculation for NFT transfers [#169](https://github.com/EthTx/ethtx/pull/169)
