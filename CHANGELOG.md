@@ -12,8 +12,8 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Fixed missing `decoded_value` in `parameters` of decoded events [#171](https://github.com/EthTx/ethtx/pull/171)
 - Fixed `Web3ENSProviderENSProvider` resolution [#178](https://github.com/EthTx/ethtx/pull/178)
-- Fixed the format of large numbers by suppressing the scientific
-  notation[#179](https://github.com/EthTx/ethtx/pull/179)
+- Fixed **major issue regarding loss of decimal precision** for `value` field in decoded models `Argument`,
+  `DecodedCall` and `DecodedTransfer` [#179](https://github.com/EthTx/ethtx/pull/179)
 
 
 ## 0.3.19 - 2022-10-06
