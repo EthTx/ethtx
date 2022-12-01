@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file.
 
 
+## 0.3.21 - 2022-12.01
+
+### Fixed
+- Deleted invalid cache wrapper on get_erc20_token in web3provider [#187](https://github.com/EthTx/ethtx/pull/187)
+
+
 ## 0.3.20 - 2022-11-25
 
 ### Changed
