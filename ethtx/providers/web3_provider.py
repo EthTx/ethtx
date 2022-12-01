@@ -272,7 +272,6 @@ class Web3Provider(NodeDataProvider):
         return code_hash
 
     # get the erc20 token data from the node
-    @cache
     def get_erc20_token(
         self,
         token_address: str,
@@ -343,7 +342,6 @@ class Web3Provider(NodeDataProvider):
         return dict(address=token_address, symbol=symbol, name=name, decimals=decimals)
 
     # guess if the contract is and erc20 token and get the data
-    @cache
     def guess_erc20_token(self, contract_address, chain_id: Optional[str] = None):
         chain = self._get_node_connection(chain_id)
 
