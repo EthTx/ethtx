@@ -323,7 +323,7 @@ class Web3Provider(NodeDataProvider):
         try:
             chain = self._get_node_connection(chain_id)
             token = chain.eth.contract(
-                address=Web3.toChecksumAddress(token_address), abi=abi
+                address=Web3.to_checksum_address(token_address), abi=abi
             )
             name = token.functions.name().call() if name_abi else contract_name
             if isinstance(name, bytes):
@@ -345,7 +345,7 @@ class Web3Provider(NodeDataProvider):
         chain = self._get_node_connection(chain_id)
 
         byte_code = chain.eth.get_code(
-            Web3.toChecksumAddress(contract_address[-40:])
+            Web3.to_checksum_address(contract_address[-40:])
         ).hex()
 
         if all(
@@ -379,7 +379,7 @@ class Web3Provider(NodeDataProvider):
 
             try:
                 token = chain.eth.contract(
-                    address=Web3.toChecksumAddress(contract_address), abi=abi
+                    address=Web3.to_checksum_address(contract_address), abi=abi
                 )
                 name = token.functions.name().call()
                 symbol = token.functions.symbol().call()
@@ -419,7 +419,7 @@ class Web3Provider(NodeDataProvider):
 
         try:
             token = chain.eth.contract(
-                address=Web3.toChecksumAddress(contract_address), abi=abi
+                address=Web3.to_checksum_address(contract_address), abi=abi
             )
             name = token.functions.name().call()
             symbol = token.functions.symbol().call()
@@ -450,7 +450,7 @@ class Web3Provider(NodeDataProvider):
 
         try:
             token = chain.eth.contract(
-                address=Web3.toChecksumAddress(contract_address), abi=abi
+                address=Web3.to_checksum_address(contract_address), abi=abi
             )
             name = token.functions.name().call()
             symbol = token.functions.symbol().call()

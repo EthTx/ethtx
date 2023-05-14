@@ -153,7 +153,7 @@ class EtherscanContract(EtherscanClient):
                 elif item["type"] == "function":
                     canonical, inputs = _parse_components(item["inputs"])
                     canonical = item["name"] + canonical
-                    function_hash = Web3.sha3(text=canonical).hex()
+                    function_hash = Web3.keccak(text=canonical).hex()
                     signature = function_hash[0:10]
 
                     _, outputs = _parse_components(item["outputs"])
@@ -169,7 +169,7 @@ class EtherscanContract(EtherscanClient):
                 elif item["type"] == "event":
                     canonical, parameters = _parse_components(item["inputs"])
                     canonical = item["name"] + canonical
-                    event_hash = Web3.sha3(text=canonical).hex()
+                    event_hash = Web3.keccak(text=canonical).hex()
                     signature = event_hash
 
                     events[signature] = dict(
