@@ -28,7 +28,7 @@ def is_eip1969_proxy(chain, delegator, delegate):
         implementation = (
             "0x"
             + chain.eth.get_storage_at(
-                Web3.toChecksumAddress(delegator), implementation_slot
+                Web3.to_checksum_address(delegator), implementation_slot
             ).hex()[-40:]
         )
         return implementation == delegate
@@ -59,13 +59,13 @@ def is_eip1969_beacon_proxy(chain, delegator, delegate):
         beacon = (
             "0x"
             + chain.eth.get_storage_at(
-                Web3.toChecksumAddress(delegator), beacon_slot
+                Web3.to_checksum_address(delegator), beacon_slot
             ).hex()[-40:]
         )
         beacon = chain.eth.contract(
-            address=Web3.toChecksumAddress(beacon), abi=ibeacon_abi
+            address=Web3.to_checksum_address(beacon), abi=ibeacon_abi
         )
         implementation = beacon.functions.implementation().call()
-        return implementation == Web3.toChecksumAddress(delegate)
+        return implementation == Web3.to_checksum_address(delegate)
     except:
         return False
