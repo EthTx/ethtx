@@ -219,7 +219,7 @@ class Web3Provider(NodeDataProvider):
                 address=_log.address,
                 blockHash=_log.blockHash,
                 blockNumber=_log.blockNumber,
-                data=_log.data,
+                data=Web3.to_hex(_log.data),
                 logIndex=_log.logIndex,
                 removed=_log.removed,
                 topics=_log.topics,
