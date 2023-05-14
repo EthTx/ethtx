@@ -36,7 +36,7 @@ log = logging.getLogger(__name__)
 
 def connect_chain(
     http_hook: str = None, ipc_hook: str = None, ws_hook: str = None, poa: bool = False
-) -> Web3 or None:
+) -> Web3:
     if http_hook:
         provider = Web3.HTTPProvider
         hook = http_hook
@@ -133,7 +133,7 @@ class Web3Provider(NodeDataProvider):
             w3 = connect_chain(http_hook=connection.url, poa=connection.poa)
 
             try:
-                if w3.isConnected():
+                if w3.is_connected():
                     log.info(
                         "Connected to: %s with latest block %s.",
                         connection,
