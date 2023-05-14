@@ -31,7 +31,6 @@ def _decode_parameters_list(raw_parameters_list: list) -> List[ParameterSemantic
         return parameters_list
 
     for raw_parameter_semantics in raw_parameters_list:
-
         if "indexed" in raw_parameter_semantics:
             indexed = raw_parameter_semantics["indexed"]
         else:

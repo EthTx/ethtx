@@ -94,12 +94,10 @@ class EtherscanContract(EtherscanClient):
     def _parse_abi(json_abi) -> Dict:
         # helper function to recursively parse components
         def _parse_components(components):
-
             comp_canonical = "("
             comp_inputs = []
 
             for i, component in enumerate(components):
-
                 argument = dict(name=component["name"], type=component["type"])
 
                 if component["type"][:5] == "tuple":
@@ -138,9 +136,7 @@ class EtherscanContract(EtherscanClient):
         events = {}
 
         for item in json_abi:
-
             if "type" in item:
-
                 # parse contract functions
                 if item["type"] == "constructor":
                     _, inputs = _parse_components(item["inputs"])

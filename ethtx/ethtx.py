@@ -68,7 +68,9 @@ class EthTxDecoders:
         self, tx_hash: str, chain_id: str = None, recreate_semantics: bool = False
     ) -> DecodedTransaction:
         assert_tx_hash(tx_hash)
-        return self._decoder_service.decode_transaction(chain_id, tx_hash, recreate_semantics)
+        return self._decoder_service.decode_transaction(
+            chain_id, tx_hash, recreate_semantics
+        )
 
     def get_proxies(self, call_tree: Call, chain_id: str) -> Dict[str, Proxy]:
         delegations = self._decoder_service.get_delegations(call_tree)

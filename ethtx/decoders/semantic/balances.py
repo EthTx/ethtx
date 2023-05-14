@@ -30,7 +30,6 @@ class SemanticBalancesDecoder(SemanticSubmoduleAbc):
         """Semantically decode balances."""
 
         for balance in balances:
-
             # decode the proper holder badge
             balance.holder.badge = get_badge(
                 balance.holder.address,

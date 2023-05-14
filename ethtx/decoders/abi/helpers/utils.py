@@ -107,7 +107,6 @@ def decode_event_abi_name_with_external_source(
     events = _provider.get_event(signature=signature)
 
     for event in events:
-
         if not event:
             return False, signature
 
