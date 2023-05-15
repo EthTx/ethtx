@@ -52,25 +52,25 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                 _transfers_calls(call)
 
         for event in events:
-
             # signatures of Transfer event valid for ERC20 and ERC721 and
             # TransferSingle for ERC1155
-            if (
-                    event.event_signature in
-                    ("0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-                     "0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62")
+            if event.event_signature in (
+                "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                "0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62",
             ):
-
                 # Transfer event
-                if event.event_signature == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef":
-                    from_address = '0x' + event.parameters[0].value[-40:]
-                    to_address = '0x' + event.parameters[1].value[-40:]
+                if (
+                    event.event_signature
+                    == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+                ):
+                    from_address = "0x" + event.parameters[0].value[-40:]
+                    to_address = "0x" + event.parameters[1].value[-40:]
                     token_id = event.parameters[2].value
                     value = event.parameters[2].value
                 # TransferSingle event
                 else:
-                    from_address = '0x' + event.parameters[1].value[-40:]
-                    to_address = '0x' + event.parameters[2].value[-40:]
+                    from_address = "0x" + event.parameters[1].value[-40:]
+                    to_address = "0x" + event.parameters[2].value[-40:]
                     token_id = event.parameters[3].value
                     value = event.parameters[4].value
 
@@ -85,9 +85,11 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                     event.chain_id, event.contract.address
                 )
 
-                if event.event_signature == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef" and \
-                        (standard == "ERC20" or event.contract.address in proxies):
-
+                if (
+                    event.event_signature
+                    == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+                    and (standard == "ERC20" or event.contract.address in proxies)
+                ):
                     (
                         _,
                         token_symbol,
@@ -97,7 +99,7 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                         event.chain_id, event.contract.address, proxies
                     )
                     try:
-                        value = value / 10 ** token_decimals
+                        value = value / 10**token_decimals
                     except:
                         value = 0
 
@@ -114,7 +116,6 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                         )
                     )
                 else:
-
                     (
                         _,
                         token_symbol,
@@ -124,13 +125,16 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                         event.chain_id, event.contract.address, proxies
                     )
 
-                    if event.event_signature == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef":
+                    if (
+                        event.event_signature
+                        == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+                    ):
                         value = 1
                     else:
                         value = int(value, 16) if type(value) == str else value
 
-                    if token_symbol == 'Unknown':
-                        token_symbol = 'NFT'
+                    if token_symbol == "Unknown":
+                        token_symbol = "NFT"
 
                     if len(str(token_id)) > 8:
                         token_symbol = (

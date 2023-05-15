@@ -1,11 +1,11 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 22.3.0
+    rev: 23.3.0
     hooks:
       - id: black
         language_version: python3.9
-        name: Backend:black
-        alias: backend-black
+        name: ethtx:black
+        alias: ethtx-black
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.0.1

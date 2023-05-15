@@ -57,7 +57,6 @@ class ABIEventsDecoder(ABISubmoduleAbc):
         proxies: Dict[str, Proxy] = None,
         chain_id: str = None,
     ) -> DecodedEvent:
-
         if event.topics:
             event_signature = event.topics[0]
         else:
@@ -71,7 +70,6 @@ class ABIEventsDecoder(ABISubmoduleAbc):
         )
 
         if not event_abi:
-
             if not event_abi:
                 # if signature is not known but there is exactly one anonymous event in tha ABI
                 # we can assume that this is this the anonymous one (e.g. Maker's LogNote)

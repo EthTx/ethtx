@@ -67,7 +67,6 @@ class SemanticsRepository:
     def _read_stored_semantics(
         self, address: str, chain_id: str
     ) -> Optional[AddressSemantics]:
-
         if not address:
             return None
 
@@ -187,7 +186,6 @@ class SemanticsRepository:
         return address_semantics
 
     def get_semantics(self, chain_id: str, address: str) -> Optional[AddressSemantics]:
-
         if not address:
             return None
 
@@ -236,7 +234,6 @@ class SemanticsRepository:
         return standard, standard_semantics
 
     def get_event_abi(self, chain_id, address, signature) -> Optional[EventSemantics]:
-
         if not address:
             return None
 
@@ -248,7 +245,6 @@ class SemanticsRepository:
     def get_transformations(
         self, chain_id, address, signature
     ) -> Optional[Dict[str, TransformationSemantics]]:
-
         if not address:
             return None
 
@@ -258,7 +254,6 @@ class SemanticsRepository:
         return transformations
 
     def get_anonymous_event_abi(self, chain_id, address) -> Optional[EventSemantics]:
-
         if not address:
             return None
 
@@ -279,7 +274,6 @@ class SemanticsRepository:
     def get_function_abi(
         self, chain_id, address, signature
     ) -> Optional[FunctionSemantics]:
-
         if not address:
             return None
 
@@ -289,7 +283,6 @@ class SemanticsRepository:
         return function_semantics
 
     def get_constructor_abi(self, chain_id, address) -> Optional[FunctionSemantics]:
-
         if not address:
             return None
 
@@ -310,7 +303,6 @@ class SemanticsRepository:
 
     # do not cache with lru - uses unhashable arguments
     def get_address_label(self, chain_id, address, proxies=None) -> str:
-
         if not address:
             return ""
 
@@ -330,7 +322,6 @@ class SemanticsRepository:
         return contract_label
 
     def check_is_contract(self, chain_id, address) -> bool:
-
         if not address:
             return False
 
@@ -340,7 +331,6 @@ class SemanticsRepository:
         return is_contract
 
     def get_standard(self, chain_id, address) -> Optional[str]:
-
         if not address:
             return None
 
@@ -350,7 +340,6 @@ class SemanticsRepository:
     def get_token_data(
         self, chain_id, address, proxies=None
     ) -> Tuple[Optional[str], Optional[str], Optional[int], Optional[str]]:
-
         if not address:
             return None, None, None, None
 
@@ -371,14 +360,12 @@ class SemanticsRepository:
         return token_name, token_symbol, token_decimals, "ERC20"
 
     def update_address(self, chain_id, address, contract) -> Dict:
-
         updated_address = {"network": chain_id, "address": address, **contract}
         self.database.insert_address(address=updated_address, update_if_exist=True)
 
         return updated_address
 
     def update_semantics(self, semantics) -> None:
-
         if not semantics:
             return
 
@@ -399,7 +386,6 @@ class SemanticsRepository:
 
     def insert_contract_signatures(self, contract_semantics: ContractSemantics) -> None:
         for _, v in contract_semantics.functions.items():
-
             if not v.signature.startswith("0x"):
                 continue
 

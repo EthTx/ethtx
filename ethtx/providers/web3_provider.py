@@ -36,7 +36,7 @@ log = logging.getLogger(__name__)
 
 def connect_chain(
     http_hook: str = None, ipc_hook: str = None, ws_hook: str = None, poa: bool = False
-) -> Web3 or None:
+) -> Web3:
     if http_hook:
         provider = Web3.HTTPProvider
         hook = http_hook
@@ -133,7 +133,7 @@ class Web3Provider(NodeDataProvider):
             w3 = connect_chain(http_hook=connection.url, poa=connection.poa)
 
             try:
-                if w3.isConnected():
+                if w3.is_connected():
                     log.info(
                         "Connected to: %s with latest block %s.",
                         connection,
@@ -219,7 +219,7 @@ class Web3Provider(NodeDataProvider):
                 address=_log.address,
                 blockHash=_log.blockHash,
                 blockNumber=_log.blockNumber,
-                data=_log.data,
+                data=Web3.to_hex(_log.data),
                 logIndex=_log.logIndex,
                 removed=_log.removed,
                 topics=_log.topics,
@@ -267,7 +267,7 @@ class Web3Provider(NodeDataProvider):
         self, contract_address: str, chain_id: Optional[str] = None
     ) -> str:
         chain = self._get_node_connection(chain_id)
-        byte_code = chain.eth.get_code(Web3.toChecksumAddress(contract_address[-40:]))
+        byte_code = chain.eth.get_code(Web3.to_checksum_address(contract_address[-40:]))
         code_hash = Web3.keccak(byte_code).hex()
         return code_hash
 
@@ -279,7 +279,6 @@ class Web3Provider(NodeDataProvider):
         functions: Dict[str, FunctionSemantics],
         chain_id: Optional[str] = None,
     ):
-
         name_abi = symbol_abi = decimals_abi = ""
 
         if functions:
@@ -324,7 +323,7 @@ class Web3Provider(NodeDataProvider):
         try:
             chain = self._get_node_connection(chain_id)
             token = chain.eth.contract(
-                address=Web3.toChecksumAddress(token_address), abi=abi
+                address=Web3.to_checksum_address(token_address), abi=abi
             )
             name = token.functions.name().call() if name_abi else contract_name
             if isinstance(name, bytes):
@@ -346,7 +345,7 @@ class Web3Provider(NodeDataProvider):
         chain = self._get_node_connection(chain_id)
 
         byte_code = chain.eth.get_code(
-            Web3.toChecksumAddress(contract_address[-40:])
+            Web3.to_checksum_address(contract_address[-40:])
         ).hex()
 
         if all(
@@ -363,7 +362,6 @@ class Web3Provider(NodeDataProvider):
                 erc20.erc20_approval_event.signature,
             )
         ):
-
             name_abi = (
                 '{"name":"name", "constant":true, "payable":false,'
                 ' "type":"function", "inputs":[], "outputs":[{"name":"","type":"string"}]}'
@@ -381,7 +379,7 @@ class Web3Provider(NodeDataProvider):
 
             try:
                 token = chain.eth.contract(
-                    address=Web3.toChecksumAddress(contract_address), abi=abi
+                    address=Web3.to_checksum_address(contract_address), abi=abi
                 )
                 name = token.functions.name().call()
                 symbol = token.functions.symbol().call()
@@ -421,7 +419,7 @@ class Web3Provider(NodeDataProvider):
 
         try:
             token = chain.eth.contract(
-                address=Web3.toChecksumAddress(contract_address), abi=abi
+                address=Web3.to_checksum_address(contract_address), abi=abi
             )
             name = token.functions.name().call()
             symbol = token.functions.symbol().call()
@@ -452,7 +450,7 @@ class Web3Provider(NodeDataProvider):
 
         try:
             token = chain.eth.contract(
-                address=Web3.toChecksumAddress(contract_address), abi=abi
+                address=Web3.to_checksum_address(contract_address), abi=abi
             )
             name = token.functions.name().call()
             symbol = token.functions.symbol().call()
@@ -466,7 +464,6 @@ class Web3Provider(NodeDataProvider):
 
     @cache
     def get_full_transaction(self, tx_hash: str, chain_id: Optional[str] = None):
-
         w3transaction = self.get_transaction(tx_hash, chain_id)
         w3receipt = self.get_receipt(tx_hash, chain_id)
         w3calltree = self.get_calls(tx_hash, chain_id)
@@ -511,7 +508,6 @@ class Web3Provider(NodeDataProvider):
             new_call_tree = []
 
             for pair in tmp_call_tree:
-
                 parent_call: W3CallTree = pair["parent"]
                 child_calls: List = pair["children"]
 

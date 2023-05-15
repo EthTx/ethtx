@@ -99,7 +99,6 @@ class AddressSemantics(BaseModel):
     def from_mongo_record(
         raw_address_semantics: Dict, database: "ISemanticsDatabase"
     ) -> "AddressSemantics":
-
         ZERO_HASH = "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
 
         def decode_parameter(_parameter):
@@ -133,14 +132,12 @@ class AddressSemantics(BaseModel):
             )
 
         else:
-
             raw_contract_semantics = database.get_contract_semantics(
                 raw_address_semantics["contract"]
             )
             events = {}
 
             for signature, event in raw_contract_semantics["events"].items():
-
                 parameters_semantics = []
                 for parameter in event["parameters"]:
                     parameters_semantics.append(decode_parameter(parameter))
@@ -154,7 +151,6 @@ class AddressSemantics(BaseModel):
 
             functions = {}
             for signature, function in raw_contract_semantics["functions"].items():
-
                 inputs_semantics = []
                 for parameter in function["inputs"]:
                     inputs_semantics.append(decode_parameter(parameter))

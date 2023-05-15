@@ -62,7 +62,6 @@ class ABIDecoder(IABIDecoder):
         chain_id: str,
         proxies: Optional[Dict[str, Proxy]] = None,
     ) -> Optional[DecodedTransaction]:
-
         with ExecutionTimer(f"ABI decoding for " + transaction.metadata.tx_hash):
             log.info(
                 "ABI decoding for %s / %s.", transaction.metadata.tx_hash, chain_id
@@ -161,7 +160,6 @@ class ABIDecoder(IABIDecoder):
         chain_id: str,
         proxies: Optional[Dict[str, Proxy]] = None,
     ) -> DecodedTransaction:
-
         full_decoded_transaction = DecodedTransaction(
             block_metadata=block,
             metadata=transaction.metadata,

@@ -80,7 +80,6 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
     def insert_contract(
         self, contract: Dict, update_if_exist: Optional[bool] = False
     ) -> Optional[ObjectId]:
-
         if update_if_exist:
             updated_contract = self._contracts.replace_one(
                 {"code_hash": contract["code_hash"]}, contract, upsert=True
@@ -98,7 +97,6 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
     def insert_address(
         self, address: Dict, update_if_exist: Optional[bool] = False
     ) -> Optional[ObjectId]:
-
         if update_if_exist:
             updated_address = self._addresses.replace_one(
                 {"chain_id": address["chain_id"], "address": address["address"]},
@@ -117,7 +115,6 @@ class MongoSemanticsDatabase(ISemanticsDatabase):
             self.__setattr__(f"_{mongo_collection}", self._db[mongo_collection])
 
     def delete_semantics_by_address(self, chain_id: str, address: str) -> None:
-
         address_semantics = self.get_address_semantics(chain_id, address)
 
         if not address_semantics:

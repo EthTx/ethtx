@@ -39,7 +39,6 @@ def decode_event_parameters(data, topics, abi, anonymous):
     data = data[2:]
 
     if parameters_abi:
-
         idx_parameters = [p.indexed or False for p in parameters_abi]
 
         # parse indexed parameters
@@ -72,11 +71,10 @@ def decode_event_parameters(data, topics, abi, anonymous):
             parameters, _ = decode_struct(
                 data, [p for p in parameters_abi if not p.indexed]
             )
-            for (i, parameter) in enumerate(parameters):
+            for i, parameter in enumerate(parameters):
                 data_parameters[i] = Argument(**parameter)
 
     else:
-
         for i, parameter in enumerate(amended_topics[1:]):
             if not amended_topics[i + 1]:
                 break
@@ -96,7 +94,7 @@ def decode_event_parameters(data, topics, abi, anonymous):
         for i in range(no_parameters):
             parameter_name = f"data_parameter_{i}"
             parameter_type = "unknown"
-            parameter_value = data[64 * i: 64 * (i + 1)]
+            parameter_value = data[64 * i : 64 * (i + 1)]
 
             data_parameters[i] = Argument(
                 name=parameter_name, type=parameter_type, value=parameter_value
@@ -125,7 +123,7 @@ def decode_event_parameters(data, topics, abi, anonymous):
 
 
 def decode_function_parameters(
-        input_data, output, abi, status=True, strip_signature=True
+    input_data, output, abi, status=True, strip_signature=True
 ):
     if strip_signature and len(input_data) >= 10:
         stripped_input_data = input_data[10:]
@@ -152,13 +150,14 @@ def decode_function_parameters(
 
     if not status and (error_sig := output[:10]) in ERRORS:
         error_name = Argument(
-            name="__error",
-            type="string",
-            value=ERRORS[error_sig]["name"]
+            name="__error", type="string", value=ERRORS[error_sig]["name"]
         )
         error_abi = ERRORS[error_sig]["abi"]
         error_parameters, _ = decode_struct(output[10:], error_abi)
-        output_parameters = [error_name, *(Argument(**param) for param in error_parameters)]
+        output_parameters = [
+            error_name,
+            *(Argument(**param) for param in error_parameters),
+        ]
     else:
         if abi:
             if abi.outputs and status and output == "0x":
@@ -194,7 +193,6 @@ def decode_function_parameters(
 
 # helper function to decode an argument value based on expected type
 def decode_static_argument(raw_value, argument_type):
-
     if not raw_value:
         return raw_value
 
@@ -242,9 +240,7 @@ def decode_static_argument(raw_value, argument_type):
         try:
             if raw_value[:2] == "0x":
                 raw_value = raw_value[2:]
-            decoded_value = (
-                bytes.fromhex(raw_value).decode("utf-8").replace("\x00", "")
-            )
+            decoded_value = bytes.fromhex(raw_value).decode("utf-8").replace("\x00", "")
         except Exception:
             return raw_value
 
@@ -276,7 +272,7 @@ def decode_tuple(data, argument_abi, is_list):
         for c in range(count):
             do_offset = any(a.dynamic for a in argument_abi)
             if do_offset:
-                raw_value = data[c * 64: (c + 1) * 64]
+                raw_value = data[c * 64 : (c + 1) * 64]
                 offset = int(raw_value, 16) * 2
                 sub_bytes = data[offset:]
             else:
@@ -305,13 +301,13 @@ def decode_dynamic_array(data, array_type):
 
     for i in range(count):
         if array_type in ("bytes", "string"):
-            offset = int(sub_data[64 * i: 64 * (i + 1)], 16) * 2
+            offset = int(sub_data[64 * i : 64 * (i + 1)], 16) * 2
             decoded = decode_dynamic_argument(sub_data[offset:], array_type)
         else:
             offset = 64 * i
             if offset >= len(sub_data):
                 break
-            decoded = decode_static_argument(sub_data[offset: offset + 64], array_type)
+            decoded = decode_static_argument(sub_data[offset : offset + 64], array_type)
 
         decoded_argument.append(decoded)
 
@@ -322,7 +318,7 @@ def decode_dynamic_array(data, array_type):
 def decode_dynamic_argument(argument_bytes, argument_type):
     if len(argument_bytes):
         length = int(argument_bytes[:64], 16) * 2
-        value = argument_bytes[64: 64 + length]
+        value = argument_bytes[64 : 64 + length]
 
         if argument_type == "string":
             hex_bytes = bytes.fromhex(value)
@@ -338,7 +334,6 @@ def decode_dynamic_argument(argument_bytes, argument_type):
 # helper function to decode ABI 2.0 structs
 def decode_struct(data, arguments_abi):
     def decode_array(raw_value, argument_type, slot):
-
         array_type = argument_type.rsplit("[", 1)[0]
         if argument_type[-2:] == "[]":
             offset = int(raw_value, 16) * 2 if raw_value else 0
@@ -354,7 +349,7 @@ def decode_struct(data, arguments_abi):
                 else:
                     array_values.append(decode_static_argument(raw_value, array_type))
                     slot += 1
-                raw_value = data[slot * 64: (slot + 1) * 64]
+                raw_value = data[slot * 64 : (slot + 1) * 64]
 
         return array_values, slot
 
@@ -366,10 +361,9 @@ def decode_struct(data, arguments_abi):
     arguments_list = []
     slot = 0
     for i in range(no_arguments):
-        raw_value = data[slot * 64: (slot + 1) * 64]
+        raw_value = data[slot * 64 : (slot + 1) * 64]
 
         if arguments_abi:
-
             argument_name = arguments_abi[i].parameter_name
             argument_type = arguments_abi[i].parameter_type
 
@@ -381,7 +375,7 @@ def decode_struct(data, arguments_abi):
                     offset = int(raw_value, 16) * 2
                     sub_arguments = data[offset:]
                 else:
-                    sub_arguments = data[i * 64:]
+                    sub_arguments = data[i * 64 :]
 
                 argument_value, slots = decode_tuple(
                     sub_arguments,
