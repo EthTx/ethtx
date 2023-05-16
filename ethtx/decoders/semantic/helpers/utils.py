@@ -210,5 +210,5 @@ def _handle_decimal_representations(val: Decimal) -> str:
     getcontext().prec = DECIMAL_PRECISION
     if val == val.to_integral():
         return str(val.to_integral())
-    else:
-        return format(val, "f").rstrip("0").rstrip(".")
+
+    return format(val, "f").rstrip("0").rstrip(".")
