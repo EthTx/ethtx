@@ -16,14 +16,14 @@
 
 import logging
 from functools import partial
-from decimal import Decimal
+from decimal import Decimal, getcontext
 
 from ethtx.decoders.decoders.parameters import decode_function_parameters
 from ethtx.models.decoded_model import AddressInfo
 from ethtx.models.semantics_model import FunctionSemantics
 from ethtx.semantics.utilities.functions import add_utils_to_context
 
-DECIMAL_CLASS_MINIMAL_LIMIT = 10**-6
+DECIMAL_PRECISION = 256
 
 log = logging.getLogger(__name__)
 
@@ -207,19 +207,8 @@ def _handle_decimal_representations(val: Decimal) -> str:
     """Handles argument format for Decimal objects. Converts into a string representation taking into accound border
     cases of big integer and small floats.
     """
-    val_str = str(val)
+    getcontext().prec = DECIMAL_PRECISION
+    if val == val.to_integral():
+        return str(val.to_integral())
 
-    # handle the case of small decimal numbers and scientific representation
-    if val < DECIMAL_CLASS_MINIMAL_LIMIT:
-        if len(val_str.split("E")) < 2:
-            return val_str
-
-        digits, exponent = val_str.split("E")
-
-        digit_part = digits.replace(".", "")
-        num_zeros = abs(int(exponent)) - 1
-
-        new_str_format = ["0.0", "0" * num_zeros, digit_part]
-        return "".join(new_str_format)
-
-    return val_str
+    return format(val, "f").rstrip("0").rstrip(".")
