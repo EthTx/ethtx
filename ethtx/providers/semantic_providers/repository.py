@@ -35,6 +35,7 @@ from ethtx.semantics.protocols_router import amend_contract_semantics
 from ethtx.semantics.solidity.precompiles import precompiles
 from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS, ERC20_EVENTS
 from ethtx.semantics.standards.erc721 import ERC721_FUNCTIONS, ERC721_EVENTS
+from ethtx.semantics.standards.erc1155 import ERC1155_FUNCTIONS, ERC1155_EVENTS
 
 
 class SemanticsRepository:
@@ -229,6 +230,11 @@ class SemanticsRepository:
             erc721_function in functions for erc721_function in ERC721_FUNCTIONS
         ):
             standard = "ERC721"
+            standard_semantics = None
+        elif all(erc1155_event in events for erc1155_event in ERC1155_EVENTS) and all(
+            erc1155_function in functions for erc1155_function in ERC1155_FUNCTIONS
+        ):
+            standard = "ERC1155"
             standard_semantics = None
 
         return standard, standard_semantics

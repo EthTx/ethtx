@@ -22,6 +22,7 @@ from ethtx.models.objects_model import Call, TransactionMetadata, BlockMetadata
 from ethtx.semantics.solidity.precompiles import precompiles
 from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS
 from ethtx.semantics.standards.erc721 import ERC721_FUNCTIONS
+from ethtx.semantics.standards.erc1155 import ERC1155_FUNCTIONS
 from ethtx.utils.measurable import RecursionLimit
 from .abc import ABISubmoduleAbc
 from .helpers.utils import (
@@ -140,6 +141,9 @@ class ABICallsDecoder(ABISubmoduleAbc):
                 elif standard == "ERC721":
                     # decode ERC721 calls if ABI for them is not defined
                     function_abi = ERC721_FUNCTIONS.get(function_signature)
+                elif standard == "ERC1155":
+                    # decode ERC1155 calls if ABI for them is not defined
+                    function_abi = ERC1155_FUNCTIONS.get(function_signature)
 
             function_name = function_abi.name if function_abi else function_signature
 
