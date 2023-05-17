@@ -36,7 +36,6 @@ class DecoderService:
         self.default_chain: str = default_chain
 
     def decode_transaction(self, chain_id: str, tx_hash: str) -> DecodedTransaction:
-
         # verify the transaction hash
         tx_hash = tx_hash if tx_hash.startswith("0x") else "0x" + tx_hash
 
@@ -84,12 +83,10 @@ class DecoderService:
     def get_proxies(
         self, delegations: Dict[str, List[str]], chain_id: str
     ) -> Dict[str, Proxy]:
-
         proxies = {}
         chain = self.web3provider._get_node_connection(chain_id)
 
         for delegator in delegations:
-
             delegator_semantics = self.semantic_decoder.repository.get_semantics(
                 chain_id, delegator
             )
@@ -132,7 +129,6 @@ class DecoderService:
 
     @staticmethod
     def get_delegations(calls: Union[Call, List[Call]]) -> Dict[str, List[str]]:
-
         delegations = {}
 
         if not calls:

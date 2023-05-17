@@ -252,7 +252,6 @@ class ABICallsDecoder(ABISubmoduleAbc):
         return call
 
     def _prune_delegates(self, call: DecodedCall) -> DecodedCall:
-
         while len(call.subcalls) == 1 and call.subcalls[0].call_type == "delegatecall":
             _value = call.value
             call = call.subcalls[0]

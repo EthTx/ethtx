@@ -35,7 +35,6 @@ def decode_event_parameters(data, topics, abi, anonymous):
     data = data[2:]
 
     if parameters_abi:
-
         idx_parameters = [p.indexed or False for p in parameters_abi]
 
         # parse indexed parameters
@@ -68,11 +67,10 @@ def decode_event_parameters(data, topics, abi, anonymous):
             parameters, _ = decode_struct(
                 data, [p for p in parameters_abi if not p.indexed]
             )
-            for (i, parameter) in enumerate(parameters):
+            for i, parameter in enumerate(parameters):
                 data_parameters[i] = Argument(**parameter)
 
     else:
-
         for i, parameter in enumerate(amended_topics[1:]):
             if not amended_topics[i + 1]:
                 break
@@ -191,7 +189,6 @@ def decode_static_argument(raw_value, argument_type):
     decoded_value = raw_value
 
     if decoded_value:
-
         if argument_type == "address":
             if len(raw_value) >= 40:
                 decoded_value = "0x" + raw_value[-40:]
@@ -324,7 +321,6 @@ def decode_dynamic_argument(argument_bytes, argument_type):
 # helper function to decode ABI 2.0 structs
 def decode_struct(data, arguments_abi):
     def decode_array(raw_value, argument_type, slot):
-
         array_type = argument_type.rsplit("[", 1)[0]
         if argument_type[-2:] == "[]":
             offset = int(raw_value, 16) * 2 if raw_value else 0
@@ -355,7 +351,6 @@ def decode_struct(data, arguments_abi):
         raw_value = data[slot * 64 : (slot + 1) * 64]
 
         if arguments_abi:
-
             argument_name = arguments_abi[i].parameter_name
             argument_type = arguments_abi[i].parameter_type
 

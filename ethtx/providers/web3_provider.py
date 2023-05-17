@@ -271,7 +271,6 @@ class Web3Provider(NodeDataProvider):
         functions: Dict[str, FunctionSemantics],
         chain_id: Optional[str] = None,
     ):
-
         name_abi = symbol_abi = decimals_abi = ""
 
         if functions:
@@ -354,7 +353,6 @@ class Web3Provider(NodeDataProvider):
                 erc20.erc20_approval_event.signature,
             )
         ):
-
             name_abi = (
                 '{"name":"name", "constant":true, "payable":false,'
                 ' "type":"function", "inputs":[], "outputs":[{"name":"","type":"string"}]}'
@@ -457,7 +455,6 @@ class Web3Provider(NodeDataProvider):
 
     @cache
     def get_full_transaction(self, tx_hash: str, chain_id: Optional[str] = None):
-
         w3transaction = self.get_transaction(tx_hash, chain_id)
         w3receipt = self.get_receipt(tx_hash, chain_id)
         w3calltree = self.get_calls(tx_hash, chain_id)
@@ -502,7 +499,6 @@ class Web3Provider(NodeDataProvider):
             new_call_tree = []
 
             for pair in tmp_call_tree:
-
                 parent_call: W3CallTree = pair["parent"]
                 child_calls: List = pair["children"]
 

@@ -24,7 +24,10 @@ erc1155_transferSingle_event = EventSemantics(
     name="TransferSingle",
     parameters=[
         ParameterSemantics(
-            parameter_name="operator", parameter_type="address", components=[], indexed=True
+            parameter_name="operator",
+            parameter_type="address",
+            components=[],
+            indexed=True,
         ),
         ParameterSemantics(
             parameter_name="from", parameter_type="address", components=[], indexed=True
@@ -59,7 +62,10 @@ erc1155_transferBatch_event = EventSemantics(
     name="TransferBatch",
     parameters=[
         ParameterSemantics(
-            parameter_name="operator", parameter_type="address", components=[], indexed=True
+            parameter_name="operator",
+            parameter_type="address",
+            components=[],
+            indexed=True,
         ),
         ParameterSemantics(
             parameter_name="from", parameter_type="address", components=[], indexed=True
@@ -124,14 +130,14 @@ erc1155_URI_event = EventSemantics(
             parameter_type="string",
             components=[],
             indexed=False,
-            dynamic=False
+            dynamic=False,
         ),
         ParameterSemantics(
             parameter_name="id",
             parameter_type="uint256",
             components=[],
             indexed=True,
-        )
+        ),
     ],
 )
 

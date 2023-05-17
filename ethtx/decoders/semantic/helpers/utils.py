@@ -110,7 +110,6 @@ def decode_call(transaction, repository, contract_address, data):
     )
 
     if repository.check_is_contract(transaction.chain_id, contract_address):
-
         # read function ABI and semantics and use them for decoding
         function_abi = repository.get_function_abi(
             transaction.chain_id, contract_address, function_signature

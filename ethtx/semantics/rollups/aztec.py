@@ -43,14 +43,12 @@ def decode_rollup_data(data):
     proofDataPointer = rollupPubInputLength
     operations = []
     for _ in range(numTxs):
-
         proofId = int(get_32word_at(data, proofDataPointer), 16)
         publicInput = get_32word_at(data, proofDataPointer + int("0x20", 16))
         publicOutput = get_32word_at(data, proofDataPointer + int("0x40", 16))
         nullifier1 = get_32word_at(data, proofDataPointer + int("0x100", 16))
 
         if proofId == 0:
-
             assetId = int(get_32word_at(data, proofDataPointer + int("0x60", 16)), 16)
             inputOwner = (
                 "0x" + get_32word_at(data, proofDataPointer + int("0x140", 16))[-40:]
@@ -81,7 +79,6 @@ def decode_rollup_data(data):
                     operations.append(operation)
 
         elif proofId == 1:
-
             address = "0x" + publicInput + publicOutput
             operation = dict(
                 type="Accounts", address=address[:60] + "..." + address[-6:], amount=""

@@ -48,9 +48,7 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                 _transfers_calls(call)
 
         for event in events:
-
             if event.event_name == "Transfer":
-
                 from_address = event.parameters[0].value
                 from_name = self._repository.get_address_label(
                     event.chain_id, from_address, proxies
@@ -65,7 +63,6 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                 )
 
                 if standard == "ERC20" or event.contract.address in proxies:
-
                     (
                         _,
                         token_symbol,
@@ -157,12 +154,11 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                     event.chain_id, event.contract.address
                 )
                 if standard == "ERC1155":
-                    for (id, val)  in zip(event.parameters[3].value, event.parameters[4].value):
+                    for id, val in zip(
+                        event.parameters[3].value, event.parameters[4].value
+                    ):
                         if len(str(id)) > 8:
-                            token_symbol = (
-                                f"NFT {str(id)[:6]}..."
-                                f"{str(id)[-2:]}"
-                            )
+                            token_symbol = f"NFT {str(id)[:6]}..." f"{str(id)[-2:]}"
                         else:
                             token_symbol = f"NFT {id}"
                         token_address = f"{event.contract.address}?a={id}#inventory"
@@ -171,7 +167,9 @@ class ABITransfersDecoder(ABISubmoduleAbc):
                                 from_address=AddressInfo(
                                     address=from_address, name=from_name
                                 ),
-                                to_address=AddressInfo(address=to_address, name=to_name),
+                                to_address=AddressInfo(
+                                    address=to_address, name=to_name
+                                ),
                                 token_standard=standard,
                                 token_address=token_address,
                                 token_symbol=token_symbol,
