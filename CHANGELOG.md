@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 ## 0.3.22 - 2023-05-17
 
 ### Changed
-- Bumped `web3` to 6.4.0 and adapted code to breaking changes [#191](https://github.com/EthTx/ethtx/pull/191)
+- Bumped `web3` to ~6 and adapted code to breaking changes [#191](https://github.com/EthTx/ethtx/pull/191)
 - Simplified stringification process of `Decimal` objects [#192](https://github.com/EthTx/ethtx/pull/192)
 
 
