@@ -1,14 +1,18 @@
-#  Copyright 2021 DAI Foundation
+# Copyright 2021 DAI FOUNDATION (the original version https://github.com/daifoundation/ethtx_ce)
+# Copyright 2021-2022 Token Flow Insights SA (modifications to the original software as recorded
+# in the changelog https://github.com/EthTx/ethtx/blob/master/CHANGELOG.md)
 #
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
 #
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
+# on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and limitations under the License.
+#
+# The product contains trademarks and other branding elements of Token Flow Insights SA which are
+# not licensed under the Apache 2.0 license. When using or reproducing the code, please remove
+# the trademark and/or other branding elements.
 
 from typing import Optional, List, Dict, Tuple
 
@@ -32,7 +36,6 @@ from ethtx.semantics.solidity.precompiles import precompiles
 from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS, ERC20_EVENTS
 from ethtx.semantics.standards.erc721 import ERC721_FUNCTIONS, ERC721_EVENTS
 from ethtx.semantics.standards.erc1155 import ERC1155_FUNCTIONS, ERC1155_EVENTS
-from ethtx.utils.cache_tools import cache
 
 
 class SemanticsRepository:
@@ -183,7 +186,6 @@ class SemanticsRepository:
 
         return address_semantics
 
-    @cache
     def get_semantics(self, chain_id: str, address: str) -> Optional[AddressSemantics]:
         if not address:
             return None
@@ -237,7 +239,6 @@ class SemanticsRepository:
 
         return standard, standard_semantics
 
-    @cache
     def get_event_abi(self, chain_id, address, signature) -> Optional[EventSemantics]:
         if not address:
             return None
@@ -247,7 +248,6 @@ class SemanticsRepository:
 
         return event_semantics
 
-    @cache
     def get_transformations(
         self, chain_id, address, signature
     ) -> Optional[Dict[str, TransformationSemantics]]:
@@ -259,7 +259,6 @@ class SemanticsRepository:
 
         return transformations
 
-    @cache
     def get_anonymous_event_abi(self, chain_id, address) -> Optional[EventSemantics]:
         if not address:
             return None
@@ -278,7 +277,6 @@ class SemanticsRepository:
 
         return event_semantics
 
-    @cache
     def get_function_abi(
         self, chain_id, address, signature
     ) -> Optional[FunctionSemantics]:
@@ -290,7 +288,6 @@ class SemanticsRepository:
 
         return function_semantics
 
-    @cache
     def get_constructor_abi(self, chain_id, address) -> Optional[FunctionSemantics]:
         if not address:
             return None
@@ -330,7 +327,6 @@ class SemanticsRepository:
 
         return contract_label
 
-    @cache
     def check_is_contract(self, chain_id, address) -> bool:
         if not address:
             return False
@@ -340,7 +336,6 @@ class SemanticsRepository:
 
         return is_contract
 
-    @cache
     def get_standard(self, chain_id, address) -> Optional[str]:
         if not address:
             return None
@@ -423,7 +418,6 @@ class SemanticsRepository:
 
             self.update_or_insert_signature(new_signature)
 
-    @cache
     def get_most_used_signature(self, signature_hash: str) -> Optional[Signature]:
         signatures = list(
             self.database.get_signature_semantics(signature_hash=signature_hash)
@@ -457,14 +451,18 @@ class SemanticsRepository:
                 if signature.args and any(
                     arg for arg in list(sig["args"][0].values()) if "arg" in arg
                 ):
+                    sig["guessed"] = signature.guessed
                     for index, argument in enumerate(sig["args"]):
                         argument["name"] = signature.args[index].name
                         argument["type"] = signature.args[index].type
 
                 sig["count"] += 1
-                sig["guessed"] = False
                 self.database.insert_signature(signature=sig, update_if_exist=True)
                 break
 
         else:
             self.database.insert_signature(signature=signature.dict())
+
+    def delete_semantics(self, chain_id: str, addresses: List[str]):
+        for address in addresses:
+            self.database.delete_semantics_by_address(chain_id, address)

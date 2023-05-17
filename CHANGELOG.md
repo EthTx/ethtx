@@ -1,6 +1,122 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+
+## 0.3.21 - 2022-12-01
+
+### Fixed
+- Deleted invalid cache wrapper on get_erc20_token in web3provider [#187](https://github.com/EthTx/ethtx/pull/187)
+
+
+## 0.3.20 - 2022-11-25
+
+### Changed
+- Bumped `web3` to 5.28.0 and removed no longer necessary `eth` dependecies [#178](https://github.com/EthTx/ethtx/pull/178)
+- Set field `DecodedEvent.value` and `DecodedTransfer.value` as Decimal [#179](https://github.com/EthTx/ethtx/pull/179)
+- Removed `requests-cache` dependencies and replaced with standard `requests` [#180](https://github.com/EthTx/ethtx/pull/180)
+
+### Fixed
+- Fixed missing `decoded_value` in `parameters` of decoded events [#171](https://github.com/EthTx/ethtx/pull/171)
+- Fixed `Web3ENSProviderENSProvider` resolution [#178](https://github.com/EthTx/ethtx/pull/178)
+- Fixed **major issue regarding loss of decimal precision** for `value` field in decoded models `Argument`,
+  `DecodedCall` and `DecodedTransfer` [#179](https://github.com/EthTx/ethtx/pull/179)
+
+
+## 0.3.19 - 2022-10-06
+
+### Fixed
+- Fix output decoding for reverted calls[#172](https://github.com/EthTx/ethtx/pull/172)
+- Fix missing decoded_value in parameters decoding for events [#173](https://github.com/EthTx/ethtx/pull/173)
+
+
+## 0.3.18 - 2022-10-06
+
+### Fixed
+- Fixed amount calculation for NFT transfers [#169](https://github.com/EthTx/ethtx/pull/169)
+- Fix decode_static_argument doubling 0x prefix in bytes type [#168](https://github.com/EthTx/ethtx/pull/168)
+
+
+## 0.3.17 - 2022-07-18
+
+### Changed
+- Refactored/split `utils` code [#156](https://github.com/EthTx/ethtx/pull/156)
+- Refactored `SignatureProvider` [#156](https://github.com/EthTx/ethtx/pull/156)
+- Removed `@cache` from signature Cursor object [#156](https://github.com/EthTx/ethtx/pull/156)
+- Updated logging [#156](https://github.com/EthTx/ethtx/pull/156)
+
+### Fixed
+- Updated `requests-cache` version. Pipenv could not handle the bad dependencies in this
+  package [#157](https://github.com/EthTx/ethtx/pull/157)
+- Fixed guessing function (problem with writing to and reading from the
+  base) [#156](https://github.com/EthTx/ethtx/pull/156)
+
+
+## 0.3.16 - 2022-05-26
+
+### Changed
+- Removed support for optional parameters in mongo, due to different tiers of
+  atlas [#152](https://github.com/EthTx/ethtx/pull/152)
+- Removed the formatting of `transfer.value`, so the value remains
+  unchanged [#152](https://github.com/EthTx/ethtx/pull/152)
+- Renamed a variable in `README.md` [#152](https://github.com/EthTx/ethtx/pull/152)
+- `black` formatting [#152](https://github.com/EthTx/ethtx/pull/152)
+
+
+## 0.3.15 - 2022-05-26
+
+### Fixed
+- Break dynamic array decoding if there are no more available parameter
+- Fixed `DecodedTransfer.value` type (str -> float) [#144](https://github.com/EthTx/ethtx/pull/144)
+- Fixed `README` mongo string [#140](https://github.com/EthTx/ethtx/pull/140)
+
+### Changed
+- Make more flexible deps - `ethtx` is easier to install in other apps [#140](https://github.com/EthTx/ethtx/pull/140)
+- No timeout for mongo cursor - some collections may sometimes require more time to
+  search [#140](https://github.com/EthTx/ethtx/pull/140)
+
+### Added
+- Cache `4bytes` response, if some transactions have a lot of guessed functions/events, it definitely speeds
+  up `ethtx`! [#140](https://github.com/EthTx/ethtx/pull/140)
+- Added an option to recreate semantics used for transaction decoding [#148](https://github.com/EthTx/ethtx/pull/148)
+
+
+## 0.3.14 - 2022-04-06
+
+### Fixed
+- Caught exception for ens where there is no code associated with the specified
+  address [#137](https://github.com/EthTx/ethtx/pull/137)
+- Fixed wrong transaction metadata types [#136](https://github.com/EthTx/ethtx/pull/136)
+
+### Changed
+- Skip compiled structure from `4bytes` [#138](https://github.com/EthTx/ethtx/pull/138)
+- Updated black `pre-commit` version [#136](https://github.com/EthTx/ethtx/pull/136)
+- Updated tests [#136](https://github.com/EthTx/ethtx/pull/136)
+
+### Added
+- Added optional fields `from_address` and `to_address` to DecodedTransactionMetadata
+  model [#136](https://github.com/EthTx/ethtx/pull/136)
+
+
+## 0.3.13 - 2022-03-30
+
+### Fixed
+- Gracefully handle errors for evaluating value of transfers [#133](https://github.com/EthTx/ethtx/pull/133)
+
+
+## 0.3.12 - 2022-03-29
+
+### Changed
+- Add placeholder names for not decoded parameters [#131](https://github.com/EthTx/ethtx/pull/131)
+
+
+## 0.3.11 - 2022-03-29
+
+### Fixes
+- Fix decoding of strings with special characters [#127](https://github.com/EthTx/ethtx/pull/127)
+- Fix incorrect usage of Web3.toChecksumAddress [#128](https://github.com/EthTx/ethtx/pull/128)
+- Fix decoding of Transfers that use invalid ERC20/ERC721 events [#129](https://github.com/EthTx/ethtx/pull/129)
+
+
 ## 0.3.10 - 2022-03-03
 
 ### Added

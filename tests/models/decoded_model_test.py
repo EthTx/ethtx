@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from ethtx.models.decoded_model import (
     AddressInfo,
     DecodedTransactionMetadata,
@@ -126,7 +128,7 @@ class TestDecodedModels:
             from_address=DecodedModelMock.ADDRESS_INFO,
             to_address=DecodedModelMock.ADDRESS_INFO,
             token_symbol="ts",
-            value=0.15,
+            value=Decimal(0.15),
         )
 
         assert dt.from_address == DecodedModelMock.ADDRESS_INFO
@@ -180,7 +182,7 @@ class TestDecodedModels:
 
         t = DecodedTransaction(
             block_metadata=ObjectModelMock.BLOCK_METADATA,
-            metadata=ObjectModelMock.TRANSACTION_METADATA,
+            metadata=DecodedModelMock.DECODED_TRANSACTION_METADATA,
             events=[de],
             calls=dc,
             transfers=[dt],
@@ -188,7 +190,7 @@ class TestDecodedModels:
         )
 
         assert t.block_metadata == ObjectModelMock.BLOCK_METADATA
-        assert t.metadata == ObjectModelMock.TRANSACTION_METADATA
+        assert t.metadata == DecodedModelMock.DECODED_TRANSACTION_METADATA
         assert t.events == [de]
         assert t.calls == dc
         assert t.transfers == [dt]

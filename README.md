@@ -38,7 +38,7 @@ The package needs a few external resources, defined in `EthTxConfig` object:
    the `debug` option ON
 2. **Etherscan API key** - required to get the source code and ABI for smart contracts used in transaction
 3. (Optional) **MongoDB database** - required to store smart contracts' ABI and semantics used in the decoding process.
-   If you don't want to setup permanent database, you can enter `mongomock://localhost`, then in-memory mongo will be
+   If you don't want to setup permanent database, you can enter `mongomock://localhost/ethtx`, then in-memory mongo will be
    set up that discards all data with every run.
 
 ## Getting started
@@ -61,7 +61,7 @@ ethtx_config = EthTxConfig(
 )
 
 ethtx = EthTx.initialize(ethtx_config)
-transaction: DecodedTransaction = ethtx.decoders.decode_transaction(
+decoded_transaction: DecodedTransaction = ethtx.decoders.decode_transaction(
     '0x50051e0a6f216ab9484c2080001c7e12d5138250acee1f4b7c725b8fb6bb922d')
 ```
 

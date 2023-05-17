@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 
-from ethtx.models.decoded_model import AddressInfo, Argument
+from ethtx.models.decoded_model import AddressInfo, Argument, DecodedTransactionMetadata
 from ethtx.models.objects_model import BlockMetadata, TransactionMetadata, Call, Event
 from ethtx.models.semantics_model import ParameterSemantics, ContractSemantics
 
@@ -22,6 +22,20 @@ def patch_datetime_now(monkeypatch):
 class DecodedModelMock:
     ADDRESS_INFO: AddressInfo = AddressInfo(address="address", name="name")
     ARGUMENT: Argument = Argument(name="name", type="type", value=1)
+    DECODED_TRANSACTION_METADATA: DecodedTransactionMetadata = (
+        DecodedTransactionMetadata(
+            tx_hash="0x",
+            block_number=1,
+            gas_price=2,
+            from_address="0xa",
+            to_address="0xb",
+            tx_index=3,
+            tx_value=4,
+            gas_limit=5,
+            gas_used=1,
+            success=False,
+        )
+    )
 
 
 class ObjectModelMock:

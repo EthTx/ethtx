@@ -1,22 +1,29 @@
-#  Copyright 2021 DAI Foundation
+# Copyright 2021 DAI FOUNDATION (the original version https://github.com/daifoundation/ethtx_ce)
+# Copyright 2021-2022 Token Flow Insights SA (modifications to the original software as recorded
+# in the changelog https://github.com/EthTx/ethtx/blob/master/CHANGELOG.md)
 #
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
 #
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
+# on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and limitations under the License.
+#
+# The product contains trademarks and other branding elements of Token Flow Insights SA which are
+# not licensed under the Apache 2.0 license. When using or reproducing the code, please remove
+# the trademark and/or other branding elements.
 
 import logging
 from functools import partial
+from decimal import Decimal, getcontext
 
 from ethtx.decoders.decoders.parameters import decode_function_parameters
 from ethtx.models.decoded_model import AddressInfo
 from ethtx.models.semantics_model import FunctionSemantics
 from ethtx.semantics.utilities.functions import add_utils_to_context
+
+DECIMAL_PRECISION = 256
 
 log = logging.getLogger(__name__)
 
@@ -88,6 +95,10 @@ def semantically_decode_parameter(
 def evaluate_transformation(value, transformation, context):
     try:
         new_value = eval(transformation, context)
+
+        if isinstance(new_value, Decimal):
+            # Check for proper representation of Decimals representing large floats and integers as str
+            new_value = _handle_decimal_representations(new_value)
     except Exception as e:
         log.warning("Transformation: %s failed.", transformation, exc_info=e)
         new_value = value
@@ -190,3 +201,14 @@ def create_transformation_context(
     context["__print_input__"] = decode_call
 
     return context
+
+
+def _handle_decimal_representations(val: Decimal) -> str:
+    """Handles argument format for Decimal objects. Converts into a string representation taking into accound border
+    cases of big integer and small floats.
+    """
+    getcontext().prec = DECIMAL_PRECISION
+    if val == val.to_integral():
+        return str(val.to_integral())
+
+    return format(val, "f").rstrip("0").rstrip(".")
