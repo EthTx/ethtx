@@ -33,7 +33,7 @@ from ethtx.providers.semantic_providers.database import ISemanticsDatabase
 from ethtx.providers.web3_provider import NodeDataProvider
 from ethtx.semantics.protocols_router import amend_contract_semantics
 from ethtx.semantics.solidity.precompiles import precompiles
-from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS, ERC20_EVENTS
+from ethtx.semantics.standards.erc20 import ERC20_FUNCTIONS, ERC20_EVENTS, ERC20_MODIFIED_EVENTS
 from ethtx.semantics.standards.erc721 import ERC721_FUNCTIONS, ERC721_EVENTS
 
 
@@ -211,7 +211,7 @@ class SemanticsRepository:
         if not address:
             return standard, standard_semantics
 
-        if all(erc20_event in events for erc20_event in ERC20_EVENTS) and all(
+        if (all(erc20_event in events for erc20_event in ERC20_EVENTS) or all(erc20_event in events for erc20_event in ERC20_MODIFIED_EVENTS)) and all(
             erc20_function in functions for erc20_function in ERC20_FUNCTIONS
         ):
             standard = "ERC20"
