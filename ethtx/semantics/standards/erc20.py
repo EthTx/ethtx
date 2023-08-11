@@ -38,6 +38,26 @@ erc20_transfer_event = EventSemantics(
     ],
 )
 
+erc20_modified_transfer_event = EventSemantics(
+    signature="0xe19260aff97b920c7df27010903aeb9c8d2be5d310a2c67824cf3f15396e4c16",
+    anonymous=False,
+    name="Transfer",
+    parameters=[
+        ParameterSemantics(
+            parameter_name="src", parameter_type="address", indexed=True
+        ),
+        ParameterSemantics(
+            parameter_name="dst", parameter_type="address", indexed=True
+        ),
+        ParameterSemantics(
+            parameter_name="value", parameter_type="uint256", indexed=False
+        ),
+        ParameterSemantics(
+            parameter_name="data", parameter_type="bytes", indexed=False,dynamic=True
+        ),
+    ],
+)
+
 erc20_transfer_event_transformation = {
     "__input2__": TransformationSemantics(
         transformation="__input2__ / 10**token_decimals(__contract__)"
@@ -144,6 +164,11 @@ erc20_totalSupply_function_transformation = {
 
 ERC20_EVENTS = {
     erc20_transfer_event.signature: erc20_transfer_event,
+    erc20_approval_event.signature: erc20_approval_event,
+}
+
+ERC20_MODIFIED_EVENTS = {
+    erc20_modified_transfer_event.signature: erc20_modified_transfer_event,
     erc20_approval_event.signature: erc20_approval_event,
 }
 
